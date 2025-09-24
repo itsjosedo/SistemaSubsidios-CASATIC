@@ -1,0 +1,49 @@
+# Carpetas de compilación
+bin/
+obj/
+
+# Archivos de usuario y configuración de Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Configuración de VS Code
+.vscode/
+
+# Archivos de configuración sensibles
+appsettings.json
+appsettings.Development.json
+secrets.json
+
+# Paquetes NuGet
+*.nupkg
+packages/
+.nuget/
+
+# Logs y temporales
+*.log
+*.tlog
+*.cache
+*.pidb
+*.pdb
+*.mdb
+*.opendb
+
+# Archivos de publish
+*.Publish.xml
+*.publishsettings
+publish/
+
+# Archivos generados por Razor
+*.g.cs
+*.g.i.cs
+Generated\
+
+# Dotnet user secrets
+secrets.json
+
+# Otros
+*.db
+*.sqlite
