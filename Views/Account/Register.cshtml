@@ -1,0 +1,142 @@
+@{
+    ViewData["Title"] = "Registro";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+}
+
+<div class="login-body">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-card-header">
+                <h2>Crear cuenta</h2>
+                <p>Únete a SistemasSubsidios</p>
+            </div>
+            <div class="login-card-body">
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    <div class="mb-4">
+                        <label for="nombre" class="form-label login-form-label">Nombre completo</label>
+                        <div class="input-group">
+                            <span class="input-group-text login-input-group-text">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" id="nombre" name="nombre" class="form-control login-form-control" 
+                                   placeholder="Ingrese su nombre completo" value="@ViewBag.Nombre" required />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="correo" class="form-label login-form-label">Correo electrónico</label>
+                        <div class="input-group">
+                            <span class="input-group-text login-input-group-text">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" id="correo" name="correo" class="form-control login-form-control" 
+                                   placeholder="Ingrese su correo" value="@ViewBag.Correo" required />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="contrasena" class="form-label login-form-label">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text login-input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" id="contrasena" name="contrasena" class="form-control login-form-control" 
+                                   placeholder="Ingrese su contraseña" required />
+                            <span class="login-password-toggle" onclick="togglePassword('contrasena')">
+                                <i class="fas fa-eye" id="toggleIconContrasena"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="confirmarContrasena" class="form-label login-form-label">Confirmar contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text login-input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" id="confirmarContrasena" name="confirmarContrasena" class="form-control login-form-control" 
+                                   placeholder="Confirme su contraseña" required />
+                            <span class="login-password-toggle" onclick="togglePassword('confirmarContrasena')">
+                                <i class="fas fa-eye" id="toggleIconConfirmar"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-login text-white">
+                            <i class="fas fa-user-plus me-2"></i>Registrarse
+                        </button>
+                    </div>
+                </form>
+
+                @if (ViewBag.ErrorMessage != null)
+                {
+                    <div class="alert alert-danger login-alert mt-3" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>@ViewBag.ErrorMessage
+                    </div>
+                }
+
+                <div class="login-divider">
+                    <span class="login-divider-text">O</span>
+                </div>
+                
+                <div class="text-center">
+                    <p class="mb-0">¿Ya tienes cuenta? 
+                        <a asp-controller="Account" asp-action="Login" class="login-register-link">Inicia sesión</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePassword(fieldId) {
+            const passwordInput = document.getElementById(fieldId);
+            const toggleIcon = document.getElementById('toggleIcon' + fieldId.charAt(0).toUpperCase() + fieldId.slice(1));
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Validación en tiempo real de coincidencia de contraseñas
+        document.addEventListener('DOMContentLoaded', function() {
+            const contrasenaInput = document.getElementById('contrasena');
+            const confirmarInput = document.getElementById('confirmarContrasena');
+            const errorAlert = document.querySelector('.alert-danger');
+            
+            function validarCoincidencia() {
+                if (contrasenaInput.value !== confirmarInput.value && confirmarInput.value !== '') {
+                    confirmarInput.style.borderColor = 'var(--error-color)';
+                } else {
+                    confirmarInput.style.borderColor = '#e1e5ee';
+                }
+            }
+            
+            contrasenaInput.addEventListener('input', validarCoincidencia);
+            confirmarInput.addEventListener('input', validarCoincidencia);
+            
+            // Limpiar mensaje de error al empezar a escribir
+            if (errorAlert) {
+                const inputs = document.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        errorAlert.style.display = 'none';
+                    });
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,103 @@
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true" />
+}
+
+<div class="login-body">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-card-header">
+                <h2>Iniciar sesión</h2>
+                <p>Accede a tu cuenta de SistemasSubsidios</p>
+            </div>
+            <div class="login-card-body">
+                <form asp-controller="Account" asp-action="Login" method="post">
+                    <div class="mb-4">
+                        <label for="correo" class="form-label login-form-label">Correo electrónico</label>
+                        <div class="input-group">
+                            <span class="input-group-text login-input-group-text">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" id="correo" name="correo" class="form-control login-form-control" 
+                                   placeholder="Ingrese su correo" value="@ViewBag.Correo" required />
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="contrasena" class="form-label login-form-label">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text login-input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" id="contrasena" name="contrasena" class="form-control login-form-control" 
+                                   placeholder="Ingrese su contraseña" required />
+                            <span class="login-password-toggle" onclick="togglePassword()">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-login text-white">
+                            <i class="fas fa-sign-in-alt me-2"></i>Iniciar sesión
+                        </button>
+                    </div>
+                </form>
+
+                @if (ViewBag.ErrorMessage != null)
+                {
+                    <div class="alert alert-danger login-alert mt-3" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>@ViewBag.ErrorMessage
+                    </div>
+                }
+
+                <div class="login-divider">
+                    <span class="login-divider-text">O</span>
+                </div>
+                
+                <div class="text-center">
+                    <p class="mb-0">¿No tienes cuenta? 
+                        <a asp-controller="Account" asp-action="Register" class="login-register-link">Regístrate aquí</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('contrasena');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Limpiar mensaje de error al empezar a escribir
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            const errorAlert = document.querySelector('.alert-danger');
+            
+            if (errorAlert) {
+                inputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        errorAlert.style.display = 'none';
+                    });
+                });
+            }
+        });
+    </script>
+}
