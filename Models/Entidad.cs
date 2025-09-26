@@ -8,6 +8,5 @@ public class Entidad
     public string? Contacto { get; set; }
     public int UsuarioId { get; set; }
     public Usuario? Usuario { get; set; }
-
     public ICollection<Beneficiario>? Beneficiarios { get; set; }
 }

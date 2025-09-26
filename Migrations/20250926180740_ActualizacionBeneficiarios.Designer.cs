@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SistemaSubsidios.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250926180740_ActualizacionBeneficiarios")]
+    partial class ActualizacionBeneficiarios
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,32 +33,23 @@ namespace SistemaSubsidios.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id_Beneficiario"));
 
                     b.Property<string>("Direccion")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Dui")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)");
+                        .HasColumnType("longtext");
 
-                    b.Property<int?>("EntidadId")
+                    b.Property<int>("EntidadId")
                         .HasColumnType("int");
 
                     b.Property<string>("EstadoSubsidio")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Telefono")
-                        .IsRequired()
-                        .HasMaxLength(9)
-                        .HasColumnType("varchar(9)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id_Beneficiario");
 
@@ -180,7 +174,9 @@ namespace SistemaSubsidios.Migrations
                 {
                     b.HasOne("Entidad", "Entidad")
                         .WithMany("Beneficiarios")
-                        .HasForeignKey("EntidadId");
+                        .HasForeignKey("EntidadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Entidad");
                 });
@@ -210,12 +206,17 @@ namespace SistemaSubsidios.Migrations
             modelBuilder.Entity("Subsidio", b =>
                 {
                     b.HasOne("Beneficiario", "Beneficiario")
-                        .WithMany()
+                        .WithMany("Subsidios")
                         .HasForeignKey("BeneficiarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Beneficiario");
+                });
+
+            modelBuilder.Entity("Beneficiario", b =>
+                {
+                    b.Navigation("Subsidios");
                 });
 
             modelBuilder.Entity("Entidad", b =>

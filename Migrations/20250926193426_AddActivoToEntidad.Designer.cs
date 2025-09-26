@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SistemaSubsidios.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250926193426_AddActivoToEntidad")]
+    partial class AddActivoToEntidad
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,13 +42,19 @@ namespace SistemaSubsidios.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("varchar(10)");
 
-                    b.Property<int?>("EntidadId")
+                    b.Property<int>("EntidadId")
                         .HasColumnType("int");
 
                     b.Property<string>("EstadoSubsidio")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -56,6 +65,14 @@ namespace SistemaSubsidios.Migrations
                         .IsRequired()
                         .HasMaxLength(9)
                         .HasColumnType("varchar(9)");
+
+                    b.Property<string>("UsuarioCreacion")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("UsuarioModificacion")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.HasKey("Id_Beneficiario");
 
@@ -72,10 +89,14 @@ namespace SistemaSubsidios.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Activo")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Contacto")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Nombre")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("UsuarioId")
@@ -180,7 +201,9 @@ namespace SistemaSubsidios.Migrations
                 {
                     b.HasOne("Entidad", "Entidad")
                         .WithMany("Beneficiarios")
-                        .HasForeignKey("EntidadId");
+                        .HasForeignKey("EntidadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Entidad");
                 });
@@ -210,12 +233,17 @@ namespace SistemaSubsidios.Migrations
             modelBuilder.Entity("Subsidio", b =>
                 {
                     b.HasOne("Beneficiario", "Beneficiario")
-                        .WithMany()
+                        .WithMany("Subsidios")
                         .HasForeignKey("BeneficiarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Beneficiario");
+                });
+
+            modelBuilder.Entity("Beneficiario", b =>
+                {
+                    b.Navigation("Subsidios");
                 });
 
             modelBuilder.Entity("Entidad", b =>

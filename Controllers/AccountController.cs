@@ -5,7 +5,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
   // Asegúrate que sea tu namespace correcto
 
-namespace ProyectoSubsidios.Controllers
+namespace SistemaSubsidios.Controllers
 {
     public class AccountController : Controller
     {

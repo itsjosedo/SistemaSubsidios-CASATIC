@@ -1,13 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-public class Beneficiario
+public class BeneficiarioViewModel
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Display(Name = "ID Beneficiario")]
-    public int Id_Beneficiario { get; set; }
-
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [StringLength(100, MinimumLength = 2, ErrorMessage = "El nombre debe tener entre 2 y 100 caracteres")]
     [Display(Name = "Nombre Completo")]
@@ -26,21 +20,15 @@ public class Beneficiario
 
     [Required(ErrorMessage = "El teléfono es obligatorio")]
     [StringLength(9, MinimumLength = 8, ErrorMessage = "El teléfono debe tener 8 o 9 dígitos")]
-    [RegularExpression(@"^[267]\d{7,8}$", ErrorMessage = "Formato de teléfono inválido. Debe comenzar con 2, 6 o 7")]
+    [RegularExpression(@"^[267]\d{7,8}$", ErrorMessage = "Formato de teléfono inválido")]
     [Display(Name = "Teléfono")]
     public string Telefono { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(20)]
-    [Display(Name = "Estado del Subsidio")]
-    public string EstadoSubsidio { get; set; } = "pendiente";
+    // HACER OPCIONAL TEMPORALMENTE
+    [Display(Name = "Entidad (Opcional)")]
+    public int? EntidadId { get; set; }  // ← Cambiado a nullable
 
-    // CAMBIO: Hacer opcional removiendo [Required] y usando int?
-    [Display(Name = "Entidad")]
-    public int? EntidadId { get; set; }  // ← QUITAR [Required] y usar int?
-
-    [ForeignKey("EntidadId")]
-    public virtual Entidad? Entidad { get; set; }
-
-    // ... el resto del código igual ...
+    [Display(Name = "Acepto los términos y condiciones")]
+    [Range(typeof(bool), "true", "true", ErrorMessage = "Debe aceptar los términos y condiciones")]
+    public bool AceptaTerminos { get; set; }
 }
