@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SistemaSubsidios.Models;
 using Microsoft.AspNetCore.Authorization;
 
-namespace SistemaSubsidios.Controllers
+namespace SistemaSubsidios_CASATIC.Controllers
 {
     [Authorize] // Esto protege todas las acciones dentro del HomeController, si quieres que sea solo Index, ponlo en la acción
     public class HomeController : Controller
