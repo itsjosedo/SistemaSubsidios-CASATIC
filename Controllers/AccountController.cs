@@ -5,7 +5,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
   // Asegúrate que sea tu namespace correcto
 
-namespace SistemaSubsidios.Controllers
+namespace SistemaSubsidios_CASATIC.Controllers
 {
     public class AccountController : Controller
     {
@@ -28,40 +28,53 @@ namespace SistemaSubsidios.Controllers
         // ========================
         // PROCESO DE LOGIN (POST)
         // ========================
-    [HttpPost]
-public async Task<IActionResult> Login(string correo, string contrasena)
-{
-    if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(contrasena))
-    {
-        ViewBag.ErrorMessage = "Por favor, ingrese su correo y contraseña.";
-        ViewBag.Correo = correo; // Mantener el correo ingresado
-        return View();
-    }
+        [HttpPost]
+        public async Task<IActionResult> Login(string correo, string contrasena)
+        {
+            if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(contrasena))
+            {
+                ViewBag.ErrorMessage = "Por favor, ingrese su correo y contraseña.";
+                ViewBag.Correo = correo; // Mantener el correo ingresado
+                return View();
+            }
 
-    var hash = AuthHelper.Hash(contrasena);
-    var usuario = await _db.Usuarios
-        .FirstOrDefaultAsync(u => u.Correo == correo && u.Contrasena == hash);
+            var hash = AuthHelper.Hash(contrasena);
+            var usuario = await _db.Usuarios
+                .FirstOrDefaultAsync(u => u.Correo == correo && u.Contrasena == hash);
 
-    if (usuario == null)
-    {
-        ViewBag.ErrorMessage = "Correo o contraseña incorrectos.";
-        ViewBag.Correo = correo; // Mantener el correo ingresado
-        return View();
-    }
+            if (usuario == null)
+            {
+                ViewBag.ErrorMessage = "Correo o contraseña incorrectos.";
+                ViewBag.Correo = correo; // Mantener el correo ingresado
+                return View();
+            }
 
-    // Resto del código de autenticación...
-    var claims = new List<Claim>
+            // Resto del código de autenticación...
+            var claims = new List<Claim>
     {
         new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
         new Claim(ClaimTypes.Email, usuario.Correo),
         new Claim(ClaimTypes.Role, usuario.Rol ?? "beneficiario")
     };
 
-    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-    var principal = new ClaimsPrincipal(identity);
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
 
-    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-    return RedirectToAction("Index", "Home");
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+    
+        switch (usuario.Rol?.ToLower())
+            {
+                case "admin":
+                    return RedirectToAction("Index", "Home");
+                case "beneficiario":
+                    return RedirectToAction("Create", "Beneficiarios");
+                case "entidad":
+                    return RedirectToAction("Index", "Entidades");
+                default:
+                    return RedirectToAction("Index", "Home"); 
+            }
+
 }
         // ========================
         // LOGOUT

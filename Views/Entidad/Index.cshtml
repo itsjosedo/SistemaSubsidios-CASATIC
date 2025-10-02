@@ -1,0 +1,23 @@
+@model IEnumerable<Entidad>
+
+<h2>Lista de Entidades</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Dirección</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var entidad in Model)
+        {
+            <tr>
+                <td>@entidad.Nombre</td>
+                <td>@entidad.Email</td>
+                <td>@entidad.Direccion</td>
+            </tr>
+        }
+    </tbody>
+</table>
