@@ -15,15 +15,7 @@
                     <h1 class="welcome-title">¡Bienvenido, @User.Identity.Name!</h1>
                     <p class="welcome-message">Has iniciado sesión exitosamente en SistemasSubsidios</p>
                     
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">
-                                <i class="fas fa-hand-holding-usd"></i>
-                            </div>
-                            <h5>Gestión de Subsidios</h5>
-                            <p>Administra y consulta los subsidios disponibles</p>
-                        </div>
-                        
+                    <div class="features-grid">                        
                         <div class="feature-card">
                             <div class="feature-icon">
                                 <i class="fas fa-users"></i>
@@ -37,7 +29,29 @@
                                 </a>
                             </div>
                         </div>
+
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h5>Entidades</h5>
+                            <p>Gestiona la información de las entidades</p>
+                            <!-- AGREGAR ESTE BOTÓN -->
+                            <div class="mt-2">
+                                <a asp-controller="Beneficiarios" asp-action="Create" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus me-1"></i>Registrar Entidad
+                                </a>
+                            </div>
+                        </div>
                         
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-hand-holding-usd"></i>
+                            </div>
+                            <h5>Gestión de Subsidios</h5>
+                            <p>Administra y consulta los subsidios disponibles</p>
+                        </div>
+
                         <div class="feature-card">
                             <div class="feature-icon">
                                 <i class="fas fa-chart-bar"></i>
