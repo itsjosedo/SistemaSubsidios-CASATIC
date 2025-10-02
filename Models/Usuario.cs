@@ -13,4 +13,4 @@ public class Usuario
 
     public Entidad? Entidad { get; set; } // relación opcional
     public ICollection<Notificacion>? Notificaciones { get; set; }
-}
+} 

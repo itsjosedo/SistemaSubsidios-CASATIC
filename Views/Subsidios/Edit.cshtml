@@ -1,0 +1,48 @@
+@model Subsidio
+@{
+    ViewData["Title"] = "Editar Subsidio";
+}
+
+<h2>Editar Subsidio</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="NombrePrograma" class="form-label"></label>
+        <input asp-for="NombrePrograma" class="form-control" />
+        <span asp-validation-for="NombrePrograma" class="text-danger"></span>
+    </div>
+    
+    <div class="mb-3">
+        <label asp-for="BeneficiarioId" class="form-label">Beneficiario</label>
+        <select asp-for="BeneficiarioId" class="form-select" asp-items="ViewBag.Beneficiarios">
+            <option value="">-- Seleccione un beneficiario --</option>
+        </select>
+        <span asp-validation-for="BeneficiarioId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Monto" class="form-label"></label>
+        <input asp-for="Monto" class="form-control" />
+        <span asp-validation-for="Monto" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Estado" class="form-label"></label>
+        <input asp-for="Estado" class="form-control" />
+        <span asp-validation-for="Estado" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Actualizar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

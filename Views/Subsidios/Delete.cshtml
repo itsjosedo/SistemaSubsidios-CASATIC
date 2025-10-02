@@ -1,0 +1,41 @@
+@model Subsidio
+@{
+    ViewData["Title"] = "Eliminar Subsidio";
+}
+
+<h2>Eliminar Subsidio</h2>
+
+<p>¿Está seguro que desea eliminar este subsidio?</p>
+
+<table class="table">
+    <tr>
+        <th>Nombre del Programa</th>
+        <td>@Model.NombrePrograma</td>
+    </tr>
+    <tr>
+        <th>Tipo</th>
+        <td>@Model.Tipo</td>
+    </tr>
+    <tr>
+        <th>Beneficiario</th>
+        <td>@Model.Beneficiario?.Nombre</td>
+    </tr>
+    <tr>
+        <th>Monto</th>
+        <td>@Model.Monto</td>
+    </tr>
+    <tr>
+        <th>Fecha Asignación</th>
+        <td>@Model.FechaAsignacion.ToShortDateString()</td>
+    </tr>
+    <tr>
+        <th>Estado</th>
+        <td>@Model.Estado</td>
+    </tr>
+</table>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
