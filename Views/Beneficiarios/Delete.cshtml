@@ -1,0 +1,87 @@
+@model Beneficiario
+
+@{
+    ViewData["Title"] = "Eliminar Beneficiario";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-danger text-white py-3">
+                <h3 class="card-title mb-0 text-center">
+                    <i class="fas fa-exclamation-triangle me-2"></i>@ViewData["Title"]
+                </h3>
+            </div>
+            <div class="card-body p-4 text-center">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
+                    <h5 class="alert-heading">¿Está seguro que desea eliminar este beneficiario?</h5>
+                    <p class="mb-0">Esta acción no se puede deshacer.</p>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="avatar-initials bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 60px; height: 60px; font-weight: 600; font-size: 1.2rem;">
+                            @GetInitials(Model.Nombre)
+                        </div>
+                        <h5>@Model.Nombre</h5>
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-address-card me-2"></i>@Model.Dui
+                        </p>
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-phone me-2"></i>@Model.Telefono
+                        </p>
+                        <p class="text-muted">
+                            <i class="fas fa-map-marker-alt me-2"></i>@Model.Direccion
+                        </p>
+                        <span class="badge @GetEstadoBadgeClass(Model.EstadoSubsidio)">
+                            @Model.EstadoSubsidio
+                        </span>
+                    </div>
+                </div>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id_Beneficiario" />
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a asp-action="Index" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Eliminar Definitivamente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetInitials(string nombre)
+    {
+        if (string.IsNullOrEmpty(nombre)) return "??";
+        var partes = nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (partes.Length >= 2)
+        {
+            return $"{partes[0][0]}{partes[1][0]}".ToUpper();
+        }
+        return nombre.Length >= 2 ? nombre.Substring(0, 2).ToUpper() : nombre.ToUpper();
+    }
+
+    public string GetEstadoBadgeClass(string estado)
+    {
+        if (string.IsNullOrEmpty(estado)) return "bg-secondary";
+        return estado.ToLower() switch
+        {
+            "activo" => "bg-success",
+            "pendiente" => "bg-warning",
+            "inactivo" => "bg-secondary",
+            "rechazado" => "bg-danger",
+            "aprobado" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+}

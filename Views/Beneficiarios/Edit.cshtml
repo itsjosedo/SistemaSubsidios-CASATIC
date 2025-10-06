@@ -1,0 +1,100 @@
+@model BeneficiarioViewModel 
+
+@{
+    ViewData["Title"] = "Editar Beneficiario";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow border-0">
+            <div class="card-header bg-warning text-white py-3">
+                <h3 class="card-title mb-0 text-center">
+                    <i class="fas fa-edit me-2"></i>@ViewData["Title"]
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post" class="needs-validation" novalidate>
+                    <input type="hidden" asp-for="Id_Beneficiario" />
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-dismissible alert-warning">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Por favor corrige los siguientes errores:</h5>
+                    </div>
+
+                    <!-- Mismo formulario que Create pero con los datos cargados -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-warning border-bottom pb-2">
+                                <i class="fas fa-id-card me-2"></i>Información Personal
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Nombre" class="form-label fw-semibold">Nombre Completo *</label>
+                            <input asp-for="Nombre" class="form-control" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Dui" class="form-label fw-semibold">DUI *</label>
+                            <input asp-for="Dui" class="form-control" />
+                            <span asp-validation-for="Dui" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Telefono" class="form-label fw-semibold">Teléfono *</label>
+                            <input asp-for="Telefono" class="form-control" />
+                            <span asp-validation-for="Telefono" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="EntidadId" class="form-label fw-semibold">Entidad</label>
+                            <select asp-for="EntidadId" asp-items="ViewBag.Entidades" class="form-select">
+                                <option value="">-- Seleccione una entidad --</option>
+                            </select>
+                            <span asp-validation-for="EntidadId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Direccion" class="form-label fw-semibold">Dirección *</label>
+                        <textarea asp-for="Direccion" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Direccion" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="EstadoSubsidio" class="form-label fw-semibold">Estado del Subsidio</label>
+                        <select asp-for="EstadoSubsidio" class="form-select">
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                            <option value="Rechazado">Rechazado</option>
+                            <option value="Aprobado">Aprobado</option>
+                        </select>
+                        <span asp-validation-for="EstadoSubsidio" class="text-danger"></span>
+                    </div>
+
+                    <!-- QUITAR AceptaTerminos ya que no es necesario en edición -->
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save me-2"></i>Actualizar Beneficiario
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

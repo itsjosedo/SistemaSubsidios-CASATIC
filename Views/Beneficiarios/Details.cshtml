@@ -1,0 +1,181 @@
+@model Beneficiario
+
+@{
+    ViewData["Title"] = "Detalles del Beneficiario";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-user me-2 text-primary"></i>@ViewData["Title"]
+            </h1>
+            <p class="mb-0 text-muted">Información detallada del beneficiario</p>
+        </div>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id_Beneficiario" class="btn btn-warning btn-icon-split shadow-sm me-2">
+                <span class="icon text-white-50">
+                    <i class="fas fa-edit"></i>
+                </span>
+                <span class="text">Editar</span>
+            </a>
+            <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+                <span class="icon text-white-50">
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+                <span class="text">Volver</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-2"></i>Información Personal
+                    </h6>
+                    <span class="badge @GetEstadoBadgeClass(Model.EstadoSubsidio)">
+                        <i class="@GetEstadoIcon(Model.EstadoSubsidio) me-1"></i>
+                        @Model.EstadoSubsidio
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-4">
+                            <div class="avatar-lg mx-auto">
+                                <div class="avatar-initials bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                                     style="width: 80px; height: 80px; font-weight: 600; font-size: 1.5rem;">
+                                    @GetInitials(Model.Nombre)
+                                </div>
+                            </div>
+                            <h5 class="mt-3 mb-0">@Model.Nombre</h5>
+                            <small class="text-muted">ID: #@Model.Id_Beneficiario</small>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-sm-6 mb-3">
+                                    <label class="form-label fw-bold text-muted">Documento (DUI)</label>
+                                    <div class="form-control bg-light">
+                                        <i class="fas fa-address-card me-2 text-primary"></i>@Model.Dui
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label class="form-label fw-bold text-muted">Teléfono</label>
+                                    <div class="form-control bg-light">
+                                        <i class="fas fa-phone me-2 text-primary"></i>@Model.Telefono
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label fw-bold text-muted">Dirección</label>
+                                    <div class="form-control bg-light" style="min-height: 60px;">
+                                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>@Model.Direccion
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label class="form-label fw-bold text-muted">Entidad Asignada</label>
+                                    <div class="form-control bg-light">
+                                        @if (Model.Entidad != null)
+                                        {
+                                            <i class="fas fa-building me-2 text-primary"></i>@Model.Entidad.Nombre
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                <i class="fas fa-times me-2"></i>No asignada
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label class="form-label fw-bold text-muted">Fecha de Registro</label>
+                                    <div class="form-control bg-light">
+                                        <i class="fas fa-calendar me-2 text-primary"></i>@DateTime.Now.ToString("dd/MM/yyyy")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-cog me-2"></i>Acciones
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id_Beneficiario" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Editar Beneficiario
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id_Beneficiario" class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-2"></i>Eliminar Beneficiario
+                        </a>
+                        <a href="#" class="btn btn-outline-info">
+                            <i class="fas fa-file-pdf me-2"></i>Generar Reporte
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-history me-2"></i>Información Adicional
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Última actualización: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetInitials(string nombre)
+    {
+        if (string.IsNullOrEmpty(nombre)) return "??";
+        var partes = nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (partes.Length >= 2)
+        {
+            return $"{partes[0][0]}{partes[1][0]}".ToUpper();
+        }
+        return nombre.Length >= 2 ? nombre.Substring(0, 2).ToUpper() : nombre.ToUpper();
+    }
+
+    public string GetEstadoBadgeClass(string estado)
+    {
+        if (string.IsNullOrEmpty(estado)) return "bg-secondary";
+        return estado.ToLower() switch
+        {
+            "activo" => "bg-success",
+            "pendiente" => "bg-warning",
+            "inactivo" => "bg-secondary",
+            "rechazado" => "bg-danger",
+            "aprobado" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+
+    public string GetEstadoIcon(string estado)
+    {
+        if (string.IsNullOrEmpty(estado)) return "fas fa-question";
+        return estado.ToLower() switch
+        {
+            "activo" => "fas fa-check-circle",
+            "pendiente" => "fas fa-clock",
+            "inactivo" => "fas fa-pause-circle",
+            "rechazado" => "fas fa-times-circle",
+            "aprobado" => "fas fa-thumbs-up",
+            _ => "fas fa-question"
+        };
+    }
+}

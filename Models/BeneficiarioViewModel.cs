@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 public class BeneficiarioViewModel
 {
+    public int Id_Beneficiario { get; set; }  // AGREGAR ESTA LÍNEA
+
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [StringLength(100, MinimumLength = 2, ErrorMessage = "El nombre debe tener entre 2 y 100 caracteres")]
     [Display(Name = "Nombre Completo")]
@@ -24,9 +26,11 @@ public class BeneficiarioViewModel
     [Display(Name = "Teléfono")]
     public string Telefono { get; set; } = string.Empty;
 
-    // HACER OPCIONAL TEMPORALMENTE
     [Display(Name = "Entidad (Opcional)")]
-    public int? EntidadId { get; set; }  // ← Cambiado a nullable
+    public int? EntidadId { get; set; }
+
+    [Display(Name = "Estado del Subsidio")]  // AGREGAR ESTA PROPIEDAD
+    public string EstadoSubsidio { get; set; } = "Pendiente";  // Valor por defecto
 
     [Display(Name = "Acepto los términos y condiciones")]
     [Range(typeof(bool), "true", "true", ErrorMessage = "Debe aceptar los términos y condiciones")]
