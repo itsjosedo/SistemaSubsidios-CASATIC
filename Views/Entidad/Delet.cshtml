@@ -1,0 +1,106 @@
+@model Entidad
+
+@{
+    ViewData["Title"] = "Eliminar Entidad";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>Eliminar Entidad
+        </h1>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Volver a Detalles
+        </a>
+    </div>
+
+    <!-- Alertas -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trash me-2"></i>Confirmar Eliminación
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle me-2"></i>¡Advertencia!
+                        </h6>
+                        <p class="mb-0">Esta acción no se puede deshacer. ¿Está seguro de que desea eliminar esta entidad?</p>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6>Información de la Entidad a Eliminar:</h6>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">ID:</dt>
+                                <dd class="col-sm-8">@Model.Id</dd>
+
+                                <dt class="col-sm-4">Nombre:</dt>
+                                <dd class="col-sm-8">@Model.Nombre</dd>
+
+                                <dt class="col-sm-4">Email:</dt>
+                                <dd class="col-sm-8">@Model.Email</dd>
+
+                                <dt class="col-sm-4">Dirección:</dt>
+                                <dd class="col-sm-8">@Model.Direccion</dd>
+
+                                <dt class="col-sm-4">Beneficiarios:</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.Beneficiarios != null && Model.Beneficiarios.Any())
+                                    {
+                                        <span class="badge bg-danger">@Model.Beneficiarios.Count asociados</span>
+                                        <small class="text-muted d-block mt-1">
+                                            Nota: No se puede eliminar una entidad con beneficiarios asociados
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">0 asociados</span>
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    @if (Model.Beneficiarios != null && Model.Beneficiarios.Any())
+                    {
+                        <div class="text-center">
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Volver a Detalles
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            
+                            <div class="d-flex justify-content-between">
+                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times me-2"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-danger" 
+                                        onclick="return confirm('¿Está completamente seguro de eliminar esta entidad? Esta acción es irreversible.')">
+                                    <i class="fas fa-trash me-2"></i>Eliminar Definitivamente
+                                </button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
