@@ -58,12 +58,30 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     ModelState.AddModelError("Nombre", "Ya existe una entidad con este nombre.");
                     return View(model);
                 }
+                if (await _db.Usuarios.AnyAsync(u => u.Correo == model.CorreoUsuario))
+                {
+                    ModelState.AddModelError("CorreoUsuario", "Ya existe un usuario con este correo.");
+                    return View(model);
+                }
+                var usuario = new Usuario
+                {
+                    Nombre = model.NombreUsuario,
+                    Correo = model.CorreoUsuario,
+                    Contrasena = AuthHelper.Hash(model.Contrasena),
+                    Rol = "entidad",
+                    Estado = "activo"
+                };
+
+                await _db.Usuarios.AddAsync(usuario);
+                await _db.SaveChangesAsync();
 
                 var entidad = new Entidad
                 {
                     Nombre = model.Nombre,
                     Email = model.Email,
-                    Direccion = model.Direccion
+                    Direccion = model.Direccion,
+                    UsuarioId = usuario.Id_Usuario
+
                 };
 
                 await _db.Entidades.AddAsync(entidad);
@@ -141,7 +159,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             var entidad = await _db.Entidades
                 .Include(e => e.Beneficiarios)
                 .FirstOrDefaultAsync(e => e.Id == id);
-                
+
             if (entidad == null)
                 return NotFound();
 
@@ -164,7 +182,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 var entidad = await _db.Entidades
                     .Include(e => e.Beneficiarios)
                     .FirstOrDefaultAsync(e => e.Id == id);
-                    
+
                 if (entidad == null)
                     return NotFound();
 
@@ -198,7 +216,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             var entidad = await _db.Entidades
                 .Include(e => e.Beneficiarios)
                 .FirstOrDefaultAsync(e => e.Id == id);
-                
+
             if (entidad == null)
                 return NotFound();
 

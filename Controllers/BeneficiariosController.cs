@@ -106,11 +106,14 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     .ToListAsync();
 
                 ViewBag.Entidades = entidades;
+                ViewBag.HayEntidades = entidades.Any();
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al cargar entidades");
                 ViewBag.Entidades = new List<SelectListItem>();
+                ViewBag.HayEntidades = false;
             }
         }
     }

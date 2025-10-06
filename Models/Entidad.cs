@@ -9,5 +9,5 @@ public class Entidad
     public string? Direccion { get; set; }
     public int? UsuarioId { get; set; }
     public Usuario? Usuario { get; set; }
-    public ICollection<Beneficiario>? Beneficiarios { get; set; }
+     public ICollection<Beneficiario> Beneficiarios { get; set; } = new List<Beneficiario>();
 }

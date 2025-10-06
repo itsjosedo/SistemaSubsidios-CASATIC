@@ -51,11 +51,11 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             // Resto del código de autenticación...
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
-        new Claim(ClaimTypes.Email, usuario.Correo),
-        new Claim(ClaimTypes.Role, usuario.Rol ?? "beneficiario")
-    };
+            {
+                new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
+                new Claim(ClaimTypes.Email, usuario.Correo),
+                new Claim(ClaimTypes.Role, usuario.Rol ?? "beneficiario")
+            };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
@@ -63,19 +63,19 @@ namespace SistemaSubsidios_CASATIC.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
     
-        switch (usuario.Rol?.ToLower())
-            {
-                case "admin":
-                    return RedirectToAction("Index", "Home");
-                case "beneficiario":
-                    return RedirectToAction("Create", "Beneficiarios");
-                case "entidad":
-                    return RedirectToAction("Index", "Entidades");
-                default:
-                    return RedirectToAction("Index", "Home"); 
-            }
+            switch (usuario.Rol?.ToLower())
+                {
+                    case "admin":
+                        return RedirectToAction("Index", "Home");
+                    case "beneficiario":
+                        return RedirectToAction("Create", "Beneficiarios");
+                    case "entidad":
+                        return RedirectToAction("Index", "Home");
+                    default:
+                        return RedirectToAction("Index", "Home"); 
+                }
 
-}
+        }
         // ========================
         // LOGOUT
         // ========================
@@ -106,12 +106,13 @@ namespace SistemaSubsidios_CASATIC.Controllers
         // PROCESO DE REGISTRO (POST)
         // ========================
         [HttpPost]
-        public async Task<IActionResult> Register(string nombre, string correo, string contrasena, string confirmarContrasena)
+        public async Task<IActionResult> Register(string nombre, string correo, string contrasena, string confirmarContrasena, string rol)
         {
             if (string.IsNullOrWhiteSpace(nombre) ||
                 string.IsNullOrWhiteSpace(correo) ||
                 string.IsNullOrWhiteSpace(contrasena) ||
-                string.IsNullOrWhiteSpace(confirmarContrasena))
+                string.IsNullOrWhiteSpace(confirmarContrasena) ||
+                string.IsNullOrWhiteSpace(rol))
             {
                 ViewBag.ErrorMessage = "Todos los campos son obligatorios.";
                 return View();
@@ -138,7 +139,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 Nombre = nombre,
                 Correo = correo,
                 Contrasena = hash,
-                Rol = "beneficiario",  // Puedes ajustar esto según tus necesidades
+                Rol = rol ?? "beneficiario",  // Puedes ajustar esto según tus necesidades
                 Estado = "activo"
             };
 
