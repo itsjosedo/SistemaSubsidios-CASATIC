@@ -288,7 +288,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     .ToListAsync();
 
                 ViewBag.Entidades = entidades;
-                ViewBag.HayEntidades = entidades.Any();
             }
             catch (Exception ex)
             {

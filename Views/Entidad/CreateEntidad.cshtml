@@ -70,6 +70,59 @@
                         <small class="form-text text-muted">Incluya colonia, calle, número y municipio</small>
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="NombreUsuario" class="form-label fw-semibold">
+                                <i class="fas fa-user me-1 text-muted"></i>Nombre de Usuario*
+                            </label>
+                            <input asp-for="NombreUsuario" class="form-control" 
+                                   placeholder="Ej: adminCasatic">
+                            <div class="validation-message">
+                                <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                            </div>
+                            <small class="form-text text-muted"></small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label fw-semibold">
+                                <i class="fas fa-address-card me-1 text-muted"></i>Email usuario *
+                            </label>
+                            <input asp-for="CorreoUsuario" class="form-control" 
+                                   placeholder="admincasatic@gmail.com">
+                            <div class="validation-message">
+                                <span asp-validation-for="CorreoUsuario" class="text-danger"></span>
+                            </div>
+                            <small class="form-text text-muted"></small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Contrasena" class="form-label fw-semibold">
+                                <i class="fas fa-lock"></i>Contraseña de Usuario*
+                            </label>
+                            <input asp-for="Contrasena" class="form-control" 
+                                   placeholder="">
+                            <div class="validation-message">
+                                <span asp-validation-for="Contrasena" class="text-danger"></span>
+                            </div>
+                            <small class="form-text text-muted"></small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ConfirmarContrasena" class="form-label fw-semibold">
+                                <i class="fas fa-lock"></i>Confirmar Contraseña *
+                            </label>
+                            <input asp-for="ConfirmarContrasena" class="form-control" 
+                                   placeholder="">
+                            <div class="validation-message">
+                                <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
+                            </div>
+                            <small class="form-text text-muted"></small>
+                        </div>
+                    </div>
+
+
                     <!-- Información de campos requeridos -->
                     <div class="alert alert-info">
                         <small class="d-flex align-items-center">
