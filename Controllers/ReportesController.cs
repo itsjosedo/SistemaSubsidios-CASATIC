@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 
-public class ReportesController : Controller
+namespace SistemaSubsidios_CASATIC.Controllers
 {
-    public IActionResult Index()
+    public class ReportesController : BaseController
     {
-        return View();
+        public IActionResult Index()
+        {
+            return View();
+        }
     }
 }

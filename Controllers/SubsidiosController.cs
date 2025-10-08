@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SistemaSubsidios_CASATIC.Controllers
 {
-    public class SubsidiosController : Controller
+    public class SubsidiosController :  BaseController
     {
         private readonly AppDbContext _context;
         private readonly ILogger<SubsidiosController> _logger;

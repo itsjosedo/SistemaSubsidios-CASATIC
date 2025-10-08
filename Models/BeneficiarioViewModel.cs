@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 public class BeneficiarioViewModel
 {
-    public int Id_Beneficiario { get; set; }  // AGREGAR ESTA LÍNEA
+    public int Id_Beneficiario { get; set; }
 
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [StringLength(100, MinimumLength = 2, ErrorMessage = "El nombre debe tener entre 2 y 100 caracteres")]
@@ -29,10 +29,10 @@ public class BeneficiarioViewModel
     [Display(Name = "Entidad (Opcional)")]
     public int? EntidadId { get; set; }
 
-    [Display(Name = "Estado del Subsidio")]  // AGREGAR ESTA PROPIEDAD
-    public string EstadoSubsidio { get; set; } = "Pendiente";  // Valor por defecto
+    [Display(Name = "Estado del Subsidio")]
+    public string EstadoSubsidio { get; set; } = "Pendiente";
 
+    // SOLUCIÓN: Hacer el campo opcional y quitar la validación Required para edición
     [Display(Name = "Acepto los términos y condiciones")]
-    [Range(typeof(bool), "true", "true", ErrorMessage = "Debe aceptar los términos y condiciones")]
     public bool AceptaTerminos { get; set; }
 }

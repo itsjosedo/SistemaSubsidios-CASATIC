@@ -1,0 +1,68 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Acceso Denegado";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white text-center">
+                    <h3><i class="fas fa-exclamation-triangle me-2"></i>Acceso Denegado</h3>
+                </div>
+                <div class="card-body py-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-lock fa-4x text-danger"></i>
+                    </div>
+                    
+                    <h4 class="text-danger text-center mb-3">Información del Error</h4>
+                    
+                    <div class="alert alert-info">
+                        <h5>Detalles del usuario:</h5>
+                        <ul class="mb-0">
+                            <li><strong>Rol:</strong> @ViewBag.RolUsuario</li>
+                            <li><strong>Nombre:</strong> @ViewBag.NombreUsuario</li>
+                            <li><strong>URL solicitada:</strong> <span id="requestedUrl">Cargando...</span></li>
+                        </ul>
+                    </div>
+
+                    <p class="text-muted mb-4 text-center">
+                        Tu rol actual (<strong>@ViewBag.RolUsuario</strong>) no tiene permisos para acceder al recurso solicitado.
+                    </p>
+
+                    <div class="d-grid gap-2 col-md-8 mx-auto">
+                        <!-- Para entidades, redirigir al Dashboard -->
+                        @if (ViewBag.RolUsuario == "entidad" || ViewBag.RolUsuario == "operador")
+                        {
+                            <a asp-action="Dashboard" asp-controller="Entidad" class="btn btn-success">
+                                <i class="fas fa-building me-2"></i>Ir a mi Dashboard
+                            </a>
+                        }
+                        
+                        <!-- Para administradores, redirigir al Home -->
+                        @if (ViewBag.RolUsuario == "admin" || ViewBag.RolUsuario == "administrador")
+                        {
+                            <a asp-action="Index" asp-controller="Home" class="btn btn-primary">
+                                <i class="fas fa-home me-2"></i>Ir al Inicio
+                            </a>
+                        }
+
+                        <form asp-action="Logout" asp-controller="Account" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Mostrar la URL que intentó acceder
+        document.getElementById('requestedUrl').textContent = window.location.href;
+    </script>
+}

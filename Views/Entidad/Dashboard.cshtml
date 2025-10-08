@@ -1,0 +1,124 @@
+@{
+    Layout = ViewBag.Layout ?? "_Layout";
+    ViewData["Title"] = "Dashboard Entidad";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/entidad.css" asp-append-version="true" />
+    <!-- El CSS de arriba debe estar en tu site.css o home.css -->
+}
+
+<div class="container-fluid px-4">
+    <!-- Sección de Bienvenida -->
+    <div class="welcome-section fade-in-up">
+        <div class="row align-items-center">
+            <div class="col-md-12 text-center">
+                <h1 class="welcome-title">
+                    <i class="fas fa-building me-3"></i>Dashboard Entidad
+                </h1>
+                <p class="welcome-subtitle">Panel de control para la gestión de subsidios</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Módulos Principales -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <h3 class="feature-title">Gestión de Subsidios</h3>
+                <p class="feature-description">
+                    Administra y consulta los subsidios disponibles. 
+                    Realiza el seguimiento y gestión de programas de subsidios.
+                </p>
+                <a asp-controller="Subsidios" asp-action="Index" class="quick-action-btn">
+                    <i class="fas fa-cog me-2"></i>Gestionar Subsidios
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4 fade-in-up" style="animation-delay: 0.4s;">
+            <div class="feature-card info">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3 class="feature-title">Reportes y Estadísticas</h3>
+                <p class="feature-description">
+                    Genera reportes detallados y consulta estadísticas 
+                    del sistema para la toma de decisiones.
+                </p>
+                <a asp-controller="Reports" asp-action="Index" class="quick-action-btn info">
+                    <i class="fas fa-chart-pie me-2"></i>Ver Reportes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información del Sistema -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div class="stat-label">Subsidios Activos</div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-label">Beneficiarios</div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 fade-in-up" style="animation-delay: 0.3s;">
+            <div class="stat-card info">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-label">Eficiencia del Sistema</div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 fade-in-up" style="animation-delay: 0.4s;">
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-label">Solicitudes Pendientes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto fade-in-up" style="animation-delay: 0.6s;">
+            <div class="dashboard-card">
+                <div class="card-header bg-transparent border-0 py-4">
+                    <h4 class="m-0 font-weight-bold text-dark text-center">
+                        <i class="fas fa-bolt me-2 text-warning"></i>Acciones Rápidas
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a asp-controller="Subsidios" asp-action="Index" class="quick-action-btn">
+                                <i class="fas fa-hand-holding-usd me-2"></i>Gestión de Subsidios
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a asp-controller="Reports" asp-action="Index" class="quick-action-btn info">
+                                <i class="fas fa-chart-bar me-2"></i>Ver Reportes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

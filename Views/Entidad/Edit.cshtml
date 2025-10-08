@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Editar Entidad";
+    Layout = ViewBag.Layout ?? "_Layout";
 }
 
 <div class="container-fluid">
@@ -10,7 +11,7 @@
         <h1>
             <i class="fas fa-edit me-2"></i>Editar Entidad
         </h1>
-        <a asp-action="Details" asp-route-id="@ViewContext.RouteData.Values["id"]" class="btn btn-outline-secondary">
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Volver a Detalles
         </a>
     </div>
@@ -26,7 +27,25 @@
                 <div class="card-body">
                     <form asp-action="Edit" method="post">
                         @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@ViewContext.RouteData.Values["id"]" />
+                        
+                        <!-- Campo oculto para el ID -->
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- Mostrar mensajes de éxito/error -->
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
 
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger">
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -64,7 +83,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a asp-action="Details" asp-route-id="@ViewContext.RouteData.Values["id"]" 
+                            <a asp-action="Details" asp-route-id="@Model.Id" 
                                class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i>Cancelar
                             </a>
@@ -81,4 +100,23 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        // Mostrar mensajes Toast si existen
+        $(document).ready(function() {
+            // Mostrar mensaje de éxito
+           @if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
+            
+            // Mostrar mensaje de error
+            if ('@TempData["ErrorMessage"]' !== '') {
+                toastr.error('@TempData["ErrorMessage"]');
+            }
+        });
+    </script>
+}}

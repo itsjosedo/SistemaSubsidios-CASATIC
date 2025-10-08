@@ -1,38 +1,39 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using SistemaSubsidios.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace SistemaSubsidios_CASATIC.Controllers
 {
-    [Authorize] // Esto protege todas las acciones dentro del HomeController, si quieres que sea solo Index, ponlo en la acción
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
         public IActionResult Index()
         {
-            // Pasar el nombre del usuario a la vista a través de ViewData o ViewBag
-            ViewData["UsuarioNombre"] = User.Identity?.Name ?? "Invitado";
-
+            // Si el usuario está autenticado, redirigir según su rol
+            if (User.Identity.IsAuthenticated)
+            {
+                var rol = GetRolUsuario();
+                
+                switch (rol?.ToLower())
+                {
+                    case "entidad":
+                    case "operador":
+                        return RedirectToAction("Dashboard", "Entidad");
+                    case "beneficiario":
+                        return RedirectToAction("Create", "Beneficiarios");
+                    case "admin":
+                    case "administrador":
+                        // Solo los administradores ven el Home normal
+                        return View();
+                    default:
+                        return View();
+                }
+            }
+            
+            // Si no está autenticado, mostrar el Home normal
             return View();
         }
 
         public IActionResult Privacy()
         {
             return View();
-        }
-
-        [AllowAnonymous] // Permite que todos vean la página de error
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

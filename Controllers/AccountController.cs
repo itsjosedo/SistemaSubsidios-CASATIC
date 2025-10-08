@@ -3,11 +3,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-  // Asegúrate que sea tu namespace correcto
 
 namespace SistemaSubsidios_CASATIC.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private readonly AppDbContext _db;
 
@@ -16,95 +15,127 @@ namespace SistemaSubsidios_CASATIC.Controllers
             _db = db;
         }
 
-        // ========================
-        // VISTA DE LOGIN (GET)
-        // ========================
-        [HttpGet]
+       [HttpGet]
         public IActionResult Login()
         {
+            // SI EL USUARIO YA ESTÁ AUTENTICADO, REDIRIGIR SEGÚN SU ROL
+            if (User.Identity.IsAuthenticated)
+            {
+                var rol = GetRolUsuario();
+                var rolNormalizado = rol?.Trim().ToLower() ?? "";
+                
+                if (rolNormalizado == "entidad" || rolNormalizado == "operador")
+                {
+                    return RedirectToAction("Dashboard", "Entidad");
+                }
+                else if (rolNormalizado == "beneficiario")
+                {
+                    return RedirectToAction("Create", "Beneficiarios");
+                }
+                else if (rolNormalizado == "admin" || rolNormalizado == "administrador")
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            
             return View();
         }
 
-        // ========================
-        // PROCESO DE LOGIN (POST)
-        // ========================
         [HttpPost]
-        public async Task<IActionResult> Login(string correo, string contrasena)
-        {
-            if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(contrasena))
-            {
-                ViewBag.ErrorMessage = "Por favor, ingrese su correo y contraseña.";
-                ViewBag.Correo = correo; // Mantener el correo ingresado
-                return View();
-            }
+public async Task<IActionResult> Login(string correo, string contrasena)
+{
+    if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(contrasena))
+    {
+        ViewBag.ErrorMessage = "Por favor, ingrese su correo y contraseña.";
+        ViewBag.Correo = correo;
+        return View();
+    }
 
-            var hash = AuthHelper.Hash(contrasena);
-            var usuario = await _db.Usuarios
-                .FirstOrDefaultAsync(u => u.Correo == correo && u.Contrasena == hash);
+    var hash = AuthHelper.Hash(contrasena);
+    var usuario = await _db.Usuarios
+        .Include(u => u.Entidad)
+        .FirstOrDefaultAsync(u => u.Correo == correo && u.Contrasena == hash && u.Estado == "activo");
 
-            if (usuario == null)
-            {
-                ViewBag.ErrorMessage = "Correo o contraseña incorrectos.";
-                ViewBag.Correo = correo; // Mantener el correo ingresado
-                return View();
-            }
+    if (usuario == null)
+    {
+        ViewBag.ErrorMessage = "Correo o contraseña incorrectos o usuario inactivo.";
+        ViewBag.Correo = correo;
+        return View();
+    }
 
-            // Resto del código de autenticación...
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
-                new Claim(ClaimTypes.Email, usuario.Correo),
-                new Claim(ClaimTypes.Role, usuario.Rol ?? "beneficiario")
-            };
+    // Crear claims con información adicional
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
+        new Claim(ClaimTypes.Email, usuario.Correo ?? ""),
+        new Claim(ClaimTypes.Role, usuario.Rol ?? "beneficiario"),
+        new Claim("UserId", usuario.Id_Usuario.ToString()),
+        new Claim("Rol", usuario.Rol ?? "beneficiario")
+    };
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+    // Agregar EntidadId si existe
+    if (usuario.Entidad != null)
+    {
+        claims.Add(new Claim("EntidadId", usuario.Entidad.Id.ToString()));
+    }
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var principal = new ClaimsPrincipal(identity);
 
+    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+    // CORREGIDO: Usar comparación case-insensitive
+    var rolNormalizado = usuario.Rol?.Trim() ?? "";
     
-            switch (usuario.Rol?.ToLower())
-                {
-                    case "admin":
-                        return RedirectToAction("Index", "Home");
-                    case "beneficiario":
-                        return RedirectToAction("Create", "Beneficiarios");
-                    case "entidad":
-                        return RedirectToAction("Index", "Home");
-                    default:
-                        return RedirectToAction("Index", "Home"); 
-                }
+    if (rolNormalizado.Equals("admin", StringComparison.OrdinalIgnoreCase) || 
+        rolNormalizado.Equals("administrador", StringComparison.OrdinalIgnoreCase))
+    {
+        return RedirectToAction("Index", "Home");
+    }
+    else if (rolNormalizado.Equals("entidad", StringComparison.OrdinalIgnoreCase) || 
+             rolNormalizado.Equals("operador", StringComparison.OrdinalIgnoreCase))
+    {
+        return RedirectToAction("Dashboard", "Entidad");
+    }
+    else if (rolNormalizado.Equals("beneficiario", StringComparison.OrdinalIgnoreCase))
+    {
+        return RedirectToAction("Create", "Beneficiarios");
+    }
+    else
+    {
+        return RedirectToAction("Index", "Home");
+    }
+}
 
-        }
-        // ========================
-        // LOGOUT
-        // ========================
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login", "Account");
-        }
+     [HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Logout(string redirectTo)
+{
+    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    TempData["FromLogout"] = true;
+    
+    return redirectTo?.ToLower() switch
+    {
+        "home" => RedirectToAction("Index", "Home"),
+        _ => RedirectToAction("Login", "Account")
+    };
+}
 
-        // ========================
-        // VISTA DE ACCESO DENEGADO
-        // ========================
         public IActionResult AccessDenied()
         {
             return View();
         }
 
-        // ========================
-        // VISTA DE REGISTRO (GET)
-        // ========================
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
-        // ========================
-        // PROCESO DE REGISTRO (POST)
-        // ========================
         [HttpPost]
         public async Task<IActionResult> Register(string nombre, string correo, string contrasena, string confirmarContrasena, string rol)
         {
@@ -131,7 +162,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return View();
             }
 
-            // Hashear la contraseña
             var hash = AuthHelper.Hash(contrasena);
 
             var nuevoUsuario = new Usuario
@@ -139,14 +169,13 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 Nombre = nombre,
                 Correo = correo,
                 Contrasena = hash,
-                Rol = rol ?? "beneficiario",  // Puedes ajustar esto según tus necesidades
+                Rol = rol ?? "beneficiario",
                 Estado = "activo"
             };
 
             _db.Usuarios.Add(nuevoUsuario);
             await _db.SaveChangesAsync();
 
-            // Redirigir al login después de registrarse
             return RedirectToAction("Login", "Account");
         }
     }
