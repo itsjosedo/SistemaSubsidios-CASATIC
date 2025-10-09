@@ -7,24 +7,24 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public IActionResult Index()
         {
             // Si el usuario está autenticado, redirigir según su rol
-            if (User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
-                var rol = GetRolUsuario();
-                
-                switch (rol?.ToLower())
-                {
+                return RedirectToAction("Login", "Account");
+            }
+            var rol = GetRolUsuario();
+            switch (rol?.ToLower())
+            {
                     case "entidad":
                     case "operador":
                         return RedirectToAction("Dashboard", "Entidad");
                     case "beneficiario":
-                        return RedirectToAction("Create", "Beneficiarios");
+                        return RedirectToAction("index", "Beneficiarios");
                     case "admin":
                     case "administrador":
                         // Solo los administradores ven el Home normal
                         return View();
                     default:
-                        return View();
-                }
+                        return View("Login", "Account");
             }
             
             // Si no está autenticado, mostrar el Home normal

@@ -35,4 +35,5 @@ public class BeneficiarioViewModel
     // SOLUCIÓN: Hacer el campo opcional y quitar la validación Required para edición
     [Display(Name = "Acepto los términos y condiciones")]
     public bool AceptaTerminos { get; set; }
+    public string? EntidadNombre { get; set; }
 }

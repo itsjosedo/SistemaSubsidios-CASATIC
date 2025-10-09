@@ -103,7 +103,7 @@ public async Task<IActionResult> Login(string correo, string contrasena)
     }
     else if (rolNormalizado.Equals("beneficiario", StringComparison.OrdinalIgnoreCase))
     {
-        return RedirectToAction("Create", "Beneficiarios");
+        return RedirectToAction("Index", "Beneficiarios");
     }
     else
     {
