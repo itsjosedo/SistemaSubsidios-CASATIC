@@ -1,0 +1,35 @@
+@model BeneficiarioViewModel
+
+@{
+    ViewData["Title"] = "Index beneficiario";
+    Layout = ViewBag.Layout ?? "_LayoutBeneficario";
+}
+
+<h2>Completar Perfil</h2>
+
+<form asp-action="CompletarPerfil" method="post">
+    <div class="form-group mb-3">
+        <label asp-for="Dui"></label>
+        <input asp-for="Dui" class="form-control" />
+        <span asp-validation-for="Dui" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Telefono"></label>
+        <input asp-for="Telefono" class="form-control" />
+        <span asp-validation-for="Telefono" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Direccion"></label>
+        <textarea asp-for="Direccion" class="form-control"></textarea>
+        <span asp-validation-for="Direccion" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

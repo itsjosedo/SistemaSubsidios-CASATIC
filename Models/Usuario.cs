@@ -14,5 +14,6 @@ public class Usuario
     public Entidad? Entidad { get; set; } // relación opcional
     public ICollection<Notificacion>? Notificaciones { get; set; }
 
-    public ICollection<Beneficiario>? Beneficiarios { get; set; }
+    public virtual Beneficiario? Beneficiario { get; set; }
+    //public ICollection<Beneficiario>? Beneficiarios { get; set; }
 } 

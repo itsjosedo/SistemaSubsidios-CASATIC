@@ -142,8 +142,8 @@ public async Task<IActionResult> Logout(string redirectTo)
             if (string.IsNullOrWhiteSpace(nombre) ||
                 string.IsNullOrWhiteSpace(correo) ||
                 string.IsNullOrWhiteSpace(contrasena) ||
-                string.IsNullOrWhiteSpace(confirmarContrasena) ||
-                string.IsNullOrWhiteSpace(rol))
+                string.IsNullOrWhiteSpace(confirmarContrasena)) 
+        
             {
                 ViewBag.ErrorMessage = "Todos los campos son obligatorios.";
                 return View();

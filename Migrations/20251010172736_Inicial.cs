@@ -46,9 +46,11 @@ namespace SistemaSubsidios.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Nombre = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Contacto = table.Column<string>(type: "longtext", nullable: true)
+                    Email = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    UsuarioId = table.Column<int>(type: "int", nullable: false)
+                    Direccion = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UsuarioId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -57,8 +59,7 @@ namespace SistemaSubsidios.Migrations
                         name: "FK_Entidades_Usuarios_UsuarioId",
                         column: x => x.UsuarioId,
                         principalTable: "Usuarios",
-                        principalColumn: "Id_Usuario",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id_Usuario");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -93,17 +94,18 @@ namespace SistemaSubsidios.Migrations
                 {
                     Id_Beneficiario = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Nombre = table.Column<string>(type: "longtext", nullable: true)
+                    Nombre = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Dui = table.Column<string>(type: "longtext", nullable: true)
+                    Dui = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Direccion = table.Column<string>(type: "longtext", nullable: true)
+                    Direccion = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Telefono = table.Column<string>(type: "longtext", nullable: true)
+                    Telefono = table.Column<string>(type: "varchar(9)", maxLength: 9, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    EstadoSubsidio = table.Column<string>(type: "longtext", nullable: false)
+                    EstadoSubsidio = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    EntidadId = table.Column<int>(type: "int", nullable: false)
+                    EntidadId = table.Column<int>(type: "int", nullable: true),
+                    UsuarioId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,7 +114,12 @@ namespace SistemaSubsidios.Migrations
                         name: "FK_Beneficiarios_Entidades_EntidadId",
                         column: x => x.EntidadId,
                         principalTable: "Entidades",
-                        principalColumn: "Id",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Beneficiarios_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id_Usuario",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
@@ -123,7 +130,9 @@ namespace SistemaSubsidios.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    NombrePrograma = table.Column<string>(type: "longtext", nullable: true)
+                    NombrePrograma = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Tipo = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Monto = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     FechaAsignacion = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -147,6 +156,12 @@ namespace SistemaSubsidios.Migrations
                 name: "IX_Beneficiarios_EntidadId",
                 table: "Beneficiarios",
                 column: "EntidadId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Beneficiarios_UsuarioId",
+                table: "Beneficiarios",
+                column: "UsuarioId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Entidades_UsuarioId",

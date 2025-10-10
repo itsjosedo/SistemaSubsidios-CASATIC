@@ -57,14 +57,15 @@ namespace SistemaSubsidios.Migrations
                         .HasMaxLength(9)
                         .HasColumnType("varchar(9)");
 
-                    b.Property<int?>("UsuarioId_Usuario")
+                    b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
                     b.HasKey("Id_Beneficiario");
 
                     b.HasIndex("EntidadId");
 
-                    b.HasIndex("UsuarioId_Usuario");
+                    b.HasIndex("UsuarioId")
+                        .IsUnique();
 
                     b.ToTable("Beneficiarios");
                 });
@@ -195,11 +196,15 @@ namespace SistemaSubsidios.Migrations
                         .WithMany("Beneficiarios")
                         .HasForeignKey("EntidadId");
 
-                    b.HasOne("Usuario", null)
-                        .WithMany("Beneficiarios")
-                        .HasForeignKey("UsuarioId_Usuario");
+                    b.HasOne("Usuario", "Usuario")
+                        .WithOne("Beneficiario")
+                        .HasForeignKey("Beneficiario", "UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Entidad");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("Entidad", b =>
@@ -240,7 +245,7 @@ namespace SistemaSubsidios.Migrations
 
             modelBuilder.Entity("Usuario", b =>
                 {
-                    b.Navigation("Beneficiarios");
+                    b.Navigation("Beneficiario");
 
                     b.Navigation("Entidad");
 

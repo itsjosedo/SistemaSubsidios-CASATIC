@@ -41,6 +41,10 @@ public class Beneficiario
 
     [ForeignKey("EntidadId")]
     public virtual Entidad? Entidad { get; set; }
+    
+    [ForeignKey("UsuarioId")]
+    public int UsuarioId { get; set; }
+    public Usuario Usuario { get; set; } = null!;
 
     // ... el resto del código igual ...
 }

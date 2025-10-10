@@ -2,44 +2,31 @@
 
 @{
     ViewData["Title"] = "Index beneficiario";
-     Layout = ViewBag.Layout ?? "_Layout";
+     Layout = ViewBag.Layout ?? "_LayoutBeneficario";
+}
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success mt-3">@TempData["MensajeExito"]</div>
+}
+@if (ViewBag.PerfilIncompleto == true)
+{
+    <div class="alert alert-warning mt-3">
+        <strong>⚠️ Tu perfil está incompleto.</strong>  
+        Debes completar tu información para continuar con el proceso de subsidio.
+        <br />
+        <a class="btn btn-primary mt-2" asp-action="CompletarPerfil" asp-controller="Beneficiarios">Completar perfil</a>
+
+    </div>
+}
+else
+{
+    <div class="alert alert-success mt-3">
+        ✅ Tu perfil está completo.
+    </div>
 }
 
-<div>
-    <h2>Información del Beneficiario</h2>
-    <p>UserId: @ViewBag.UserId</p>
+<p><strong>DUI:</strong> @Model.Dui</p>
+<p><strong>Teléfono:</strong> @Model.Telefono</p>
+<p><strong>Dirección:</strong> @Model.Direccion</p>
 
-    @if (Model == null)
-    {
-        <p>@ViewBag.Mensaje</p>
-    }
-    else
-    {
-        <table class="table">
-            <tr>
-                <th>Nombre</th>
-                <td>@Model.Nombre</td>
-            </tr>
-            <tr>
-                <th>DUI</th>
-                <td>@Model.Dui</td>
-            </tr>
-            <tr>
-                <th>Teléfono</th>
-                <td>@Model.Telefono</td>
-            </tr>
-            <tr>
-                <th>Dirección</th>
-                <td>@Model.Direccion</td>
-            </tr>
-            <tr>
-                <th>Entidad</th>
-                <td>@Model.EntidadNombre</td>
-            </tr>
-            <tr>
-                <th>Estado del Subsidio</th>
-                <td>@Model.EstadoSubsidio</td>
-            </tr>
-        </table>
-    }
-</div>
+

@@ -9,6 +9,8 @@ public class BeneficiarioViewModel
     [Display(Name = "Nombre Completo")]
     public string Nombre { get; set; } = string.Empty;
 
+    public string Correo { get; set; }
+
     [Required(ErrorMessage = "El DUI es obligatorio")]
     [StringLength(10, ErrorMessage = "El DUI debe tener 10 caracteres")]
     [RegularExpression(@"^\d{8}-\d{1}$", ErrorMessage = "Formato de DUI inválido. Use: 12345678-9")]

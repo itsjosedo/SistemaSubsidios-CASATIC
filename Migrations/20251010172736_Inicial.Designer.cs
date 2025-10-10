@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SistemaSubsidios.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251002201341_UsuarioIdNullable")]
-    partial class UsuarioIdNullable
+    [Migration("20251010172736_Inicial")]
+    partial class Inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,9 +60,15 @@ namespace SistemaSubsidios.Migrations
                         .HasMaxLength(9)
                         .HasColumnType("varchar(9)");
 
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id_Beneficiario");
 
                     b.HasIndex("EntidadId");
+
+                    b.HasIndex("UsuarioId")
+                        .IsUnique();
 
                     b.ToTable("Beneficiarios");
                 });
@@ -193,7 +199,15 @@ namespace SistemaSubsidios.Migrations
                         .WithMany("Beneficiarios")
                         .HasForeignKey("EntidadId");
 
+                    b.HasOne("Usuario", "Usuario")
+                        .WithOne("Beneficiario")
+                        .HasForeignKey("Beneficiario", "UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Entidad");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("Entidad", b =>
@@ -234,6 +248,8 @@ namespace SistemaSubsidios.Migrations
 
             modelBuilder.Entity("Usuario", b =>
                 {
+                    b.Navigation("Beneficiario");
+
                     b.Navigation("Entidad");
 
                     b.Navigation("Notificaciones");
