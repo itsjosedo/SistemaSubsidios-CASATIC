@@ -7,7 +7,9 @@
 
 <h2>Completar Perfil</h2>
 
-<form asp-action="CompletarPerfil" method="post">
+<form asp-action="CompletarPerfil" asp-controller="Beneficiarios" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id_Beneficiario" />
     <div class="form-group mb-3">
         <label asp-for="Dui"></label>
         <input asp-for="Dui" class="form-control" />

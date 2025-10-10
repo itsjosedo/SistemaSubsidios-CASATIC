@@ -1,6 +1,7 @@
 using SistemaSubsidios_CASATIC.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace SistemaSubsidios_CASATIC.Controllers
 {
@@ -64,7 +65,15 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 .FirstOrDefaultAsync(b => b.UsuarioId == userId.Value);
 
             if (beneficiario == null)
-                return RedirectToAction("Index");
+            {
+                beneficiario = new Beneficiario
+                {
+                    UsuarioId = userId.Value
+                };
+                _context.Beneficiarios.Add(beneficiario);
+                await _context.SaveChangesAsync();
+            }
+            //return RedirectToAction("Index");
 
             var model = new BeneficiarioViewModel
             {
@@ -90,20 +99,32 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             try
             {
+                // ✅ Buscamos el beneficiario del usuario
                 var beneficiario = await _context.Beneficiarios
-                    .FirstOrDefaultAsync(b => b.Id_Beneficiario == userId.Value);
+                    .FirstOrDefaultAsync(b => b.UsuarioId == userId.Value);
 
+                // ✅ Si no existe, lo creamos
                 if (beneficiario == null)
-                    return RedirectToAction("Index");
+                {
+                    beneficiario = new Beneficiario
+                    {
+                        UsuarioId = userId.Value
+                    };
+                    _context.Beneficiarios.Add(beneficiario);
+                }
 
-                beneficiario.Dui = model.Dui;
-                beneficiario.Telefono = model.Telefono;
-                beneficiario.Direccion = model.Direccion;
+                // ✅ Aquí sí asignamos los datos del formulario
+                beneficiario.Dui = model.Dui?.Trim();
+                beneficiario.Telefono = model.Telefono?.Trim();
+                beneficiario.Direccion = model.Direccion?.Trim();
 
+                // ✅ Guardamos los cambios
                 await _context.SaveChangesAsync();
 
+                Console.WriteLine("Guardado exitoso, redirigiendo...");
+                Console.WriteLine($"Dui: {beneficiario.Dui}, Teléfono: {beneficiario.Telefono}, Dirección: {beneficiario.Direccion}");
                 TempData["MensajeExito"] = "Tu perfil se ha completado correctamente.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Beneficiarios");
             }
             catch (Exception ex)
             {

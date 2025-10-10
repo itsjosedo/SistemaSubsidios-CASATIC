@@ -14,8 +14,7 @@
         <strong>⚠️ Tu perfil está incompleto.</strong>  
         Debes completar tu información para continuar con el proceso de subsidio.
         <br />
-        <a class="btn btn-primary mt-2" asp-action="CompletarPerfil" asp-controller="Beneficiarios">Completar perfil</a>
-
+        <a href="/Beneficiarios/CompletarPerfil" class="btn btn-primary mt-2">Completar perfil</a>
     </div>
 }
 else
@@ -24,7 +23,8 @@ else
         ✅ Tu perfil está completo.
     </div>
 }
-
+<hr />
+<p><strong>Debug:</strong></p>
 <p><strong>DUI:</strong> @Model.Dui</p>
 <p><strong>Teléfono:</strong> @Model.Telefono</p>
 <p><strong>Dirección:</strong> @Model.Direccion</p>
