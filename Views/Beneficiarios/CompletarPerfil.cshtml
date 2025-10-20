@@ -1,5 +1,8 @@
 @model BeneficiarioViewModel
-
+@if (ViewBag.Errores != null)
+{
+    
+}
 @{
     ViewData["Title"] = "Index beneficiario";
     Layout = ViewBag.Layout ?? "_LayoutBeneficario";

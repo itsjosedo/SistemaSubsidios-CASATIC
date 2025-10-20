@@ -91,7 +91,16 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> CompletarPerfil(BeneficiarioViewModel model)
         {
             if (!ModelState.IsValid)
+            {
+                var errores = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+                _logger.LogWarning("Errores de validación: {Errores}", string.Join(", ", errores));
+                ViewBag.Errores = errores;
                 return View(model);
+            }
 
             var userId = GetUserId();
             if (userId == null)
@@ -108,10 +117,20 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 {
                     beneficiario = new Beneficiario
                     {
-                        UsuarioId = userId.Value
+                        UsuarioId = userId.Value,
+
                     };
                     _context.Beneficiarios.Add(beneficiario);
                 }
+
+                var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Id_Usuario == userId.Value);
+
+                if (usuario != null)
+                {
+                    beneficiario.Nombre = usuario.Nombre;
+                }
+
 
                 // ✅ Aquí sí asignamos los datos del formulario
                 beneficiario.Dui = model.Dui?.Trim();

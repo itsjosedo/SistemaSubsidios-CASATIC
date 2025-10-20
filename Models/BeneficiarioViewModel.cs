@@ -4,12 +4,12 @@ public class BeneficiarioViewModel
 {
     public int Id_Beneficiario { get; set; }
 
-    [Required(ErrorMessage = "El nombre es obligatorio")]
-    [StringLength(100, MinimumLength = 2, ErrorMessage = "El nombre debe tener entre 2 y 100 caracteres")]
+    //[Required(ErrorMessage = "El nombre es obligatorio")]
+    //[StringLength(100, MinimumLength = 2, ErrorMessage = "El nombre debe tener entre 2 y 100 caracteres")]
     [Display(Name = "Nombre Completo")]
     public string Nombre { get; set; } = string.Empty;
 
-    public string Correo { get; set; }
+    //public string Correo { get; set; }
 
     [Required(ErrorMessage = "El DUI es obligatorio")]
     [StringLength(10, ErrorMessage = "El DUI debe tener 10 caracteres")]
