@@ -1,32 +1,66 @@
 @model BeneficiarioViewModel
 
 @{
-    ViewData["Title"] = "Index beneficiario";
-     Layout = ViewBag.Layout ?? "_LayoutBeneficario";
+    ViewData["Title"] = "Panel de Beneficiario";
+    Layout = ViewBag.Layout ?? "_LayoutBeneficario";
 }
-@if (TempData["MensajeExito"] != null)
-{
-    <div class="alert alert-success mt-3">@TempData["MensajeExito"]</div>
-}
-@if (ViewBag.PerfilIncompleto == true)
-{
-    <div class="alert alert-warning mt-3">
-        <strong>⚠️ Tu perfil está incompleto.</strong>  
-        Debes completar tu información para continuar con el proceso de subsidio.
-        <br />
-        <a href="/Beneficiarios/CompletarPerfil" class="btn btn-primary mt-2">Completar perfil</a>
+
+<div class="container mt-5">
+
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-5">Bienvenido, <span class="text-primary">@Model.Nombre</span></h1>
+            <p class="lead">Gestiona tu perfil y consulta tu información de subsidio.</p>
+        </div>
     </div>
-}
-else
-{
-    <div class="alert alert-success mt-3">
-        ✅ Tu perfil está completo.
-    </div>
-}
-<hr />
-<p><strong>Debug:</strong></p>
-<p><strong>DUI:</strong> @Model.Dui</p>
-<p><strong>Teléfono:</strong> @Model.Telefono</p>
-<p><strong>Dirección:</strong> @Model.Direccion</p>
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["MensajeExito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (ViewBag.PerfilIncompleto == true)
+    {
+        <div class="alert alert-warning shadow-sm d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+            <div>
+                <strong>⚠️ Tu perfil está incompleto.</strong>
+                <p>Debes completar tu información para continuar con el proceso de subsidio.</p>
+                <a class="btn btn-primary btn-sm" href="/Beneficiarios/CompletarPerfil">
+                    <i class="fas fa-user-edit me-1"></i> Completar perfil
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Tu perfil</h5>
+                        <a class="btn btn-light btn-sm" href="/Beneficiarios/EditarPerfil">
+                            <i class="fas fa-edit me-1"></i> Editar
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2"><strong>DUI:</strong> <span class="text-secondary">@Model.Dui</span></p>
+                        <p class="mb-2"><strong>Teléfono:</strong> <span class="text-secondary">@Model.Telefono</span></p>
+                        <p class="mb-2"><strong>Dirección:</strong> <span class="text-secondary">@Model.Direccion</span></p>
+                        <p class="mb-2"><strong>Estado Subsidio:</strong> <span class="badge bg-success">@Model.EstadoSubsidio</span></p>
+                        @if (!string.IsNullOrEmpty(Model.EntidadNombre))
+                        {
+                            <p class="mb-0"><strong>Entidad:</strong> @Model.EntidadNombre</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
 
 
