@@ -288,6 +288,34 @@ public async Task<IActionResult> Edit(Subsidio model)
             }
             return RedirectToAction(nameof(Index));
         }
+        
+// GET: Subsidios/Reporte
+public async Task<IActionResult> Reporte()
+{
+    var subsidios = await _context.Subsidios
+        .Include(s => s.Beneficiario)
+        .OrderByDescending(s => s.Id)
+        .ToListAsync();
+
+    ViewData["Title"] = "Reporte General de Subsidios";
+    ViewData["FechaReporte"] = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+    ViewData["TotalSubsidios"] = subsidios.Count;
+    ViewData["MontoTotal"] = subsidios.Sum(s => s.Monto).ToString("N2");
+    
+    return View(subsidios);
+}
+
+        public async Task<IActionResult> Activos()
+{
+    var subsidiosActivos = await _context.Subsidios
+        .Include(s => s.Beneficiario)
+        .Where(s => s.Estado == "Activo") // Ajusta según tu campo de estado
+        .OrderByDescending(s => s.Id)
+        .ToListAsync();
+
+    ViewData["Title"] = "Subsidios Activos";
+    return View(subsidiosActivos);
+}
 
         // Método privado para llenar SelectList de Beneficiarios
         private async Task CargarBeneficiarios()

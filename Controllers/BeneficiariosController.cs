@@ -152,6 +152,18 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return View(model);
             }
         }
+// GET: Beneficiarios/Lista (Vista pública para el dashboard)
+public async Task<IActionResult> Lista()
+{
+    var beneficiarios = await _context.Beneficiarios
+        .Include(b => b.Entidad)
+        .Where(b => !string.IsNullOrEmpty(b.Dui) && !string.IsNullOrEmpty(b.Nombre))
+        .OrderBy(b => b.Nombre)
+        .ToListAsync();
+
+    ViewData["Title"] = "Lista de Beneficiarios";
+    return View(beneficiarios);
+}
 
     }
 }
