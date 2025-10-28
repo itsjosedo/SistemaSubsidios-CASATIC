@@ -1,48 +1,498 @@
 @model Subsidio
 @{
     ViewData["Title"] = "Editar Subsidio";
+    Layout = ViewBag.Layout ?? "_Layout";
 }
 
-<h2>Editar Subsidio</h2>
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
-
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Id" />
-
-    <div class="mb-3">
-        <label asp-for="NombrePrograma" class="form-label"></label>
-        <input asp-for="NombrePrograma" class="form-control" />
-        <span asp-validation-for="NombrePrograma" class="text-danger"></span>
-    </div>
-    
-    <div class="mb-3">
-        <label asp-for="BeneficiarioId" class="form-label">Beneficiario</label>
-        <select asp-for="BeneficiarioId" class="form-select" asp-items="ViewBag.Beneficiarios">
-            <option value="">-- Seleccione un beneficiario --</option>
-        </select>
-        <span asp-validation-for="BeneficiarioId" class="text-danger"></span>
+<div class="container-fluid px-4">
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-edit me-2 text-warning"></i>@ViewData["Title"]
+            </h1>
+            <p class="mb-0 text-muted">Actualice la información del subsidio</p>
+        </div>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info btn-icon-split shadow-sm">
+            <span class="icon text-white-50">
+                <i class="fas fa-eye"></i>
+            </span>
+            <span class="text">Ver Detalles</span>
+        </a>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Monto" class="form-label"></label>
-        <input asp-for="Monto" class="form-control" />
-        <span asp-validation-for="Monto" class="text-danger"></span>
-    </div>
+    <!-- Formulario -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-warning">
+                    <h6 class="m-0 font-weight-bold text-white">
+                        <i class="fas fa-edit me-2"></i>Editar Información del Subsidio
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Mensajes -->
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle fa-lg me-3"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="alert-heading mb-1">¡Éxito!</h6>
+                                    <p class="mb-0">@TempData["SuccessMessage"]</p>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    }
 
-    <div class="mb-3">
-        <label asp-for="Estado" class="form-label"></label>
-        <input asp-for="Estado" class="form-control" />
-        <span asp-validation-for="Estado" class="text-danger"></span>
-    </div>
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-triangle fa-lg me-3"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="alert-heading mb-2">Errores en el formulario:</h6>
+                                    <div asp-validation-summary="All" class="mb-0 small"></div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    }
 
-    <button type="submit" class="btn btn-success">Actualizar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+                    <form asp-action="Edit" method="post" id="editSubsidioForm">
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- Programa -->
+                        <div class="mb-4">
+                            <label asp-for="NombrePrograma" class="form-label fw-bold">
+                                <i class="fas fa-tag me-2 text-primary"></i>Programa *
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-heading"></i></span>
+                                <input asp-for="NombrePrograma" class="form-control" placeholder="Ingrese el nombre del programa" />
+                            </div>
+                            <div class="error-message" data-for="NombrePrograma">
+                                <div class="text-danger small d-flex align-items-center mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    <span>El nombre del programa es obligatorio</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Tipo -->
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Tipo" class="form-label fw-bold">
+                                    <i class="fas fa-list-alt me-2 text-primary"></i>Tipo de Subsidio *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-tags"></i></span>
+                                    <select asp-for="Tipo" class="form-select">
+                                        <option value="">-- Seleccione el tipo --</option>
+                                        <option value="Canasta básica">Canasta básica</option>
+                                        <option value="Beca educativa">Beca educativa</option>
+                                        <option value="Vale transporte">Vale transporte</option>
+                                        <option value="Subsidio vivienda">Subsidio vivienda</option>
+                                        <option value="Ayuda alimentaria">Ayuda alimentaria</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+                                <div class="error-message" data-for="Tipo">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>El tipo de subsidio es obligatorio</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Monto -->
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Monto" class="form-label fw-bold">
+                                    <i class="fas fa-dollar-sign me-2 text-primary"></i>Monto *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="Monto" class="form-control" type="number" step="0.01" min="0.01" placeholder="0.00" />
+                                </div>
+                                <div class="error-message" data-for="Monto">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>El monto debe ser mayor a cero</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Beneficiario -->
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="BeneficiarioId" class="form-label fw-bold">
+                                    <i class="fas fa-user me-2 text-primary"></i>Beneficiario *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-users"></i></span>
+                                    <select asp-for="BeneficiarioId" class="form-select" asp-items="ViewBag.Beneficiarios">
+                                        <option value="">-- Seleccione un beneficiario --</option>
+                                    </select>
+                                </div>
+                                <div class="error-message" data-for="BeneficiarioId">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>Debe seleccionar un beneficiario</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fecha de Asignación -->
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="FechaAsignacion" class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>Fecha de Asignación *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <input asp-for="FechaAsignacion" class="form-control" type="date" />
+                                </div>
+                                <div class="error-message" data-for="FechaAsignacion">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>La fecha de asignación es obligatoria</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-4">
+                            <label asp-for="Estado" class="form-label fw-bold">
+                                <i class="fas fa-toggle-on me-2 text-primary"></i>Estado *
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                <select asp-for="Estado" class="form-select">
+                                    <option value="">-- Seleccione el estado --</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Aprobado">Aprobado</option>
+                                    <option value="Rechazado">Rechazado</option>
+                                    <option value="Activo">Activo</option>
+                                    <option value="Finalizado">Finalizado</option>
+                                </select>
+                            </div>
+                            <div class="error-message" data-for="Estado">
+                                <div class="text-danger small d-flex align-items-center mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    <span>El estado es obligatorio</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary btn-icon-split">
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                                <span class="text">Cancelar</span>
+                            </a>
+                            <button type="submit" class="btn btn-warning btn-icon-split">
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-save"></i>
+                                </span>
+                                <span class="text">Actualizar Subsidio</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de información -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-info">
+                    <h6 class="m-0 font-weight-bold text-white">
+                        <i class="fas fa-info-circle me-2"></i>Información del Subsidio
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info border-0">
+                        <h6 class="alert-heading"><i class="fas fa-lightbulb me-2"></i>Datos Actuales:</h6>
+                        <div class="small">
+                            <div class="mb-2">
+                                <strong>ID:</strong> <span class="text-muted">#@Model.Id</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Programa:</strong> <span class="text-muted">@Model.NombrePrograma</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Tipo:</strong> <span class="text-muted">@Model.Tipo</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Monto:</strong> <span class="text-success fw-bold">$@Model.Monto.ToString("N2")</span>
+                            </div>
+                            <div>
+                                <strong>Estado:</strong> 
+                                @{
+                                    var estadoClass = Model.Estado?.ToLower() switch
+                                    {
+                                        "activo" or "aprobado" => "bg-success",
+                                        "pendiente" => "bg-warning",
+                                        "rechazado" => "bg-danger",
+                                        "finalizado" => "bg-info",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @estadoClass">@Model.Estado</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning border-0 mt-3">
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Notas Importantes:</h6>
+                        <ul class="mb-0 small">
+                            <li>Todos los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios</li>
+                            <li>Los cambios se guardarán inmediatamente</li>
+                            <li>Verifique la información antes de actualizar</li>
+                            <li>El historial de cambios será registrado</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones rápidas -->
+            <div class="card shadow">
+                <div class="card-header py-3 bg-light">
+                    <h6 class="m-0 font-weight-bold text-dark">
+                        <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-eye me-2"></i>Ver Detalles
+                        </a>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-list me-2"></i>Volver a la Lista
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-trash me-2"></i>Eliminar Subsidio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('editSubsidioForm');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            console.log('🔍 === DEBUG: INICIALIZANDO FORMULARIO EDIT ===');
+            console.log('📝 Formulario encontrado:', !!form);
+            console.log('🖱️ Botón de enviar encontrado:', !!submitBtn);
+            console.log('🔗 Action del formulario:', form.action);
+            console.log('📨 Method del formulario:', form.method);
+
+            // Debug de todos los campos
+            const inputs = form.querySelectorAll('input, select, textarea');
+            console.log('📊 Total de campos encontrados:', inputs.length);
+            
+            inputs.forEach((input, index) => {
+                console.log(`   ${index + 1}. ${input.name}: "${input.value}"`);
+            });
+
+            // Ocultar todos los mensajes de error inicialmente
+            const errorMessages = document.querySelectorAll('.error-message');
+            errorMessages.forEach(msg => {
+                msg.style.display = 'none';
+            });
+            console.log('❌ Mensajes de error ocultos');
+
+            // Función para validar un campo
+            function validateField(field) {
+                const fieldName = field.name;
+                const errorMessage = document.querySelector(`.error-message[data-for="${fieldName}"]`);
+                
+                if (!errorMessage) return true;
+
+                field.classList.remove('is-valid', 'is-invalid');
+
+                let isValid = true;
+                
+                if (field.type === 'select-one') {
+                    isValid = field.value !== '';
+                } else if (field.type === 'number') {
+                    isValid = field.value !== '' && parseFloat(field.value) > 0;
+                } else {
+                    isValid = field.value.trim() !== '';
+                }
+
+                if (isValid) {
+                    field.classList.add('is-valid');
+                    errorMessage.style.display = 'none';
+                } else {
+                    field.classList.add('is-invalid');
+                    errorMessage.style.display = 'block';
+                }
+
+                return isValid;
+            }
+
+            // Agregar eventos a todos los campos
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    console.log(`👁️ Campo ${this.name} perdió el foco - Valor: "${this.value}"`);
+                    validateField(this);
+                });
+                
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('is-invalid')) {
+                        console.log(`✏️ Campo ${this.name} siendo editado - Nuevo valor: "${this.value}"`);
+                        validateField(this);
+                    }
+                });
+            });
+
+            // DEBUG: Evento de clic en el botón
+            submitBtn.addEventListener('click', function(e) {
+                console.log('🖱️ === DEBUG: BOTÓN CLICKEADO ===');
+                console.log('📍 Tipo de evento:', e.type);
+                console.log('🎯 Elemento:', e.target);
+                console.log('⏰ Timestamp:', e.timeStamp);
+            });
+
+            // DEBUG: Evento submit del formulario
+            form.addEventListener('submit', function(event) {
+                console.log('🚀 === DEBUG: EVENTO SUBMIT INICIADO ===');
+                console.log('✅ Formulario válido (HTML5):', form.checkValidity());
+                console.log('📋 Datos a enviar:');
+                
+                // Mostrar todos los valores actuales
+                inputs.forEach(input => {
+                    console.log(`   📍 ${input.name}: "${input.value}"`);
+                });
+
+                let isFormValid = true;
+                let invalidFields = [];
+                
+                // Validar todos los campos
+                inputs.forEach(input => {
+                    const isValid = validateField(input);
+                    if (!isValid) {
+                        isFormValid = false;
+                        invalidFields.push(input.name);
+                    }
+                });
+
+                console.log('📊 RESULTADO VALIDACIÓN:');
+                console.log('   ✅ Formulario válido:', isFormValid);
+                console.log('   ❌ Campos inválidos:', invalidFields);
+
+                if (!isFormValid) {
+                    console.log('🛑 FORMULARIO NO VÁLIDO - Cancelando envío');
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    // Mostrar el primer error
+                    const firstError = form.querySelector('.is-invalid');
+                    if (firstError) {
+                        console.log('📍 Primer campo con error:', firstError.name);
+                        firstError.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                        firstError.focus();
+                    }
+                } else {
+                    console.log('✅ FORMULARIO VÁLIDO - Procediendo con envío...');
+                    
+                    // Confirmación antes de enviar
+                    const isConfirmed = confirm('¿Está seguro que desea actualizar este subsidio?');
+                    console.log('🤔 Usuario confirmó:', isConfirmed);
+                    
+                    if (!isConfirmed) {
+                        console.log('❌ Usuario canceló - Deteniendo envío');
+                        event.preventDefault();
+                        return false;
+                    }
+                    
+                    console.log('✅ Usuario confirmó - Enviando formulario...');
+                    
+                    // Cambiar texto del botón
+                    submitBtn.innerHTML = `
+                        <span class="icon text-white-50">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                        <span class="text">Actualizando...</span>
+                    `;
+                    submitBtn.disabled = true;
+                    
+                    console.log('🔄 Botón deshabilitado y mostrando spinner...');
+                }
+            });
+
+            // Validación inicial
+            console.log('🔍 Realizando validación inicial...');
+            inputs.forEach(input => {
+                if (input.value) {
+                    validateField(input);
+                }
+            });
+
+            console.log('🎉 INICIALIZACIÓN COMPLETADA');
+        });
+
+        // Debug adicional para errores globales
+        window.addEventListener('error', function(e) {
+            console.error('💥 ERROR GLOBAL:', e.error);
+            console.error('📝 Mensaje:', e.message);
+            console.error('🔗 URL:', e.filename);
+            console.error('📏 Línea:', e.lineno);
+        });
+    </script>
 }
+
+
+<style>
+    .is-valid {
+        border-color: #198754 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+
+    .is-invalid {
+        border-color: #dc3545 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6.4.4.4-.4'/%3e%3cpath d='M6 7v1'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+
+    .error-message {
+        display: none;
+    }
+
+    .text-danger small {
+        display: flex;
+        align-items: center;
+    }
+
+    .card-header.bg-warning {
+        background: linear-gradient(45deg, #f6c23e, #dda20a) !important;
+    }
+
+    .card-header.bg-info {
+        background: linear-gradient(45deg, #36b9cc, #258391) !important;
+    }
+
+    .btn-icon-split {
+        padding: 0.375rem 1rem;
+    }
+</style>

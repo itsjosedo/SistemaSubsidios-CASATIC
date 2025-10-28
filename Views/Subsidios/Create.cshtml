@@ -1,46 +1,411 @@
 @model Subsidio
 @{
-    ViewData["Title"] = "Crear Subsidio";
+    ViewData["Title"] = "Crear Nuevo Subsidio";
+    Layout = ViewBag.Layout ?? "_Layout";
 }
 
-<h2>Crear Subsidio</h2>
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
-
-<form asp-action="Create" method="post">
-    <div class="mb-3">
-        <label asp-for="NombrePrograma" class="form-label"></label>
-        <input asp-for="NombrePrograma" class="form-control" />
-        <span asp-validation-for="NombrePrograma" class="text-danger"></span>
-    </div>
-    
-    <div class="mb-3">
-        <label asp-for="BeneficiarioId" class="form-label">Beneficiario</label>
-        <select asp-for="BeneficiarioId" class="form-select" asp-items="ViewBag.Beneficiarios">
-            <option value="">-- Seleccione un beneficiario --</option>
-        </select>
-        <span asp-validation-for="BeneficiarioId" class="text-danger"></span>
+<div class="container-fluid px-4">
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-plus-circle me-2 text-success"></i>@ViewData["Title"]
+            </h1>
+            <p class="mb-0 text-muted">Complete la información para registrar un nuevo subsidio</p>
+        </div>
+        <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+            <span class="icon text-white-50">
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span class="text">Volver a la lista</span>
+        </a>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Monto" class="form-label"></label>
-        <input asp-for="Monto" class="form-control" />
-        <span asp-validation-for="Monto" class="text-danger"></span>
-    </div>
+    <!-- Formulario -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-edit me-2"></i>Información del Subsidio
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- ========== SECCIÓN DE MENSAJES ========== -->
+    <!-- Mensajes de Error del ModelState -->
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle fa-lg me-3"></i>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading mb-2">Errores en el formulario:</h6>
+                    <div asp-validation-summary="All" class="mb-0 small"></div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
 
-    <div class="mb-3">
-        <label asp-for="Estado" class="form-label"></label>
-        <input asp-for="Estado" class="form-control" />
-        <span asp-validation-for="Estado" class="text-danger"></span>
-    </div>
+    <!-- Mensajes de Éxito -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle fa-lg me-3"></i>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading mb-1">¡Éxito!</h6>
+                    <p class="mb-0">@TempData["SuccessMessage"]</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+                    <form asp-action="Create" method="post" id="subsidioForm">
+                        <!-- Programa -->
+                        <div class="mb-3">
+                            <label asp-for="NombrePrograma" class="form-label fw-bold">
+                                <i class="fas fa-tag me-2 text-primary"></i>Programa *
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-heading"></i></span>
+                                <input asp-for="NombrePrograma" class="form-control" placeholder="Ingrese el nombre del programa" />
+                            </div>
+                            <div class="error-message" data-for="NombrePrograma">
+                                <div class="text-danger small d-flex align-items-center mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    <span>El nombre del programa es obligatorio</span>
+                                </div>
+                            </div>
+                        </div>
 
-    <button type="submit" class="btn btn-success">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>
+                        <div class="row">
+                            <!-- Tipo -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Tipo" class="form-label fw-bold">
+                                    <i class="fas fa-list-alt me-2 text-primary"></i>Tipo de Subsidio *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-tags"></i></span>
+                                    <select asp-for="Tipo" class="form-select">
+                                        <option value="">-- Seleccione el tipo --</option>
+                                        <option value="Canasta básica">Canasta básica</option>
+                                        <option value="Beca educativa">Beca educativa</option>
+                                        <option value="Vale transporte">Vale transporte</option>
+                                        <option value="Subsidio vivienda">Subsidio vivienda</option>
+                                        <option value="Ayuda alimentaria">Ayuda alimentaria</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+                                <div class="error-message" data-for="Tipo">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>El tipo de subsidio es obligatorio</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Monto -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Monto" class="form-label fw-bold">
+                                    <i class="fas fa-dollar-sign me-2 text-primary"></i>Monto *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input asp-for="Monto" class="form-control" type="number" step="0.01" min="0.01" placeholder="0.00" />
+                                </div>
+                                <div class="error-message" data-for="Monto">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>El monto debe ser mayor a cero</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Beneficiario -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BeneficiarioId" class="form-label fw-bold">
+                                    <i class="fas fa-user me-2 text-primary"></i>Beneficiario *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-users"></i></span>
+                                    <select asp-for="BeneficiarioId" class="form-select" asp-items="ViewBag.Beneficiarios">
+                                        <option value="">-- Seleccione un beneficiario --</option>
+                                    </select>
+                                </div>
+                                <div class="error-message" data-for="BeneficiarioId">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>Debe seleccionar un beneficiario</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fecha de Asignación -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FechaAsignacion" class="form-label fw-bold">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>Fecha de Asignación *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <input asp-for="FechaAsignacion" class="form-control" type="date" />
+                                </div>
+                                <div class="error-message" data-for="FechaAsignacion">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>La fecha de asignación es obligatoria</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-4">
+                            <label asp-for="Estado" class="form-label fw-bold">
+                                <i class="fas fa-toggle-on me-2 text-primary"></i>Estado *
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                <select asp-for="Estado" class="form-select">
+                                    <option value="">-- Seleccione el estado --</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Aprobado">Aprobado</option>
+                                    <option value="Rechazado">Rechazado</option>
+                                    <option value="Activo">Activo</option>
+                                    <option value="Finalizado">Finalizado</option>
+                                </select>
+                            </div>
+                            <div class="error-message" data-for="Estado">
+                                <div class="text-danger small d-flex align-items-center mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    <span>El estado es obligatorio</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-secondary btn-icon-split">
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                                <span class="text">Cancelar</span>
+                            </a>
+                            <button type="submit" class="btn btn-success btn-icon-split">
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-save"></i>
+                                </span>
+                                <span class="text">Guardar Subsidio</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de ayuda -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-info-circle me-2"></i>Información Importante
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info border-0">
+                        <h6 class="alert-heading"><i class="fas fa-lightbulb me-2"></i>Requisitos:</h6>
+                        <ul class="mb-0 small">
+                            <li>Todos los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios</li>
+                            <li>El monto debe ser mayor a $0.00</li>
+                            <li>La fecha no puede ser anterior al día actual</li>
+                            <li>Verifique que el beneficiario esté activo en el sistema</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-warning border-0 mt-3">
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Validaciones:</h6>
+                        <ul class="mb-0 small">
+                            <li>Los campos con error se mostrarán en rojo</li>
+                            <li>Aparecerá un mensaje con icono de error debajo de cada campo</li>
+                            <li>Complete toda la información requerida antes de guardar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('subsidioForm');
+            const inputs = form.querySelectorAll('input, select');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            console.log('=== INICIALIZANDO FORMULARIO ===');
+            console.log('Formulario encontrado:', !!form);
+            console.log('Campos encontrados:', inputs.length);
+            console.log('Botón de enviar encontrado:', !!submitBtn);
+
+            // Establecer fecha actual por defecto
+            const fechaInput = document.querySelector('input[type="date"]');
+            if (fechaInput && !fechaInput.value) {
+                const today = new Date().toISOString().split('T')[0];
+                fechaInput.value = today;
+                console.log('📅 Fecha establecida:', today);
+            }
+
+            // Ocultar todos los mensajes de error inicialmente
+            const errorMessages = document.querySelectorAll('.error-message');
+            errorMessages.forEach(msg => {
+                msg.style.display = 'none';
+            });
+            console.log('❌ Mensajes de error ocultos inicialmente');
+
+            // Función para validar un campo
+            function validateField(field) {
+                const fieldName = field.name;
+                const errorMessage = document.querySelector(`.error-message[data-for="${fieldName}"]`);
+                
+                if (!errorMessage) return true;
+
+                // Remover clases anteriores
+                field.classList.remove('is-valid', 'is-invalid');
+
+                // Validar según el tipo de campo
+                let isValid = true;
+                
+                if (field.type === 'select-one') {
+                    isValid = field.value !== '';
+                } else if (field.type === 'number') {
+                    isValid = field.value !== '' && parseFloat(field.value) > 0;
+                } else {
+                    isValid = field.value.trim() !== '';
+                }
+
+                if (isValid) {
+                    field.classList.add('is-valid');
+                    errorMessage.style.display = 'none';
+                    console.log(`✅ Campo ${fieldName}: VÁLIDO`);
+                } else {
+                    field.classList.add('is-invalid');
+                    errorMessage.style.display = 'block';
+                    console.log(`❌ Campo ${fieldName}: INVÁLIDO`);
+                }
+
+                return isValid;
+            }
+
+            // Agregar eventos a todos los campos
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    console.log(`👁️ Campo ${this.name} perdió el foco - Valor: "${this.value}"`);
+                    validateField(this);
+                });
+                
+                input.addEventListener('input', function() {
+                    // Solo validar si ya tiene error
+                    if (this.classList.contains('is-invalid')) {
+                        console.log(`✏️ Campo ${this.name} siendo editado - Nuevo valor: "${this.value}"`);
+                        validateField(this);
+                    }
+                });
+            });
+
+            // DEBUG: Agregar evento de clic al botón
+            submitBtn.addEventListener('click', function(e) {
+                console.log('🖱️ BOTÓN DE ENVIAR CLICKEADO');
+                console.log('Tipo de evento:', e.type);
+            });
+
+            // Validar formulario al enviar
+            form.addEventListener('submit', function(event) {
+                console.log('🚀 === EVENTO SUBMIT DISPARADO ===');
+                console.log('Formulario válido HTML5:', form.checkValidity());
+                
+                let isFormValid = true;
+                let invalidFields = [];
+                
+                inputs.forEach(input => {
+                    const isValid = validateField(input);
+                    if (!isValid) {
+                        isFormValid = false;
+                        invalidFields.push(input.name);
+                    }
+                });
+
+                console.log('📊 Resultado validación:');
+                console.log('   - Formulario válido:', isFormValid);
+                console.log('   - Campos inválidos:', invalidFields);
+
+                if (!isFormValid) {
+                    console.log('🛑 FORMULARIO NO VÁLIDO - Cancelando envío');
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    // Mostrar el primer error
+                    const firstError = form.querySelector('.is-invalid');
+                    if (firstError) {
+                        console.log('📍 Primer campo con error:', firstError.name);
+                        firstError.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                        firstError.focus();
+                    }
+                } else {
+                    console.log('✅ FORMULARIO VÁLIDO - Enviando al servidor...');
+                    // Cambiar texto del botón para indicar carga
+                    submitBtn.innerHTML = `
+                        <span class="icon text-white-50">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                        <span class="text">Guardando...</span>
+                    `;
+                    submitBtn.disabled = true;
+                }
+            });
+
+            // Validación inicial para campos que ya tienen valores
+            console.log('🔍 Validación inicial de campos...');
+            inputs.forEach(input => {
+                if (input.value) {
+                    validateField(input);
+                }
+            });
+
+            console.log('🎉 INICIALIZACIÓN COMPLETADA');
+        });
+    </script>
+
 }
+
+<style>
+    .is-valid {
+        border-color: #198754 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+
+    .is-invalid {
+        border-color: #dc3545 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6.4.4.4-.4'/%3e%3cpath d='M6 7v1'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+
+    .error-message {
+        display: none;
+    }
+
+    .text-danger small {
+        display: flex;
+        align-items: center;
+    }
+</style>

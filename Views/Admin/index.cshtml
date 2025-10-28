@@ -14,7 +14,8 @@
             </h1>
             <p class="mb-0 text-muted">Administre y gestione los beneficiarios del sistema</p>
         </div>
-        <a asp-action="Create" class="btn btn-primary btn-icon-split shadow-sm">
+        <!-- CORREGIDO: Agregar asp-controller="Admin" -->
+        <a asp-controller="Admin" asp-action="Create" class="btn btn-primary btn-icon-split shadow-sm">
             <span class="icon text-white-50">
                 <i class="fas fa-user-plus"></i>
             </span>
@@ -214,12 +215,14 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a asp-action="Details" asp-route-id="@item.Id_Beneficiario" 
+                                            <!-- CORREGIDO: Agregar asp-controller="Admin" -->
+                                            <a asp-controller="Admin" asp-action="Details" asp-route-id="@item.Id_Beneficiario" 
                                                class="btn btn-sm btn-outline-info" 
                                                data-bs-toggle="tooltip" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a asp-action="Edit" asp-route-id="@item.Id_Beneficiario" 
+                                            <!-- CORREGIDO: Agregar asp-controller="Admin" -->
+                                            <a asp-controller="Admin" asp-action="Edit" asp-route-id="@item.Id_Beneficiario" 
                                                class="btn btn-sm btn-outline-warning" 
                                                data-bs-toggle="tooltip" title="Editar">
                                                 <i class="fas fa-edit"></i>
@@ -270,7 +273,8 @@
                         <i class="fas fa-users fa-4x text-muted mb-3"></i>
                         <h4 class="text-muted">No hay beneficiarios registrados</h4>
                         <p class="text-muted mb-4">Comience agregando el primer beneficiario al sistema.</p>
-                        <a asp-action="Create" class="btn btn-primary btn-lg">
+                        <!-- CORREGIDO: Agregar asp-controller="Admin" -->
+                        <a asp-controller="Admin" asp-action="Create" class="btn btn-primary btn-lg">
                             <i class="fas fa-user-plus me-2"></i>Registrar Primer Beneficiario
                         </a>
                     </div>
@@ -335,10 +339,8 @@
 
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
             if (deleteId) {
-                // Aquí iría la llamada AJAX para eliminar
-                console.log('Eliminando beneficiario ID:', deleteId);
-                // Redirigir o recargar la página después de eliminar
-                window.location.href = '@Url.Action("Delete", new { id = "__id__" })'.replace('__id__', deleteId);
+                // CORREGIDO: Especificar el controlador en la URL
+                window.location.href = '@Url.Action("Delete", "Admin", new { id = "__id__" })'.replace('__id__', deleteId);
             }
         });
 
