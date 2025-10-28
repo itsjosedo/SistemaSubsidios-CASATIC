@@ -38,4 +38,6 @@ public class BeneficiarioViewModel
     [Display(Name = "Acepto los términos y condiciones")]
     public bool AceptaTerminos { get; set; }
     public string? EntidadNombre { get; set; }
+
+    
 }

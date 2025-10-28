@@ -39,6 +39,12 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             ViewBag.PerfilIncompleto = perfilIncompleto;
 
+            var subsidios = await _context.Subsidios
+            .Where(s => s.BeneficiarioId == beneficiario.Id_Beneficiario)
+            .ToListAsync();
+
+            // ✅ 2️⃣ Enviar los subsidios mediante ViewBag
+            ViewBag.Subsidios = subsidios;
             var model = new BeneficiarioViewModel
             {
                 Id_Beneficiario = beneficiario.Id_Beneficiario,
@@ -152,18 +158,88 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return View(model);
             }
         }
-// GET: Beneficiarios/Lista (Vista pública para el dashboard)
-public async Task<IActionResult> Lista()
-{
-    var beneficiarios = await _context.Beneficiarios
-        .Include(b => b.Entidad)
-        .Where(b => !string.IsNullOrEmpty(b.Dui) && !string.IsNullOrEmpty(b.Nombre))
-        .OrderBy(b => b.Nombre)
-        .ToListAsync();
+        // GET: Beneficiarios/Lista (Vista pública para el dashboard)
+        public async Task<IActionResult> Lista()
+        {
+            var beneficiarios = await _context.Beneficiarios
+                .Include(b => b.Entidad)
+                .Where(b => !string.IsNullOrEmpty(b.Dui) && !string.IsNullOrEmpty(b.Nombre))
+                .OrderBy(b => b.Nombre)
+                .ToListAsync();
 
-    ViewData["Title"] = "Lista de Beneficiarios";
-    return View(beneficiarios);
-}
+            ViewData["Title"] = "Lista de Beneficiarios";
+            return View(beneficiarios);
+        }
+
+
+        //GET: Editar Perfil beneficiario
+        [HttpGet]
+        public async Task<IActionResult> EditarPerfil()
+        {
+            var userId = GetUserId();
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
+
+            var beneficiario = await _context.Beneficiarios
+                .FirstOrDefaultAsync(b => b.UsuarioId == userId.Value);
+
+            if (beneficiario == null)
+                return RedirectToAction("CompletarPerfil");
+
+            var model = new BeneficiarioViewModel
+            {
+                Telefono = beneficiario.Telefono,
+                Direccion = beneficiario.Direccion
+            };
+
+            return View(model);
+        }
+        // POST: Beneficiarios/EditarPerfil
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarPerfil(BeneficiarioViewModel model)
+        {
+            Console.WriteLine("Método POST EditarPerfil ejecutado");
+
+            var userId = GetUserId();
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            //Buscamos al beneficiario ANTES de validar
+            var beneficiario = await _context.Beneficiarios
+                .FirstOrDefaultAsync(b => b.UsuarioId == userId.Value);
+
+            if (beneficiario == null)
+            {
+                return RedirectToAction("CompletarPerfil");
+            }
+
+            // ✅ Validamos solo lo que realmente se está editando
+            // (para evitar errores por otros campos requeridos que no se muestran)
+            ModelState.Remove("Nombre");
+            ModelState.Remove("Dui");
+            ModelState.Remove("Correo");
+
+            if (!ModelState.IsValid)
+            {
+                // ✅ Reasignamos datos actuales para que no se pierdan en la vista
+                model.Telefono = beneficiario.Telefono;
+                model.Direccion = beneficiario.Direccion;
+                return View(model);
+            }
+
+            // ✅ Guardamos los cambios permitidos
+            beneficiario.Telefono = model.Telefono?.Trim();
+            beneficiario.Direccion = model.Direccion?.Trim();
+
+            await _context.SaveChangesAsync();
+
+            TempData["MensajeExito"] = "Perfil actualizado correctamente.";
+            return RedirectToAction("Index");
+        }
+
 
     }
 }

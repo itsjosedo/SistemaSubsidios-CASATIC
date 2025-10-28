@@ -5,31 +5,74 @@
     Layout = ViewBag.Layout ?? "_LayoutBeneficario";
 }
 
+<style>
+    .perfil-card {
+        border: none;
+        border-radius: 20px;
+        background: linear-gradient(145deg, #ffffff, #f4f6f9);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .perfil-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .perfil-header {
+        background: linear-gradient(135deg, #007bff, #4e9fff);
+        color: white;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .subsidio-card {
+        border: none;
+        border-radius: 15px;
+        background: #ffffff;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .subsidio-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .subsidio-icon {
+        font-size: 2rem;
+        color: #007bff;
+    }
+
+    .badge-custom {
+        font-size: 0.85rem;
+        padding: 0.4em 0.7em;
+    }
+</style>
+
 <div class="container mt-5">
 
-    <div class="row mb-4">
-        <div class="col-12 text-center">
-            <h1 class="display-5">Bienvenido, <span class="text-primary">@Model.Nombre</span></h1>
-            <p class="lead">Gestiona tu perfil y consulta tu información de subsidio.</p>
-        </div>
+    <!-- Encabezado -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary">👋 Bienvenido, @Model.Nombre</h1>
+        <p class="text-muted">Consulta y gestiona tu información personal y subsidios activos.</p>
     </div>
 
     @if (TempData["MensajeExito"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm text-center">
             <i class="fas fa-check-circle me-2"></i>@TempData["MensajeExito"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
     @if (ViewBag.PerfilIncompleto == true)
     {
-        <div class="alert alert-warning shadow-sm d-flex align-items-center" role="alert">
-            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+        <div class="alert alert-warning shadow-sm d-flex align-items-center justify-content-center text-center p-4" role="alert">
+            <i class="fas fa-exclamation-triangle fa-2x me-3 text-warning"></i>
             <div>
-                <strong>⚠️ Tu perfil está incompleto.</strong>
-                <p>Debes completar tu información para continuar con el proceso de subsidio.</p>
-                <a class="btn btn-primary btn-sm" href="/Beneficiarios/CompletarPerfil">
+                <h5 class="fw-bold">⚠️ Tu perfil está incompleto</h5>
+                <p>Por favor completa tu información para poder acceder a los subsidios disponibles.</p>
+                <a class="btn btn-primary" href="/Beneficiarios/CompletarPerfil">
                     <i class="fas fa-user-edit me-1"></i> Completar perfil
                 </a>
             </div>
@@ -37,20 +80,23 @@
     }
     else
     {
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow-lg">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Tu perfil</h5>
+        <div class="row g-4 justify-content-center">
+            <!-- Perfil -->
+            <div class="col-md-5">
+                <div class="perfil-card h-100">
+                    <div class="perfil-header p-4 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Tu perfil</h5>
                         <a class="btn btn-light btn-sm" href="/Beneficiarios/EditarPerfil">
                             <i class="fas fa-edit me-1"></i> Editar
                         </a>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-4">
                         <p class="mb-2"><strong>DUI:</strong> <span class="text-secondary">@Model.Dui</span></p>
                         <p class="mb-2"><strong>Teléfono:</strong> <span class="text-secondary">@Model.Telefono</span></p>
                         <p class="mb-2"><strong>Dirección:</strong> <span class="text-secondary">@Model.Direccion</span></p>
-                        <p class="mb-2"><strong>Estado Subsidio:</strong> <span class="badge bg-success">@Model.EstadoSubsidio</span></p>
+                        <p class="mb-2"><strong>Estado Subsidio:</strong> 
+                            <span class="badge bg-success badge-custom">@Model.EstadoSubsidio</span>
+                        </p>
                         @if (!string.IsNullOrEmpty(Model.EntidadNombre))
                         {
                             <p class="mb-0"><strong>Entidad:</strong> @Model.EntidadNombre</p>
@@ -58,9 +104,52 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Subsidios -->
+            <div class="col-md-7">
+                @if (ViewBag.Subsidios != null && ((List<Subsidio>)ViewBag.Subsidios).Any())
+                {
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="fw-bold text-secondary mb-0"><i class="fas fa-hand-holding-usd me-2"></i>Subsidios Inscritos</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                @foreach (var s in (List<Subsidio>)ViewBag.Subsidios)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="subsidio-card p-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="subsidio-icon fas fa-gift me-3"></i>
+                                                <div>
+                                                    <h6 class="fw-bold mb-0">@s.NombrePrograma</h6>
+                                                    <small class="text-muted">@s.Tipo</small>
+                                                </div>
+                                            </div>
+                                            <p class="mb-1"><strong>Monto:</strong> $@s.Monto.ToString("N2")</p>
+                                            <p class="mb-1"><strong>Fecha:</strong> @s.FechaAsignacion.ToString("dd/MM/yyyy")</p>
+                                            <span class="badge badge-custom bg-@(s.Estado == "Aprobado" ? "success" : s.Estado == "Pendiente" ? "warning text-dark" : "danger")">@s.Estado</span>
+                                            <div class="text-end mt-2">
+                                                <a asp-controller="Subsidios" asp-action="Detalles" asp-route-id="@s.Id"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-info-circle"></i> Detalles
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="card shadow-sm border-0 h-100 text-center p-5">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No tienes subsidios asignados aún.</p>
+                    </div>
+                }
+            </div>
         </div>
     }
 </div>
-
-
-
