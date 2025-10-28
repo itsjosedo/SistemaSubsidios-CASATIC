@@ -1,0 +1,492 @@
+@model IEnumerable<Subsidio>
+@{
+    ViewData["Title"] = "Reporte General de Subsidios";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Estilos para pantalla */
+        @@media screen {
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+                color: #2c3e50;
+                margin: 0;
+                padding: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                overflow: hidden;
+            }
+
+            .header {
+                background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+                color: white;
+                padding: 25px;
+                text-align: center;
+            }
+
+            .report-info {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                padding: 25px;
+                background: #f8f9fa;
+            }
+
+            .info-card {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                text-align: center;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+                border-left: 4px solid #3498db;
+            }
+
+            .print-btn-container {
+                text-align: center;
+                padding: 20px;
+                background: #f8f9fa;
+                border-top: 1px solid #e9ecef;
+            }
+
+            .print-btn {
+                background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 25px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+            }
+
+            .print-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+            }
+        }
+
+        /* Estilos base para ambos */
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            line-height: 1.3;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background: white;
+        }
+
+        .header {
+            background: #2c3e50 !important;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .header .subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .report-info {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: #f8f9fa !important;
+            page-break-inside: avoid;
+        }
+
+        .info-card {
+            background: white;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ccc;
+            flex: 1;
+            margin: 0 8px;
+            min-width: 120px;
+        }
+
+        .info-card .icon {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .info-card .label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-card .value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .info-card .value.total {
+            color: #006400;
+        }
+
+        .table-section {
+            padding: 0 15px 15px 15px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 15px 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 11px;
+            page-break-inside: avoid;
+        }
+
+        th {
+            background: #34495e !important;
+            color: white !important;
+            font-weight: 600;
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            border: 1px solid #2c3e50;
+        }
+
+        td {
+            padding: 10px 8px;
+            border: 1px solid #ddd;
+            font-size: 11px;
+        }
+
+        .estado-activo {
+            background: #d4edda;
+            color: #155724;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 10px;
+            display: inline-block;
+        }
+
+        .estado-pendiente {
+            background: #fff3cd;
+            color: #856404;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 10px;
+            display: inline-block;
+        }
+
+        .estado-rechazado {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 10px;
+            display: inline-block;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .footer {
+            background: #f8f9fa !important;
+            color: #666 !important;
+            padding: 12px;
+            text-align: center;
+            margin-top: 15px;
+            border-top: 2px solid #ddd;
+            font-size: 10px;
+            page-break-inside: avoid;
+        }
+
+        .footer p {
+            margin: 2px 0;
+        }
+
+        /* Estilos específicos para impresión */
+        @@media print {
+            @@page {
+                size: A4 landscape;
+                margin: 0.7cm;
+            }
+
+            body {
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-size: 12px;
+                color: black !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .container {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+            }
+
+            .print-btn-container {
+                display: none !important;
+            }
+
+            .header {
+                background: #2c3e50 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color: white !important;
+                padding: 12px !important;
+                margin-bottom: 10px !important;
+            }
+
+            .report-info {
+                background: #f8f9fa !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                display: flex !important;
+                page-break-inside: avoid;
+                margin: 10px 0 !important;
+                padding: 12px !important;
+            }
+
+            .info-card {
+                border: 1px solid #999 !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            th {
+                background: #34495e !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color: white !important;
+                border: 1px solid #2c3e50 !important;
+            }
+
+            .estado-activo, .estado-pendiente, .estado-rechazado {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            table {
+                page-break-inside: avoid;
+                font-size: 11px;
+            }
+
+            .table-section {
+                page-break-inside: avoid;
+                margin: 0 !important;
+                padding: 0 0 10px 0 !important;
+            }
+
+            .section-title {
+                margin: 10px 0 8px 0 !important;
+                font-size: 15px !important;
+            }
+
+            /* Asegurar que todo quepa en una página */
+            .header, .report-info, .table-section, .footer {
+                page-break-inside: avoid;
+                page-break-after: avoid;
+            }
+
+            body, .container {
+                height: auto !important;
+                overflow: visible !important;
+            }
+        }
+
+        /* Responsive para pantalla */
+        @@media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .report-info {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .table-section {
+                padding: 0 10px 10px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado del Reporte -->
+        <div class="header">
+            <h1><i class="fas fa-file-alt me-2"></i>@ViewData["Title"]</h1>
+            <p class="subtitle">Sistema de Gestión de Subsidios - Reporte Generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+
+        <!-- Información Resumida -->
+        <div class="report-info">
+            <div class="info-card">
+                <div class="icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="label">Total de Subsidios</div>
+                <div class="value">@ViewData["TotalSubsidios"]</div>
+            </div>
+            <div class="info-card">
+                <div class="icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="label">Monto Total Asignado</div>
+                <div class="value total">$@ViewData["MontoTotal"]</div>
+            </div>
+            <div class="info-card">
+                <div class="icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="label">Fecha de Generación</div>
+                <div class="value">@DateTime.Now.ToString("dd/MM/yyyy")</div>
+            </div>
+        </div>
+
+        <!-- Tabla de Subsidios -->
+        <div class="table-section">
+            <h3 class="section-title">
+                <i class="fas fa-table me-2"></i>Detalle de Subsidios
+            </h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="15%">Programa</th>
+                        <th width="15%">Tipo</th>
+                        <th width="15%">Beneficiario</th>
+                        <th width="12%">DUI</th>
+                        <th width="10%" class="text-right">Monto</th>
+                        <th width="12%">Fecha Asignación</th>
+                        <th width="12%" class="text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var subsidio in Model)
+                    {
+                        <tr>
+                            <td class="text-center"><strong>#@subsidio.Id</strong></td>
+                            <td>@subsidio.NombrePrograma</td>
+                            <td>@subsidio.Tipo</td>
+                            <td>@(subsidio.Beneficiario?.Nombre ?? "N/A")</td>
+                            <td>@(subsidio.Beneficiario?.Dui ?? "N/A")</td>
+                            <td class="text-right"><strong>$@subsidio.Monto.ToString("N2")</strong></td>
+                            <td>@subsidio.FechaAsignacion.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">
+                                @{
+                                    var estadoClass = "estado-pendiente";
+                                    if (subsidio.Estado != null)
+                                    {
+                                        var estadoLower = subsidio.Estado.ToLower();
+                                        if (estadoLower == "activo" || estadoLower == "aprobado")
+                                        {
+                                            estadoClass = "estado-activo";
+                                        }
+                                        else if (estadoLower == "rechazado")
+                                        {
+                                            estadoClass = "estado-rechazado";
+                                        }
+                                    }
+                                }
+                                <span class="@estadoClass">@subsidio.Estado</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botón de Impresión (solo visible en pantalla) -->
+        <div class="print-btn-container">
+            <button class="print-btn" onclick="imprimirReporte()">
+                <i class="fas fa-print"></i>Imprimir Reporte
+            </button>
+        </div>
+
+        <!-- Pie de página -->
+        <div class="footer">
+            <p><i class="fas fa-shield-alt me-2"></i>Reporte generado automáticamente por el Sistema de Gestión de Subsidios</p>
+            <p><i class="fas fa-clock me-2"></i>Generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</p>
+        </div>
+    </div>
+
+    <script>
+        function imprimirReporte() {
+            // Deshabilitar el botón momentáneamente para evitar múltiples clics
+            const btn = document.querySelector('.print-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparando impresión...';
+            
+            // Pequeño retraso para que el usuario vea el feedback
+            setTimeout(() => {
+                window.print();
+                
+                // Restaurar el botón después de un tiempo
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-print"></i> Imprimir Reporte';
+                }, 2000);
+                
+            }, 500);
+        }
+
+        // Cerrar la ventana después de imprimir si el usuario lo desea
+        window.onafterprint = function() {
+        };
+    </script>
+</body>
+</html>
