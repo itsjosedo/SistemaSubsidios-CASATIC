@@ -1,7 +1,7 @@
 @model EntidadViewModel
 
 @{
-    ViewData["Title"] = "Registro de Entidad";
+    ViewData["Title"] = "Registro de entidad";
      Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -27,7 +27,7 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <h5 class="text-primary border-bottom pb-2">
-                                <i class="fas fa-id-card me-2"></i>Información de Entidad
+                                <i class="fas fa-id-card me-2"></i>Información de entidad
                             </h5>
                         </div>
                     </div>
@@ -35,7 +35,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label asp-for="Nombre" class="form-label fw-semibold">
-                                <i class="fas fa-user me-1 text-muted"></i>Nombre de Entidad *
+                                <i class="fas fa-user me-1 text-muted"></i>Nombre de entidad *
                             </label>
                             <input asp-for="Nombre" class="form-control" 
                                    placeholder="Ej: CASTAIC">
@@ -61,7 +61,7 @@
 
                     <div class="mb-3">
                         <label asp-for="Direccion" class="form-label fw-semibold">
-                            <i class="fas fa-map-marker-alt me-1 text-muted"></i>Dirección Completa *
+                            <i class="fas fa-map-marker-alt me-1 text-muted"></i>Dirección completa *
                         </label>
                         <textarea asp-for="Direccion" class="form-control" 
                                   rows="3" placeholder="Ej: Colonia Las Flores, Calle Principal #123, San Salvador"></textarea>
@@ -74,7 +74,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label asp-for="NombreUsuario" class="form-label fw-semibold">
-                                <i class="fas fa-user me-1 text-muted"></i>Nombre de Usuario*
+                                <i class="fas fa-user me-1 text-muted"></i>Nombre de usuario*
                             </label>
                             <input asp-for="NombreUsuario" class="form-control" 
                                    placeholder="Ej: adminCasatic">
@@ -100,7 +100,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label asp-for="Contrasena" class="form-label fw-semibold">
-                                <i class="fas fa-lock"></i>Contraseña de Usuario*
+                                <i class="fas fa-lock"></i>Contraseña de usuario*
                             </label>
                             <input asp-for="Contrasena" class="form-control" 
                                    placeholder="">
@@ -112,7 +112,7 @@
 
                         <div class="col-md-6 mb-3">
                             <label asp-for="ConfirmarContrasena" class="form-label fw-semibold">
-                                <i class="fas fa-lock"></i>Confirmar Contraseña *
+                                <i class="fas fa-lock"></i>Confirmar contraseña *
                             </label>
                             <input asp-for="ConfirmarContrasena" class="form-control" 
                                    placeholder="">
@@ -138,7 +138,7 @@
                             <i class="fas fa-arrow-left me-2"></i>Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Registrar Entidad
+                            <i class="fas fa-save me-2"></i>Registrar entidad
                         </button>
                     </div>
                 </form>
@@ -153,12 +153,12 @@
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="terminosModalLabel">
-                    <i class="fas fa-file-contract me-2"></i>Términos y Condiciones
+                    <i class="fas fa-file-contract me-2"></i>Términos y condiciones
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <h6>Registro de Beneficiarios - Sistema de Subsidios CASATIC</h6>
+                <h6>Registro de beneficiarios - Sistema de Subsidios CASATIC</h6>
                 <p>Al aceptar los términos y condiciones, usted reconoce que:</p>
                 <ul>
                     <li>La información proporcionada es verídica y completa</li>

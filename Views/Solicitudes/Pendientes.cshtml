@@ -1,6 +1,6 @@
 @model IEnumerable<Subsidio>
 @{
-    ViewData["Title"] = "Solicitudes Pendientes";
+    ViewData["Title"] = "Solicitudes pendientes";
 }
 
 <div class="container-fluid px-4">
@@ -9,7 +9,7 @@
             <i class="fas fa-clock me-2"></i>@ViewData["Title"]
         </h1>
         <a asp-controller="Subsidios" asp-action="Index" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver a Subsidios
+            <i class="fas fa-arrow-left me-2"></i>Volver a subsidios
         </a>
     </div>
 
@@ -23,9 +23,9 @@
                             <tr>
                                 <th>Programa</th>
                                 <th>Tipo</th>
-                                <th>Monto Solicitado</th>
+                                <th>Monto solicitado</th>
                                 <th>Beneficiario</th>
-                                <th>Fecha Solicitud</th>
+                                <th>Fecha solicitud</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -40,7 +40,10 @@
                                     <td>@solicitud.Beneficiario?.Nombre</td>
                                     <td>@solicitud.FechaAsignacion.ToString("dd/MM/yyyy")</td>
                                     <td>
-                                        <span class="badge bg-warning">@solicitud.Estado</span>
+                                        @{
+                                            var badgeClass = solicitud.Estado == "Pendiente" ? "bg-warning" : "bg-info";
+                                        }
+                                        <span class="badge @badgeClass">@solicitud.Estado</span>
                                     </td>
                                     <td>
                                         <a asp-controller="Subsidios" asp-action="Details" asp-route-id="@solicitud.Id" 

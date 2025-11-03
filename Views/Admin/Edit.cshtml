@@ -1,7 +1,7 @@
 @model BeneficiarioViewModel 
 
 @{
-    ViewData["Title"] = "Editar Beneficiario";
+    ViewData["Title"] = "Editar beneficiario";
     Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -55,14 +55,14 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <h5 class="text-warning border-bottom pb-2">
-                                <i class="fas fa-id-card me-2"></i>Información Personal
+                                <i class="fas fa-id-card me-2"></i>Información personal
                             </h5>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Nombre" class="form-label fw-semibold">Nombre Completo *</label>
+                            <label asp-for="Nombre" class="form-label fw-semibold">Nombre completo *</label>
                             <input asp-for="Nombre" class="form-control" placeholder="Ingrese el nombre completo" />
                             <span asp-validation-for="Nombre" class="text-danger small"></span>
                         </div>
@@ -82,7 +82,7 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label asp-for="EntidadId" class="form-label fw-semibold">Entidad Asignada</label>
+                            <label asp-for="EntidadId" class="form-label fw-semibold">Entidad asignada</label>
                             <select asp-for="EntidadId" asp-items="ViewBag.Entidades" class="form-select">
                                 <option value="">-- Seleccione una entidad --</option>
                             </select>
@@ -92,13 +92,13 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Direccion" class="form-label fw-semibold">Dirección Completa *</label>
+                        <label asp-for="Direccion" class="form-label fw-semibold">Dirección completa *</label>
                         <textarea asp-for="Direccion" class="form-control" rows="3" placeholder="Ingrese la dirección completa"></textarea>
                         <span asp-validation-for="Direccion" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-4">
-                        <label asp-for="EstadoSubsidio" class="form-label fw-semibold">Estado del Subsidio *</label>
+                        <label asp-for="EstadoSubsidio" class="form-label fw-semibold">Estado del subsidio *</label>
                         <select asp-for="EstadoSubsidio" class="form-select">
                             <option value="Pendiente">Pendiente</option>
                             <option value="Activo">Activo</option>
@@ -112,10 +112,10 @@
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                         <a asp-action="Index" class="btn btn-outline-secondary me-md-2">
-                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                            <i class="fas fa-arrow-left me-2"></i>Volver al listado
                         </a>
                         <button type="submit" class="btn btn-warning px-4">
-                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                            <i class="fas fa-save me-2"></i>Guardar cambios
                         </button>
                     </div>
                 </form>

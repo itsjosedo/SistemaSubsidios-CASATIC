@@ -1,6 +1,6 @@
 @model IEnumerable<Subsidio>
 @{
-    ViewData["Title"] = "Reporte General de Subsidios";
+    ViewData["Title"] = "Reporte general de subsidios";
     Layout = null;
 }
 
@@ -369,7 +369,7 @@
         <!-- Encabezado del Reporte -->
         <div class="header">
             <h1><i class="fas fa-file-alt me-2"></i>@ViewData["Title"]</h1>
-            <p class="subtitle">Sistema de Gestión de Subsidios - Reporte Generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+            <p class="subtitle">Sistema de gestión de subsidios - Reporte generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
         </div>
 
         <!-- Información Resumida -->
@@ -378,21 +378,21 @@
                 <div class="icon">
                     <i class="fas fa-chart-bar"></i>
                 </div>
-                <div class="label">Total de Subsidios</div>
+                <div class="label">Total de subsidios</div>
                 <div class="value">@ViewData["TotalSubsidios"]</div>
             </div>
             <div class="info-card">
                 <div class="icon">
                     <i class="fas fa-dollar-sign"></i>
                 </div>
-                <div class="label">Monto Total Asignado</div>
+                <div class="label">Monto total asignado</div>
                 <div class="value total">$@ViewData["MontoTotal"]</div>
             </div>
             <div class="info-card">
                 <div class="icon">
                     <i class="fas fa-calendar-check"></i>
                 </div>
-                <div class="label">Fecha de Generación</div>
+                <div class="label">Fecha de generación</div>
                 <div class="value">@DateTime.Now.ToString("dd/MM/yyyy")</div>
             </div>
         </div>
@@ -400,7 +400,7 @@
         <!-- Tabla de Subsidios -->
         <div class="table-section">
             <h3 class="section-title">
-                <i class="fas fa-table me-2"></i>Detalle de Subsidios
+                <i class="fas fa-table me-2"></i>Detalle de subsidios
             </h3>
             <table>
                 <thead>
@@ -411,7 +411,7 @@
                         <th width="15%">Beneficiario</th>
                         <th width="12%">DUI</th>
                         <th width="10%" class="text-right">Monto</th>
-                        <th width="12%">Fecha Asignación</th>
+                        <th width="12%">Fecha asignación</th>
                         <th width="12%" class="text-center">Estado</th>
                     </tr>
                 </thead>
@@ -453,13 +453,13 @@
         <!-- Botón de Impresión (solo visible en pantalla) -->
         <div class="print-btn-container">
             <button class="print-btn" onclick="imprimirReporte()">
-                <i class="fas fa-print"></i>Imprimir Reporte
+                <i class="fas fa-print"></i>Imprimir reporte
             </button>
         </div>
 
         <!-- Pie de página -->
         <div class="footer">
-            <p><i class="fas fa-shield-alt me-2"></i>Reporte generado automáticamente por el Sistema de Gestión de Subsidios</p>
+            <p><i class="fas fa-shield-alt me-2"></i>Reporte generado automáticamente por el sistema de gestión de subsidios</p>
             <p><i class="fas fa-clock me-2"></i>Generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")</p>
         </div>
     </div>

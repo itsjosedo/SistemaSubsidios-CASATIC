@@ -1,7 +1,7 @@
 @model Entidad
 
 @{
-    ViewData["Title"] = "Eliminar Entidad";
+    ViewData["Title"] = "Eliminar entidad";
      Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -9,10 +9,10 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="text-danger">
-            <i class="fas fa-exclamation-triangle me-2"></i>Eliminar Entidad
+            <i class="fas fa-exclamation-triangle me-2"></i>Eliminar entidad
         </h1>
         <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver a Detalles
+            <i class="fas fa-arrow-left me-2"></i>Volver a detalles
         </a>
     </div>
 
@@ -30,7 +30,7 @@
             <div class="card border-danger">
                 <div class="card-header bg-danger text-white">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-trash me-2"></i>Confirmar Eliminación
+                        <i class="fas fa-trash me-2"></i>Confirmar eliminación
                     </h5>
                 </div>
                 <div class="card-body">
@@ -43,7 +43,7 @@
 
                     <div class="card mb-3">
                         <div class="card-body">
-                            <h6>Información de la Entidad a Eliminar:</h6>
+                            <h6>Información de la entidad a eliminar:</h6>
                             <dl class="row mb-0">
                                 <dt class="col-sm-4">ID:</dt>
                                 <dd class="col-sm-8">@Model.Id</dd>
@@ -79,7 +79,7 @@
                     {
                         <div class="text-center">
                             <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-primary">
-                                <i class="fas fa-arrow-left me-2"></i>Volver a Detalles
+                                <i class="fas fa-arrow-left me-2"></i>Volver a detalles
                             </a>
                         </div>
                     }
@@ -95,7 +95,7 @@
                                 </a>
                                 <button type="submit" class="btn btn-danger" 
                                         onclick="return confirm('¿Está completamente seguro de eliminar esta entidad? Esta acción es irreversible.')">
-                                    <i class="fas fa-trash me-2"></i>Eliminar Definitivamente
+                                    <i class="fas fa-trash me-2"></i>Eliminar definitivamente
                                 </button>
                             </div>
                         </form>

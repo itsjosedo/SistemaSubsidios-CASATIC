@@ -1,7 +1,7 @@
 @model IEnumerable<Beneficiario>
 
 @{
-    ViewData["Title"] = "Gestión de Beneficiarios";
+    ViewData["Title"] = "Gestión de beneficiarios";
      Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -19,7 +19,7 @@
             <span class="icon text-white-50">
                 <i class="fas fa-user-plus"></i>
             </span>
-            <span class="text">Nuevo Beneficiario</span>
+            <span class="text">Nuevo beneficiario</span>
         </a>
     </div>
 
@@ -31,7 +31,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Beneficiarios
+                                Total beneficiarios
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count()</div>
                         </div>
@@ -89,7 +89,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Con Entidad
+                                Con entidad
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 @Model.Count(b => b.EntidadId != null)
@@ -111,7 +111,7 @@
             <div class="d-flex align-items-center">
                 <i class="fas fa-check-circle fa-lg me-3"></i>
                 <div class="flex-grow-1">
-                    <h6 class="alert-heading mb-1">¡Operación Exitosa!</h6>
+                    <h6 class="alert-heading mb-1">¡Operación exitosa!</h6>
                     <p class="mb-0">@TempData["SuccessMessage"]</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -123,7 +123,7 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-list me-2"></i>Lista de Beneficiarios Registrados
+                <i class="fas fa-list me-2"></i>Lista de beneficiarios registrados
             </h6>
             <div class="d-flex">
                 <div class="input-group input-group-sm me-2" style="width: 250px;">
@@ -275,7 +275,7 @@
                         <p class="text-muted mb-4">Comience agregando el primer beneficiario al sistema.</p>
                         <!-- CORREGIDO: Agregar asp-controller="Admin" -->
                         <a asp-controller="Admin" asp-action="Create" class="btn btn-primary btn-lg">
-                            <i class="fas fa-user-plus me-2"></i>Registrar Primer Beneficiario
+                            <i class="fas fa-user-plus me-2"></i>Registrar primer beneficiario
                         </a>
                     </div>
                 </div>
@@ -290,7 +290,7 @@
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar eliminación
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>

@@ -1,7 +1,7 @@
 @model Beneficiario
 
 @{
-    ViewData["Title"] = "Detalles del Beneficiario";
+    ViewData["Title"] = "Detalles del beneficiario";
      Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -34,7 +34,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-info-circle me-2"></i>Información Personal
+                        <i class="fas fa-info-circle me-2"></i>Información personal
                     </h6>
                     <span class="badge @GetEstadoBadgeClass(Model.EstadoSubsidio)">
                         <i class="@GetEstadoIcon(Model.EstadoSubsidio) me-1"></i>
@@ -74,7 +74,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-6 mb-3">
-                                    <label class="form-label fw-bold text-muted">Entidad Asignada</label>
+                                    <label class="form-label fw-bold text-muted">Entidad asignada</label>
                                     <div class="form-control bg-light">
                                         @if (Model.Entidad != null)
                                         {
@@ -89,7 +89,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-6 mb-3">
-                                    <label class="form-label fw-bold text-muted">Fecha de Registro</label>
+                                    <label class="form-label fw-bold text-muted">Fecha de registro</label>
                                     <div class="form-control bg-light">
                                         <i class="fas fa-calendar me-2 text-primary"></i>@DateTime.Now.ToString("dd/MM/yyyy")
                                     </div>

@@ -1,6 +1,6 @@
 @model Subsidio
 @{
-    ViewData["Title"] = "Editar Subsidio";
+    ViewData["Title"] = "Editar subsidio";
     Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -17,7 +17,7 @@
             <span class="icon text-white-50">
                 <i class="fas fa-eye"></i>
             </span>
-            <span class="text">Ver Detalles</span>
+            <span class="text">Ver detalles</span>
         </a>
     </div>
 
@@ -27,7 +27,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3 bg-warning">
                     <h6 class="m-0 font-weight-bold text-white">
-                        <i class="fas fa-edit me-2"></i>Editar Información del Subsidio
+                        <i class="fas fa-edit me-2"></i>Editar información del subsidio
                     </h6>
                 </div>
                 <div class="card-body">
@@ -84,7 +84,7 @@
                             <!-- Tipo -->
                             <div class="col-md-6 mb-4">
                                 <label asp-for="Tipo" class="form-label fw-bold">
-                                    <i class="fas fa-list-alt me-2 text-primary"></i>Tipo de Subsidio *
+                                    <i class="fas fa-list-alt me-2 text-primary"></i>Tipo de subsidio *
                                 </label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-tags"></i></span>
@@ -147,7 +147,7 @@
                             <!-- Fecha de Asignación -->
                             <div class="col-md-6 mb-4">
                                 <label asp-for="FechaAsignacion" class="form-label fw-bold">
-                                    <i class="fas fa-calendar me-2 text-primary"></i>Fecha de Asignación *
+                                    <i class="fas fa-calendar me-2 text-primary"></i>Fecha de asignación *
                                 </label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
@@ -198,7 +198,7 @@
                                 <span class="icon text-white-50">
                                     <i class="fas fa-save"></i>
                                 </span>
-                                <span class="text">Actualizar Subsidio</span>
+                                <span class="text">Actualizar subsidio</span>
                             </button>
                         </div>
                     </form>
@@ -211,12 +211,12 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3 bg-info">
                     <h6 class="m-0 font-weight-bold text-white">
-                        <i class="fas fa-info-circle me-2"></i>Información del Subsidio
+                        <i class="fas fa-info-circle me-2"></i>Información del subsidio
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info border-0">
-                        <h6 class="alert-heading"><i class="fas fa-lightbulb me-2"></i>Datos Actuales:</h6>
+                        <h6 class="alert-heading"><i class="fas fa-lightbulb me-2"></i>Datos actuales:</h6>
                         <div class="small">
                             <div class="mb-2">
                                 <strong>ID:</strong> <span class="text-muted">#@Model.Id</span>
@@ -248,7 +248,7 @@
                     </div>
                     
                     <div class="alert alert-warning border-0 mt-3">
-                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Notas Importantes:</h6>
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Notas importantes:</h6>
                         <ul class="mb-0 small">
                             <li>Todos los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios</li>
                             <li>Los cambios se guardarán inmediatamente</li>
@@ -263,19 +263,19 @@
             <div class="card shadow">
                 <div class="card-header py-3 bg-light">
                     <h6 class="m-0 font-weight-bold text-dark">
-                        <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+                        <i class="fas fa-bolt me-2"></i>Acciones rápidas
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info btn-sm">
-                            <i class="fas fa-eye me-2"></i>Ver Detalles
+                            <i class="fas fa-eye me-2"></i>Ver detalles
                         </a>
                         <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-list me-2"></i>Volver a la Lista
+                            <i class="fas fa-list me-2"></i>Volver a la lista
                         </a>
                         <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger btn-sm">
-                            <i class="fas fa-trash me-2"></i>Eliminar Subsidio
+                            <i class="fas fa-trash me-2"></i>Eliminar subsidio
                         </a>
                     </div>
                 </div>

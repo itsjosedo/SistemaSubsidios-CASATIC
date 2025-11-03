@@ -1,6 +1,6 @@
 @model List<Subsidio>
 @{
-    ViewData["Title"] = "Gestión de Subsidios";
+    ViewData["Title"] = "Gestión de subsidios";
     Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -18,13 +18,13 @@
                 <span class="icon text-white-50">
                     <i class="fas fa-plus"></i>
                 </span>
-                <span class="text">Nuevo Subsidio</span>
+                <span class="text">Nuevo subsidio</span>
             </a>
             <a asp-action="Reporte" class="btn btn-primary btn-icon-split shadow-sm ms-2" target="_blank">
                 <span class="icon text-white-50">
                     <i class="fas fa-file-pdf"></i>
                 </span>
-                <span class="text">Generar Reporte</span>
+                <span class="text">Generar reporte</span>
             </a>
         </div>
     </div>
@@ -38,7 +38,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Subsidios
+                                Total subsidios
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count</div>
                         </div>
@@ -96,7 +96,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Monto Total
+                                Monto total
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 $@Model.Sum(s => s.Monto).ToString("N2")
@@ -118,7 +118,7 @@
             <div class="d-flex align-items-center">
                 <i class="fas fa-check-circle fa-lg me-3"></i>
                 <div class="flex-grow-1">
-                    <h6 class="alert-heading mb-1">¡Operación Exitosa!</h6>
+                    <h6 class="alert-heading mb-1">¡Operación exitosa!</h6>
                     <p class="mb-0">@TempData["SuccessMessage"]</p>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -130,7 +130,7 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-success">
-                <i class="fas fa-table me-2"></i>Programas de Subsidios
+                <i class="fas fa-table me-2"></i>Programas de subsidios
             </h6>
             <div class="d-flex">
                 <div class="input-group input-group-sm me-2" style="width: 250px;">
@@ -152,7 +152,7 @@
                                 <th>Tipo</th>
                                 <th>Beneficiario</th>
                                 <th class="text-end">Monto</th>
-                                <th class="text-center">Fecha Asignación</th>
+                                <th class="text-center">Fecha asignación</th>
                                 <th class="text-center">Estado</th>
                                 <th class="text-center" style="width: 150px;">Acciones</th>
                             </tr>
@@ -242,7 +242,7 @@
                         <h4 class="text-muted">No hay subsidios registrados</h4>
                         <p class="text-muted mb-4">Comience agregando el primer subsidio al sistema.</p>
                         <a asp-action="Create" class="btn btn-success btn-lg">
-                            <i class="fas fa-plus me-2"></i>Crear Primer Subsidio
+                            <i class="fas fa-plus me-2"></i>Crear primer subsidio
                         </a>
                     </div>
                 </div>

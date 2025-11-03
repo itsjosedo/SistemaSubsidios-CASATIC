@@ -1,7 +1,7 @@
 @model Entidad  
 
 @{
-    ViewData["Title"] = $"Gestionar Beneficiarios - {Model.Nombre}";
+    ViewData["Title"] = $"Gestionar beneficiarios - {Model.Nombre}";
      Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -9,10 +9,10 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>
-            <i class="fas fa-users me-2"></i>Gestionar Beneficiarios - @Model.Nombre
+            <i class="fas fa-users me-2"></i>Gestionar beneficiarios - @Model.Nombre
         </h1>
         <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver a Detalles
+            <i class="fas fa-arrow-left me-2"></i>Volver a detalles
         </a>
     </div>
 
@@ -38,7 +38,7 @@
             <div class="card">
                 <div class="card-header bg-success text-white">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-link me-2"></i>Asignar Beneficiarios Existentes
+                        <i class="fas fa-link me-2"></i>Asignar beneficiarios existentes
                     </h5>
                 </div>
                 <div class="card-body">
@@ -47,7 +47,7 @@
                         <input type="hidden" name="entidadId" value="@Model.Id" />
                         
                         <div class="mb-3">
-                            <label class="form-label">Seleccionar Beneficiario:</label>
+                            <label class="form-label">Seleccionar beneficiario:</label>
                             <select name="beneficiarioId" class="form-select" required>
                                 <option value="">-- Seleccione un beneficiario --</option>
                                 @if (ViewBag.BeneficiariosDisponibles != null)
@@ -62,14 +62,14 @@
                         
                         <div class="d-grid">
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-link me-2"></i>Asignar a Entidad
+                                <i class="fas fa-link me-2"></i>Asignar a entidad
                             </button>
                         </div>
                     </form>
                     
                     <div class="mt-3">
                         <a href="@Url.Action("Create", "Beneficiarios")" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-plus me-1"></i>Crear Nuevo Beneficiario
+                            <i class="fas fa-plus me-1"></i>Crear nuevo beneficiario
                         </a>
                     </div>
                 </div>
@@ -81,7 +81,7 @@
             <div class="card">
                 <div class="card-header bg-info text-white">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-list me-2"></i>Beneficiarios Asignados
+                        <i class="fas fa-list me-2"></i>Beneficiarios asignados
                         <span class="badge bg-light text-dark ms-2">@(Model.Beneficiarios?.Count ?? 0)</span>
                     </h5>
                 </div>

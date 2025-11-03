@@ -1,6 +1,6 @@
 @model Subsidio
 @{
-    ViewData["Title"] = "Detalle del Subsidio";
+    ViewData["Title"] = "Detalle del subsidio";
     Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -32,7 +32,7 @@
     <!-- Header para impresión -->
     <div class="print-header text-center mb-3 only-print">
         <h2 class="mb-1">DETALLE DE SUBSIDIO</h2>
-        <p class="mb-1 text-muted">Sistema de Gestión de Subsidios</p>
+        <p class="mb-1 text-muted">Sistema de gestión de subsidios</p>
         <div class="border-top pt-2">
             <small class="text-muted">Generado el: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</small>
         </div>
@@ -44,7 +44,7 @@
             <div class="card shadow mb-4 print-section">
                 <div class="card-header py-3 bg-info print-section-header">
                     <h6 class="m-0 font-weight-bold text-white">
-                        <i class="fas fa-info-circle me-2"></i>Información del Subsidio
+                        <i class="fas fa-info-circle me-2"></i>Información del subsidio
                     </h6>
                 </div>
                 <div class="card-body">
@@ -52,7 +52,7 @@
                         <div class="col-md-6">
                             <div class="info-item mb-4">
                                 <label class="fw-bold text-primary mb-2">
-                                    <i class="fas fa-tag me-2"></i>Nombre del Programa
+                                    <i class="fas fa-tag me-2"></i>Nombre del programa
                                 </label>
                                 <div class="p-3 bg-light rounded border print-field">
                                     <h5 class="mb-0 text-dark">@Model.NombrePrograma</h5>
@@ -61,7 +61,7 @@
 
                             <div class="info-item mb-4">
                                 <label class="fw-bold text-primary mb-2">
-                                    <i class="fas fa-list-alt me-2"></i>Tipo de Subsidio
+                                    <i class="fas fa-list-alt me-2"></i>Tipo de subsidio
                                 </label>
                                 <div class="p-3 bg-light rounded border print-field">
                                     <span class="badge bg-info text-white fs-6">
@@ -72,7 +72,7 @@
 
                             <div class="info-item mb-4">
                                 <label class="fw-bold text-primary mb-2">
-                                    <i class="fas fa-dollar-sign me-2"></i>Monto Asignado
+                                    <i class="fas fa-dollar-sign me-2"></i>Monto asignado
                                 </label>
                                 <div class="p-3 bg-light rounded border print-field">
                                     <h4 class="mb-0 text-success">
@@ -85,7 +85,7 @@
                         <div class="col-md-6">
                             <div class="info-item mb-4">
                                 <label class="fw-bold text-primary mb-2">
-                                    <i class="fas fa-calendar me-2"></i>Fecha de Asignación
+                                    <i class="fas fa-calendar me-2"></i>Fecha de asignación
                                 </label>
                                 <div class="p-3 bg-light rounded border print-field">
                                     <div class="d-flex align-items-center">
@@ -97,7 +97,7 @@
 
                             <div class="info-item mb-4">
                                 <label class="fw-bold text-primary mb-2">
-                                    <i class="fas fa-toggle-on me-2"></i>Estado Actual
+                                    <i class="fas fa-toggle-on me-2"></i>Estado actual
                                 </label>
                                 <div class="p-3 bg-light rounded border print-field">
                                     @{
@@ -144,7 +144,7 @@
             <div class="card shadow mb-4 print-section">
                 <div class="card-header py-3 bg-primary print-section-header">
                     <h6 class="m-0 font-weight-bold text-white">
-                        <i class="fas fa-user me-2"></i>Información del Beneficiario
+                        <i class="fas fa-user me-2"></i>Información del beneficiario
                     </h6>
                 </div>
                 <div class="card-body text-center">
@@ -214,19 +214,19 @@
             <div class="card shadow no-print">
                 <div class="card-header py-3 bg-light">
                     <h6 class="m-0 font-weight-bold text-dark">
-                        <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+                        <i class="fas fa-bolt me-2"></i>Acciones rápidas
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
                         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg">
-                            <i class="fas fa-edit me-2"></i>Editar Subsidio
+                            <i class="fas fa-edit me-2"></i>Editar subsidio
                         </a>
                         <a asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="fas fa-list me-2"></i>Ver Todos los Subsidios
+                            <i class="fas fa-list me-2"></i>Ver Todos los subsidios
                         </a>
                         <a href="#" class="btn btn-outline-info" onclick="window.print()">
-                            <i class="fas fa-print me-2"></i>Imprimir Detalles
+                            <i class="fas fa-print me-2"></i>Imprimir detalles
                         </a>
                     </div>
                 </div>
@@ -240,7 +240,7 @@
             <div class="card shadow print-section activity-summary">
                 <div class="card-header py-3 bg-light print-section-header">
                     <h6 class="m-0 font-weight-bold text-dark">
-                        <i class="fas fa-history me-2"></i>Resumen de Actividad
+                        <i class="fas fa-history me-2"></i>Resumen de actividad
                     </h6>
                 </div>
                 <div class="card-body">
@@ -248,28 +248,28 @@
                         <div class="col-md-3 mb-3">
                             <div class="border rounded p-3 print-field">
                                 <i class="fas fa-calendar-plus fa-2x text-primary mb-2"></i>
-                                <h5 class="text-primary">Fecha de Creación</h5>
+                                <h5 class="text-primary">Fecha de creación</h5>
                                 <p class="mb-0 text-muted">@DateTime.Now.ToString("dd/MM/yyyy")</p>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="border rounded p-3 print-field">
                                 <i class="fas fa-sync-alt fa-2x text-info mb-2"></i>
-                                <h5 class="text-info">Última Actualización</h5>
+                                <h5 class="text-info">Última actualización</h5>
                                 <p class="mb-0 text-muted">@DateTime.Now.ToString("dd/MM/yyyy")</p>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="border rounded p-3 print-field">
                                 <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                                <h5 class="text-success">Estado Actual</h5>
+                                <h5 class="text-success">Estado actual</h5>
                                 <p class="mb-0">@Model.Estado</p>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="border rounded p-3 print-field">
                                 <i class="fas fa-dollar-sign fa-2x text-warning mb-2"></i>
-                                <h5 class="text-warning">Monto Total</h5>
+                                <h5 class="text-warning">Monto total</h5>
                                 <p class="mb-0 text-success fw-bold">$@Model.Monto.ToString("N2")</p>
                             </div>
                         </div>

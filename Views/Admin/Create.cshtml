@@ -1,7 +1,7 @@
 @model BeneficiarioViewModel
 
 @{
-    ViewData["Title"] = "Registro de Beneficiario";
+    ViewData["Title"] = "Registro de beneficiario";
      Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -27,7 +27,7 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <h5 class="text-primary border-bottom pb-2">
-                                <i class="fas fa-id-card me-2"></i>Información Personal
+                                <i class="fas fa-id-card me-2"></i>Información personal
                             </h5>
                         </div>
                     </div>
@@ -35,7 +35,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label asp-for="Nombre" class="form-label fw-semibold">
-                                <i class="fas fa-user me-1 text-muted"></i>Nombre Completo *
+                                <i class="fas fa-user me-1 text-muted"></i>Nombre completo *
                             </label>
                             <input asp-for="Nombre" class="form-control" 
                                    placeholder="Ej: María José Rodríguez López">
@@ -102,7 +102,7 @@
 
                     <div class="mb-3">
                         <label asp-for="Direccion" class="form-label fw-semibold">
-                            <i class="fas fa-map-marker-alt me-1 text-muted"></i>Dirección Completa *
+                            <i class="fas fa-map-marker-alt me-1 text-muted"></i>Dirección completa *
                         </label>
                         <textarea asp-for="Direccion" class="form-control" 
                                   rows="3" placeholder="Ej: Colonia Las Flores, Calle Principal #123, San Salvador"></textarea>
@@ -139,7 +139,7 @@
                             <i class="fas fa-arrow-left me-2"></i>Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Registrar Beneficiario
+                            <i class="fas fa-save me-2"></i>Registrar beneficiario
                         </button>
                     </div>
                 </form>
@@ -154,12 +154,12 @@
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="terminosModalLabel">
-                    <i class="fas fa-file-contract me-2"></i>Términos y Condiciones
+                    <i class="fas fa-file-contract me-2"></i>Términos y condiciones
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <h6>Registro de Beneficiarios - Sistema de Subsidios CASATIC</h6>
+                <h6>Registro de beneficiarios - Sistema de Subsidios CASATIC</h6>
                 <p>Al aceptar los términos y condiciones, usted reconoce que:</p>
                 <ul>
                     <li>La información proporcionada es verídica y completa</li>

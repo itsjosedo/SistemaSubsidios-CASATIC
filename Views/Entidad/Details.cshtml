@@ -1,7 +1,7 @@
 @model Entidad
 
 @{
-    ViewData["Title"] = "Detalles de Entidad";
+    ViewData["Title"] = "Detalles de entidad";
      Layout = ViewBag.Layout ?? "_Layout";
 }
 
@@ -9,10 +9,10 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>
-            <i class="fas fa-building me-2"></i>Detalles de Entidad
+            <i class="fas fa-building me-2"></i>Detalles de entidad
         </h1>
         <a asp-action="Index" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver a la Lista
+            <i class="fas fa-arrow-left me-2"></i>Volver a la lista
         </a>
     </div>
 
@@ -31,7 +31,7 @@
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-info-circle me-2"></i>Información de la Entidad
+                        <i class="fas fa-info-circle me-2"></i>Información de la entidad
                     </h5>
                 </div>
                 <div class="card-body">
@@ -53,12 +53,12 @@
                                 <dt>Dirección:</dt>
                                 <dd>@Model.Direccion</dd>
 
-                                <dt>Total Beneficiarios:</dt>
+                                <dt>Total beneficiarios:</dt>
                                 <dd>
                                     <span class="badge bg-info">@(Model.Beneficiarios?.Count ?? 0)</span>
                                 </dd>
 
-                                <dt>Usuario Asignado:</dt>
+                                <dt>Usuario asignado:</dt>
                                 <dd>
                                     @if (Model.UsuarioId != null)
                                     {
@@ -81,7 +81,7 @@
                 <div class="card mt-4">
                     <div class="card-header bg-info text-white">
                         <h5 class="card-title mb-0">
-                            <i class="fas fa-users me-2"></i>Beneficiarios Asociados
+                            <i class="fas fa-users me-2"></i>Beneficiarios asociados
                             <span class="badge bg-light text-dark ms-2">@Model.Beneficiarios.Count</span>
                         </h5>
                     </div>
@@ -125,16 +125,16 @@
             <div class="btn-group">
                 <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" 
                    class="btn btn-success">
-                    <i class="fas fa-users me-2"></i>Gestionar Beneficiarios
+                    <i class="fas fa-users me-2"></i>Gestionar beneficiarios
                 </a>
                 <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
-                    <i class="fas fa-edit me-2"></i>Editar Entidad
+                    <i class="fas fa-edit me-2"></i>Editar entidad
                 </a>
                 <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
-                    <i class="fas fa-trash me-2"></i>Eliminar Entidad
+                    <i class="fas fa-trash me-2"></i>Eliminar entidad
                 </a>
                 <a asp-action="Index" class="btn btn-secondary">
-                    <i class="fas fa-list me-2"></i>Volver a la Lista
+                    <i class="fas fa-list me-2"></i>Volver a la lista
                 </a>
             </div>
         </div>

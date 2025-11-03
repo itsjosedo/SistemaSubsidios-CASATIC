@@ -1,6 +1,6 @@
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Acceso Denegado";
+    ViewData["Title"] = "Acceso denegado";
 }
 
 <div class="container mt-5">
@@ -8,14 +8,14 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header bg-danger text-white text-center">
-                    <h3><i class="fas fa-exclamation-triangle me-2"></i>Acceso Denegado</h3>
+                    <h3><i class="fas fa-exclamation-triangle me-2"></i>Acceso denegado</h3>
                 </div>
                 <div class="card-body py-4">
                     <div class="text-center mb-4">
                         <i class="fas fa-lock fa-4x text-danger"></i>
                     </div>
                     
-                    <h4 class="text-danger text-center mb-3">Información del Error</h4>
+                    <h4 class="text-danger text-center mb-3">Información del error</h4>
                     
                     <div class="alert alert-info">
                         <h5>Detalles del usuario:</h5>
@@ -43,7 +43,7 @@
                         @if (ViewBag.RolUsuario == "admin" || ViewBag.RolUsuario == "administrador")
                         {
                             <a asp-action="Index" asp-controller="Home" class="btn btn-primary">
-                                <i class="fas fa-home me-2"></i>Ir al Inicio
+                                <i class="fas fa-home me-2"></i>Ir al inicio
                             </a>
                         }
 
