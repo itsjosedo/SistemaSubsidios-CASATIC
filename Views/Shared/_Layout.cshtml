@@ -18,7 +18,7 @@
     <!-- Sección opcional de estilos -->
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
+<body class="welcome-conteiner">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
@@ -31,32 +31,7 @@
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <!-- Menú colapsable -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">
-                            <i class="fas fa-home me-1"></i>Inicio
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Subsidios" asp-action="Index">
-                            <i class="fas fa-hand-holding-usd me-1"></i>Subsidios
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Beneficiarios" asp-action="Create">
-                            <i class="fas fa-users me-1"></i>Beneficiarios
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Reportes" asp-action="Index">
-                            <i class="fas fa-chart-bar me-1"></i>Reportes
-                        </a>
-                    </li>
-                </ul>
-
+            
                 <!-- Dropdown de usuario -->
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
@@ -82,7 +57,7 @@
     </nav>
 
     <!-- Contenido principal -->
-    <main role="main">
+    <main role="main" >
         @RenderBody()
     </main>
 
