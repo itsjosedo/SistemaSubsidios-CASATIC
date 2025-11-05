@@ -2,12 +2,12 @@
 
 @{
     ViewData["Title"] = "Gestión de entidades";
-     Layout = ViewBag.Layout ?? "_Layout";
+    Layout = ViewBag.Layout ?? "_Layout";
 }
 
 <!-- Tarjetas de Resumen -->
 <div class="row mb-4">
-    <div class="col-md-6">
+    <div class="col-md-6 mb-3 mb-md-0">
         <div class="card text-white bg-primary">
             <div class="card-body">
                 <h4 class="card-title">TOTAL ENTIDADES</h4>
@@ -39,23 +39,25 @@
     <div class="card-header">
         <h3 class="card-title">Lista de entidades registradas</h3>
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>INFORMACIÓN DE LA ENTIDAD</th>
-                        <th>CONTACTO</th>
-                        <th>UBICACIÓN</th>
-                        <th>BENEFICIARIOS</th>
-                        <th>ACCIONES</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{
-                        int counter = 1;
-                        foreach (var item in Model)
+    <div class="card-body p-0 p-sm-3">
+        @if (Model.Any())
+        {
+            <!-- 💻 VISTA DESKTOP (Tabla) -->
+            <div class="table-responsive d-none d-lg-block">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>INFORMACIÓN DE LA ENTIDAD</th>
+                            <th>CONTACTO</th>
+                            <th>UBICACIÓN</th>
+                            <th>BENEFICIARIOS</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var counter = 1; }
+                        @foreach (var item in Model)
                         {
                             <tr>
                                 <td>#@counter</td>
@@ -79,27 +81,19 @@
                                     }
                                 </td>
                                 <td>
-                                    <!-- CAMBIO: Botones en horizontal -->
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <!-- Ver Detalles -->
                                         <a asp-action="Details" asp-route-id="@item.Id" 
                                            class="btn btn-outline-info" title="Ver detalles">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        
-                                        <!-- Gestionar Beneficiarios -->
                                         <a asp-action="GestionarBeneficiarios" asp-route-id="@item.Id" 
                                            class="btn btn-outline-success" title="Gestionar beneficiarios">
                                             <i class="fas fa-users"></i>
                                         </a>
-                                        
-                                        <!-- Editar -->
                                         <a asp-action="Edit" asp-route-id="@item.Id" 
                                            class="btn btn-outline-warning" title="Editar entidad">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        
-                                        <!-- Eliminar -->
                                         <a asp-action="Delete" asp-route-id="@item.Id" 
                                            class="btn btn-outline-danger" title="Eliminar entidad">
                                             <i class="fas fa-trash"></i>
@@ -109,9 +103,174 @@
                             </tr>
                             counter++;
                         }
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 📱 VISTA MÓVIL (Lista expandible) -->
+            <div class="d-lg-none">
+                @{ var mobileCounter = 1; }
+                @foreach (var item in Model)
+                {
+                    var itemId = $"entidad-{item.Id}";
+                    
+                    <div class="border-bottom entidad-item">
+                        <!-- Fila principal (siempre visible) -->
+                        <div class="p-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#@itemId" aria-expanded="false">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="avatar-initials bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                            style="width: 32px; height: 32px; font-size: 0.75rem; font-weight: 600;">
+                                            @GetEntidadInitials(item.Nombre)
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">#@mobileCounter - @item.Nombre</h6>
+                                            <small class="text-muted">ID: @item.Id</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        @if (item.Beneficiarios != null && item.Beneficiarios.Any())
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-users me-1"></i>@(item.Beneficiarios.Count) beneficiarios
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-users me-1"></i>Sin beneficiarios
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-down text-muted ms-2"></i>
+                            </div>
+                        </div>
+
+                        <!-- Detalles expandibles -->
+                        <div class="collapse" id="@itemId">
+                            <div class="px-3 pb-3 bg-light">
+                                <div class="mb-2">
+                                    <small class="text-muted d-block">Email de contacto</small>
+                                    <strong class="small">@item.Email</strong>
+                                </div>
+                                <div class="mb-2">
+                                    <small class="text-muted d-block">Dirección</small>
+                                    <strong class="small">@item.Direccion</strong>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted d-block">Estado de beneficiarios</small>
+                                    @if (item.Beneficiarios != null && item.Beneficiarios.Any())
+                                    {
+                                        <div>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>@(item.Beneficiarios.Count) asignados
+                                            </span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-times me-1"></i>Sin asignar
+                                        </span>
+                                    }
+                                </div>
+                                
+                                <!-- Botones de acción -->
+                                <div class="d-grid gap-2">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye me-2"></i>Ver detalles
+                                    </a>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <a asp-action="GestionarBeneficiarios" asp-route-id="@item.Id" class="btn btn-success btn-sm w-100">
+                                                <i class="fas fa-users me-1"></i>Gestionar
+                                            </a>
+                                        </div>
+                                        <div class="col-6">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm w-100">
+                                                <i class="fas fa-edit me-1"></i>Editar
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm w-100">
+                                                <i class="fas fa-trash me-1"></i>Eliminar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    mobileCounter++;
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-building fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No hay entidades registradas</h4>
+                    <p class="text-muted mb-4">Comience agregando la primera entidad al sistema.</p>
+                    <a asp-action="CreateEntidad" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>Crear primera entidad
+                    </a>
+                </div>
+            </div>
+        }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Animar el ícono de chevron cuando se expande/colapsa
+        document.addEventListener('DOMContentLoaded', function() {
+            const collapseElements = document.querySelectorAll('.collapse');
+            collapseElements.forEach(function(element) {
+                element.addEventListener('show.bs.collapse', function() {
+                    const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.classList.add('rotate-180');
+                });
+                element.addEventListener('hide.bs.collapse', function() {
+                    const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+        .entidad-item:hover {
+            background-color: #f8f9fa;
+        }
+        .avatar-initials {
+            flex-shrink: 0;
+        }
+    </style>
+}
+
+@functions {
+    public string GetEntidadInitials(string nombreEntidad)
+    {
+        if (string.IsNullOrEmpty(nombreEntidad)) return "EN";
+        var palabras = nombreEntidad.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (palabras.Length >= 2)
+        {
+            return $"{palabras[0][0]}{palabras[1][0]}".ToUpper();
+        }
+        return nombreEntidad.Length >= 2 ? nombreEntidad.Substring(0, 2).ToUpper() : nombreEntidad.ToUpper();
+    }
+}

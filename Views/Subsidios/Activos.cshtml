@@ -1,60 +1,237 @@
 @model IEnumerable<Subsidio>
 @{
     ViewData["Title"] = "Subsidios activos";
+    Layout = ViewBag.Layout ?? "_Layout";
 }
 
 <div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">
-            <i class="fas fa-hand-holding-usd me-2"></i>@ViewData["Title"]
-        </h1>
-        <a asp-action="Index" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver a subsidios
-        </a>
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col-12 col-md-8 mb-3 mb-md-0">
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-hand-holding-usd me-2 text-success"></i>@ViewData["Title"]
+            </h1>
+            <p class="mb-0 text-muted small">Lista de todos los subsidios activos en el sistema</p>
+        </div>
+        
+        <div class="col-12 col-md-4">
+            <div class="d-flex gap-2 justify-content-start justify-content-md-end">
+                <a asp-action="Index" class="btn btn-secondary btn-sm shadow-sm">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    <span>Volver a subsidios</span>
+                </a>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
+    <div class="card shadow">
+        <div class="card-body p-0 p-sm-3">
             @if (Model.Any())
             {
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
+                <!-- 💻 VISTA DESKTOP (Tabla completa) -->
+                <div class="table-responsive d-none d-lg-block">
+                    <table class="table table-bordered table-hover mb-0" width="100%" cellspacing="0">
+                        <thead class="bg-gradient-success text-white">
                             <tr>
                                 <th>Programa</th>
                                 <th>Tipo</th>
-                                <th>Monto</th>
                                 <th>Beneficiario</th>
-                                <th>Fecha asignación</th>
-                                <th>Estado</th>
+                                <th class="text-end">Monto</th>
+                                <th class="text-center">Fecha asignación</th>
+                                <th class="text-center">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var subsidio in Model)
                             {
                                 <tr>
-                                    <td>@subsidio.NombrePrograma</td>
-                                    <td>@subsidio.Tipo</td>
-                                    <td>@subsidio.Monto.ToString("C")</td>
-                                    <td>@subsidio.Beneficiario?.Nombre</td>
-                                    <td>@subsidio.FechaAsignacion.ToString("dd/MM/yyyy")</td>
                                     <td>
-                                        <span class="badge bg-success">@subsidio.Estado</span>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm me-3">
+                                                <div class="avatar-initials bg-success text-white rounded-circle d-flex align-items-center justify-content-center"
+                                                    style="width: 40px; height: 40px; font-weight: 600;">
+                                                    @GetProgramaInitials(subsidio.NombrePrograma)
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">@subsidio.NombrePrograma</h6>
+                                                <small class="text-muted">ID: #@subsidio.Id</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info text-white">
+                                            <i class="fas fa-tag me-1"></i>@subsidio.Tipo
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (subsidio.Beneficiario != null)
+                                        {
+                                            <div>
+                                                <h6 class="mb-1">@subsidio.Beneficiario.Nombre</h6>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-id-card me-1"></i>@subsidio.Beneficiario.Dui
+                                                </small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No asignado</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="fw-bold text-success">$@subsidio.Monto.ToString("N2")</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <i class="fas fa-calendar me-2 text-muted"></i>
+                                        @subsidio.FechaAsignacion.ToString("dd/MM/yyyy")
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>@subsidio.Estado
+                                        </span>
                                     </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
+
+                <!-- 📱 VISTA MÓVIL (Lista expandible) -->
+                <div class="d-lg-none">
+                    @foreach (var subsidio in Model)
+                    {
+                        var itemId = $"subsidio-{subsidio.Id}";
+                        
+                        <div class="border-bottom subsidio-item">
+                            <!-- Fila principal (siempre visible) -->
+                            <div class="p-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#@itemId" aria-expanded="false">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="avatar-initials bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                style="width: 32px; height: 32px; font-size: 0.75rem; font-weight: 600;">
+                                                @GetProgramaInitials(subsidio.NombrePrograma)
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">@subsidio.NombrePrograma</h6>
+                                                <small class="text-muted">ID: #@subsidio.Id</small>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>@subsidio.Estado
+                                            </span>
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-tag me-1"></i>@subsidio.Tipo
+                                            </span>
+                                            <span class="fw-bold text-success">$@subsidio.Monto.ToString("N2")</span>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-down text-muted ms-2"></i>
+                                </div>
+                            </div>
+
+                            <!-- Detalles expandibles -->
+                            <div class="collapse" id="@itemId">
+                                <div class="px-3 pb-3 bg-light">
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Beneficiario</small>
+                                        @if (subsidio.Beneficiario != null)
+                                        {
+                                            <strong>@subsidio.Beneficiario.Nombre</strong><br>
+                                            <small class="text-muted">
+                                                <i class="fas fa-id-card me-1"></i>@subsidio.Beneficiario.Dui
+                                            </small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No asignado</span>
+                                        }
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">Fecha de asignación</small>
+                                        <strong>
+                                            <i class="fas fa-calendar me-1"></i>
+                                            @subsidio.FechaAsignacion.ToString("dd/MM/yyyy")
+                                        </strong>
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">Tipo de subsidio</small>
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-tag me-1"></i>@subsidio.Tipo
+                                        </span>
+                                    </div>
+                                    <div class="mb-0">
+                                        <small class="text-muted d-block">Monto asignado</small>
+                                        <h5 class="text-success mb-0">$@subsidio.Monto.ToString("N2")</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
             }
             else
             {
-                <div class="text-center py-4">
-                    <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
-                    <h5>No hay subsidios activos</h5>
-                    <p class="text-muted">No se encontraron subsidios en estado activo.</p>
+                <div class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-hand-holding-usd fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay subsidios activos</h4>
+                        <p class="text-muted mb-4">No se encontraron subsidios en estado activo.</p>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Volver a subsidios
+                        </a>
+                    </div>
                 </div>
             }
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Animar el ícono de chevron cuando se expande/colapsa
+        document.addEventListener('DOMContentLoaded', function() {
+            const collapseElements = document.querySelectorAll('.collapse');
+            collapseElements.forEach(function(element) {
+                element.addEventListener('show.bs.collapse', function() {
+                    const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.classList.add('rotate-180');
+                });
+                element.addEventListener('hide.bs.collapse', function() {
+                    const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+        .subsidio-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+}
+
+@functions {
+    public string GetProgramaInitials(string nombrePrograma)
+    {
+        if (string.IsNullOrEmpty(nombrePrograma)) return "SP";
+        var palabras = nombrePrograma.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (palabras.Length >= 2)
+        {
+            return $"{palabras[0][0]}{palabras[1][0]}".ToUpper();
+        }
+        return nombrePrograma.Length >= 2 ? nombrePrograma.Substring(0, 2).ToUpper() : nombrePrograma.ToUpper();
+    }
+}
