@@ -1,31 +1,53 @@
 /* wwwroot/css/home.css */
-.welcome-container {
+
+/* === Fondo global unificado === */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding: 20px;
+    background-attachment: fixed; /* Hace el degradado continuo y sin cortes */
+    background-size: cover;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* === Contenedor principal === */
+.welcome-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    /* Ya no necesita background, usa el del body */
+}
+
+/* === Tarjeta principal === */
 .welcome-card {
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     padding: 40px;
-    margin-top: 50px;
     text-align: center;
+    max-width: 800px;
+    width: 100%;
 }
 
+/* === Título === */
 .welcome-title {
     color: #4361ee;
     font-weight: 600;
     margin-bottom: 20px;
 }
 
+/* === Mensaje de bienvenida === */
 .welcome-message {
     font-size: 1.2rem;
     color: #6c757d;
     margin-bottom: 30px;
 }
 
+/* === Sección de características === */
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -48,4 +70,15 @@
     font-size: 2rem;
     color: #4361ee;
     margin-bottom: 15px;
+}
+
+/* === Responsivo === */
+@media (max-width: 768px) {
+    .welcome-card {
+        padding: 25px;
+    }
+
+    .welcome-message {
+        font-size: 1rem;
+    }
 }
