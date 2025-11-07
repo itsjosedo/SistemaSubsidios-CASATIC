@@ -7,15 +7,15 @@
     <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true" />
 }
 
-<div class="login-body" style="min-height: 100vh; margin: 0; padding: 0;">
+<div class="login-body">
     <div class="login-container">
         <div class="login-card">
             <div class="login-card-header">
                 <h2>Iniciar sesión</h2>
                 <p>Accede a tu cuenta de SistemasSubsidios</p>
             </div>
+
             <div class="login-card-body">
-                <!-- AGREGAR autocomplete="off" al form -->
                 <form asp-controller="Account" asp-action="Login" method="post" autocomplete="off">
                     <div class="mb-4">
                         <label for="correo" class="form-label login-form-label">Correo electrónico</label>
@@ -23,29 +23,25 @@
                             <span class="input-group-text login-input-group-text">
                                 <i class="fas fa-envelope"></i>
                             </span>
-                            <!-- AGREGAR autocomplete="off" -->
-                            <input type="email" id="correo" name="correo" class="form-control login-form-control" 
-                                   placeholder="Ingrese su correo" value="@ViewBag.Correo" required 
-                                   autocomplete="off" />
+                            <input type="email" id="correo" name="correo" class="form-control login-form-control"
+                                   placeholder="Ingrese su correo" value="@ViewBag.Correo" required autocomplete="off" />
                         </div>
                     </div>
-                    
+
                     <div class="mb-4">
                         <label for="contrasena" class="form-label login-form-label">Contraseña</label>
                         <div class="input-group">
                             <span class="input-group-text login-input-group-text">
                                 <i class="fas fa-lock"></i>
                             </span>
-                            <!-- CAMBIAR a autocomplete="new-password" -->
-                            <input type="password" id="contrasena" name="contrasena" class="form-control login-form-control" 
-                                   placeholder="Ingrese su contraseña" required 
-                                   autocomplete="new-password" />
+                            <input type="password" id="contrasena" name="contrasena" class="form-control login-form-control"
+                                   placeholder="Ingrese su contraseña" required autocomplete="new-password" />
                             <span class="login-password-toggle" onclick="togglePassword()">
                                 <i class="fas fa-eye" id="toggleIcon"></i>
                             </span>
                         </div>
                     </div>
-                    
+
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-login text-white">
                             <i class="fas fa-sign-in-alt me-2"></i>Iniciar sesión
@@ -63,9 +59,9 @@
                 <div class="login-divider">
                     <span class="login-divider-text">O</span>
                 </div>
-                
+
                 <div class="text-center">
-                    <p class="mb-0">¿No tienes cuenta? 
+                    <p class="mb-0">¿No tienes cuenta?
                         <a asp-controller="Account" asp-action="Register" class="login-register-link">Regístrate aquí</a>
                     </p>
                 </div>
@@ -79,7 +75,7 @@
         function togglePassword() {
             const passwordInput = document.getElementById('contrasena');
             const toggleIcon = document.getElementById('toggleIcon');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 toggleIcon.classList.remove('fa-eye');
@@ -91,21 +87,17 @@
             }
         }
 
-        // Limpiar mensaje de error al empezar a escribir
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const inputs = document.querySelectorAll('input');
             const errorAlert = document.querySelector('.alert-danger');
-            
-            // LIMPIAR CAMPOS AL CARGAR LA PÁGINA
+
             document.getElementById('correo').value = '';
             document.getElementById('contrasena').value = '';
-            
-            // ENFOCAR EL CAMPO DE CORREO
             document.getElementById('correo').focus();
-            
+
             if (errorAlert) {
                 inputs.forEach(input => {
-                    input.addEventListener('input', function() {
+                    input.addEventListener('input', function () {
                         errorAlert.style.display = 'none';
                     });
                 });
