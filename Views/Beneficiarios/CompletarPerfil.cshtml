@@ -1,7 +1,7 @@
 @model BeneficiarioViewModel
 @if (ViewBag.Errores != null)
 {
-    
+
 }
 @{
     ViewData["Title"] = "Index beneficiario";
@@ -30,6 +30,33 @@
         <textarea asp-for="Direccion" class="form-control"></textarea>
         <span asp-validation-for="Direccion" class="text-danger"></span>
     </div>
+
+    <div class="form-group mb-3">
+        <label class="form-label d-block">Género</label>
+        <div class="btn-group" role="group" aria-label="Género">
+            <input type="radio" class="btn-check" asp-for="Genero" id="generoMasculino" value="Masculino"
+                autocomplete="off">
+            <label class="btn btn-outline-primary" for="generoMasculino">
+                <i class="fas fa-mars me-1"></i> Masculino
+            </label>
+
+            <input type="radio" class="btn-check" asp-for="Genero" id="generoFemenino" value="Femenino"
+                autocomplete="off">
+            <label class="btn btn-outline-danger" for="generoFemenino">
+                <i class="fas fa-venus me-1"></i> Femenino
+            </label>
+        </div>
+        <span asp-validation-for="Genero" class="text-danger d-block mt-2"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="FechaNacimiento" class="form-label"></label>
+        <input asp-for="FechaNacimiento" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")"
+            max="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+    </div>
+
+
 
     <button type="submit" class="btn btn-success">Guardar cambios</button>
     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>

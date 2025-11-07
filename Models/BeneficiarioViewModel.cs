@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 
 public class BeneficiarioViewModel
 {
@@ -28,6 +29,16 @@ public class BeneficiarioViewModel
     [Display(Name = "Teléfono")]
     public string Telefono { get; set; } = string.Empty;
 
+    [Required(ErrorMessage = "Seleccione un género")]
+    [Display(Name = "Género")]
+    public string Genero { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "La fecha de nacimiento es obligatoria")]
+    [DataType(DataType.Date)]
+    [Display(Name = "Fecha de Nacimiento")]
+    public DateTime FechaNacimiento { get; set; } = DateTime.Now;
+
+
     [Display(Name = "Entidad (Opcional)")]
     public int? EntidadId { get; set; }
 
@@ -39,5 +50,5 @@ public class BeneficiarioViewModel
     public bool AceptaTerminos { get; set; }
     public string? EntidadNombre { get; set; }
 
-    
+
 }
