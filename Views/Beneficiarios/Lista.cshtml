@@ -14,7 +14,8 @@
         <div class="card-body">
             @if (Model.Any())
             {
-                <div class="table-responsive">
+                <!-- 💻 VISTA DESKTOP (Tabla completa) -->
+                <div class="table-responsive d-none d-lg-block">
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
@@ -43,6 +44,56 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- 📱 VISTA MÓVIL (Lista expandible) -->
+                <div class="d-lg-none">
+                    @foreach (var beneficiario in Model)
+                    {
+                        var itemId = $"beneficiario-{beneficiario.Id_Beneficiario}";
+                        
+                        <div class="border-bottom beneficiario-item">
+                            <!-- Fila principal (siempre visible) -->
+                            <div class="p-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#@itemId" aria-expanded="false">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold">@beneficiario.Nombre</h6>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="badge bg-info">@beneficiario.EstadoSubsidio</span>
+                                            <small class="text-muted">@beneficiario.Dui</small>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-down text-muted ms-2"></i>
+                                </div>
+                            </div>
+
+                            <!-- Detalles expandibles -->
+                            <div class="collapse" id="@itemId">
+                                <div class="px-3 pb-3 bg-light">
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">DUI</small>
+                                        <strong>@beneficiario.Dui</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Teléfono</small>
+                                        <strong>@beneficiario.Telefono</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Dirección</small>
+                                        <strong>@beneficiario.Direccion</strong>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Entidad</small>
+                                        <strong>@beneficiario.Entidad?.Nombre</strong>
+                                    </div>
+                                    <div class="mb-0">
+                                        <small class="text-muted d-block">Estado subsidio</small>
+                                        <span class="badge bg-info">@beneficiario.EstadoSubsidio</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
             }
             else
             {
@@ -55,3 +106,37 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Animar el ícono de chevron cuando se expande/colapsa
+        document.addEventListener('DOMContentLoaded', function() {
+            const collapseElements = document.querySelectorAll('.collapse');
+            collapseElements.forEach(function(element) {
+                element.addEventListener('show.bs.collapse', function() {
+                    const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.classList.add('rotate-180');
+                });
+                element.addEventListener('hide.bs.collapse', function() {
+                    const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+        .beneficiario-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+}
