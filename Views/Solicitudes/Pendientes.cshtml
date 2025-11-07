@@ -1,53 +1,104 @@
 @model IEnumerable<Subsidio>
 @{
     ViewData["Title"] = "Solicitudes pendientes";
+    Layout = ViewBag.Layout ?? "_Layout";
 }
 
 <div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">
-            <i class="fas fa-clock me-2"></i>@ViewData["Title"]
-        </h1>
-        <a asp-controller="Subsidios" asp-action="Index" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver a subsidios
-        </a>
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col-12 col-md-8 mb-3 mb-md-0">
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-clock me-2 text-warning"></i>@ViewData["Title"]
+            </h1>
+            <p class="mb-0 text-muted small">Solicitudes de subsidios pendientes de aprobación</p>
+        </div>
+        
+        <div class="col-12 col-md-4">
+            <div class="d-flex gap-2 justify-content-start justify-content-md-end">
+                <a asp-controller="Subsidios" asp-action="Index" class="btn btn-secondary btn-sm shadow-sm">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    <span>Volver a subsidios</span>
+                </a>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
+    <div class="card shadow">
+        <div class="card-body p-0 p-sm-3">
             @if (Model.Any())
             {
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
+                <!-- 💻 VISTA DESKTOP (Tabla completa) -->
+                <div class="table-responsive d-none d-lg-block">
+                    <table class="table table-bordered table-hover mb-0" width="100%" cellspacing="0">
+                        <thead class="bg-gradient-warning text-white">
                             <tr>
                                 <th>Programa</th>
                                 <th>Tipo</th>
-                                <th>Monto solicitado</th>
+                                <th class="text-end">Monto solicitado</th>
                                 <th>Beneficiario</th>
-                                <th>Fecha solicitud</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
+                                <th class="text-center">Fecha solicitud</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var solicitud in Model)
                             {
                                 <tr>
-                                    <td>@solicitud.NombrePrograma</td>
-                                    <td>@solicitud.Tipo</td>
-                                    <td>@solicitud.Monto.ToString("C")</td>
-                                    <td>@solicitud.Beneficiario?.Nombre</td>
-                                    <td>@solicitud.FechaAsignacion.ToString("dd/MM/yyyy")</td>
                                     <td>
-                                        @{
-                                            var badgeClass = solicitud.Estado == "Pendiente" ? "bg-warning" : "bg-info";
-                                        }
-                                        <span class="badge @badgeClass">@solicitud.Estado</span>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm me-3">
+                                                <div class="avatar-initials bg-warning text-white rounded-circle d-flex align-items-center justify-content-center"
+                                                    style="width: 40px; height: 40px; font-weight: 600;">
+                                                    @GetProgramaInitials(solicitud.NombrePrograma)
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">@solicitud.NombrePrograma</h6>
+                                                <small class="text-muted">ID: #@solicitud.Id</small>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
+                                        <span class="badge bg-info text-white">
+                                            <i class="fas fa-tag me-1"></i>@solicitud.Tipo
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="fw-bold text-warning">@solicitud.Monto.ToString("C")</span>
+                                    </td>
+                                    <td>
+                                        @if (solicitud.Beneficiario != null)
+                                        {
+                                            <div>
+                                                <h6 class="mb-1">@solicitud.Beneficiario.Nombre</h6>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-id-card me-1"></i>@solicitud.Beneficiario.Dui
+                                                </small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No asignado</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <i class="fas fa-calendar me-2 text-muted"></i>
+                                        @solicitud.FechaAsignacion.ToString("dd/MM/yyyy")
+                                    </td>
+                                    <td class="text-center">
+                                        @{
+                                            var badgeClass = solicitud.Estado == "Pendiente" ? "bg-warning" : "bg-info";
+                                            var estadoIcon = solicitud.Estado == "Pendiente" ? "fas fa-clock" : "fas fa-info-circle";
+                                        }
+                                        <span class="badge @badgeClass">
+                                            <i class="@estadoIcon me-1"></i>@solicitud.Estado
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
                                         <a asp-controller="Subsidios" asp-action="Details" asp-route-id="@solicitud.Id" 
-                                           class="btn btn-sm btn-outline-primary">
+                                           class="btn btn-sm btn-outline-primary" title="Ver detalles">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </td>
@@ -56,15 +107,158 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- 📱 VISTA MÓVIL (Lista expandible) -->
+                <div class="d-lg-none">
+                    @foreach (var solicitud in Model)
+                    {
+                        var itemId = $"solicitud-{solicitud.Id}";
+                        var badgeClass = solicitud.Estado == "Pendiente" ? "bg-warning" : "bg-info";
+                        var estadoIcon = solicitud.Estado == "Pendiente" ? "fas fa-clock" : "fas fa-info-circle";
+                        
+                        <div class="border-bottom solicitud-item">
+                            <!-- Fila principal (siempre visible) -->
+                            <div class="p-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#@itemId" aria-expanded="false">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="avatar-initials bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                style="width: 32px; height: 32px; font-size: 0.75rem; font-weight: 600;">
+                                                @GetProgramaInitials(solicitud.NombrePrograma)
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">@solicitud.NombrePrograma</h6>
+                                                <small class="text-muted">ID: #@solicitud.Id</small>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="badge @badgeClass">
+                                                <i class="@estadoIcon me-1"></i>@solicitud.Estado
+                                            </span>
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-tag me-1"></i>@solicitud.Tipo
+                                            </span>
+                                            <span class="fw-bold text-warning">@solicitud.Monto.ToString("C")</span>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-down text-muted ms-2"></i>
+                                </div>
+                            </div>
+
+                            <!-- Detalles expandibles -->
+                            <div class="collapse" id="@itemId">
+                                <div class="px-3 pb-3 bg-light">
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Beneficiario</small>
+                                        @if (solicitud.Beneficiario != null)
+                                        {
+                                            <strong>@solicitud.Beneficiario.Nombre</strong><br>
+                                            <small class="text-muted">
+                                                <i class="fas fa-id-card me-1"></i>@solicitud.Beneficiario.Dui
+                                            </small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No asignado</span>
+                                        }
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">Fecha de solicitud</small>
+                                        <strong>
+                                            <i class="fas fa-calendar me-1"></i>
+                                            @solicitud.FechaAsignacion.ToString("dd/MM/yyyy")
+                                        </strong>
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">Tipo de subsidio</small>
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-tag me-1"></i>@solicitud.Tipo
+                                        </span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">Estado</small>
+                                        <span class="badge @badgeClass">
+                                            <i class="@estadoIcon me-1"></i>@solicitud.Estado
+                                        </span>
+                                    </div>
+                                    <div class="mb-0">
+                                        <small class="text-muted d-block">Monto solicitado</small>
+                                        <h5 class="text-warning mb-0">@solicitud.Monto.ToString("C")</h5>
+                                    </div>
+
+                                    <!-- Botón de acción -->
+                                    <div class="d-grid mt-3">
+                                        <a asp-controller="Subsidios" asp-action="Details" asp-route-id="@solicitud.Id" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye me-2"></i>Ver detalles completos
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
             }
             else
             {
-                <div class="text-center py-4">
-                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                    <h5>No hay solicitudes pendientes</h5>
-                    <p class="text-muted">Todas las solicitudes han sido procesadas.</p>
+                <div class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                        <h4 class="text-muted">No hay solicitudes pendientes</h4>
+                        <p class="text-muted mb-4">Todas las solicitudes han sido procesadas.</p>
+                        <a asp-controller="Subsidios" asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Volver a subsidios
+                        </a>
+                    </div>
                 </div>
             }
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Animar el ícono de chevron cuando se expande/colapsa
+        document.addEventListener('DOMContentLoaded', function() {
+            const collapseElements = document.querySelectorAll('.collapse');
+            collapseElements.forEach(function(element) {
+                element.addEventListener('show.bs.collapse', function() {
+                    const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.classList.add('rotate-180');
+                });
+                element.addEventListener('hide.bs.collapse', function() {
+                    const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+        .solicitud-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+}
+
+@functions {
+    public string GetProgramaInitials(string nombrePrograma)
+    {
+        if (string.IsNullOrEmpty(nombrePrograma)) return "SP";
+        var palabras = nombrePrograma.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (palabras.Length >= 2)
+        {
+            return $"{palabras[0][0]}{palabras[1][0]}".ToUpper();
+        }
+        return nombrePrograma.Length >= 2 ? nombrePrograma.Substring(0, 2).ToUpper() : nombrePrograma.ToUpper();
+    }
+}
