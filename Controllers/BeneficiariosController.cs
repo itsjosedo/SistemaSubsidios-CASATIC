@@ -54,7 +54,9 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 Telefono = beneficiario.Telefono,
                 EntidadId = beneficiario.EntidadId,
                 EstadoSubsidio = beneficiario.EstadoSubsidio,
-                EntidadNombre = beneficiario.Entidad?.Nombre
+                EntidadNombre = beneficiario.Entidad?.Nombre,
+                Genero = beneficiario.Genero,
+                FechaNacimiento = beneficiario.FechaNacimiento
             };
 
             return View(model);
@@ -87,7 +89,10 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 Nombre = beneficiario.Nombre,
                 Dui = beneficiario.Dui,
                 Direccion = beneficiario.Direccion,
-                Telefono = beneficiario.Telefono
+                Telefono = beneficiario.Telefono,
+                Genero = beneficiario.Genero,
+                FechaNacimiento = beneficiario.FechaNacimiento
+
             };
 
             return View(model);
@@ -142,6 +147,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 beneficiario.Dui = model.Dui?.Trim();
                 beneficiario.Telefono = model.Telefono?.Trim();
                 beneficiario.Direccion = model.Direccion?.Trim();
+                beneficiario.Genero = model.Genero?.Trim();
+                beneficiario.FechaNacimiento = model.FechaNacimiento;
 
                 // ✅ Guardamos los cambios
                 await _context.SaveChangesAsync();
@@ -221,6 +228,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
             ModelState.Remove("Nombre");
             ModelState.Remove("Dui");
             ModelState.Remove("Correo");
+            ModelState.Remove("Genero");
+            ModelState.Remove("FechaNacimiento");
 
             if (!ModelState.IsValid)
             {

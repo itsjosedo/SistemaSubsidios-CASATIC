@@ -30,6 +30,16 @@ public class Beneficiario
     [Display(Name = "Teléfono")]
     public string Telefono { get; set; } = string.Empty;
 
+
+    [Required(ErrorMessage = "Seleccione un género")]
+    [Display(Name = "Género")]
+    public string Genero { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "La fecha de nacimiento es obligatoria")]
+    [DataType(DataType.Date)]
+    [Display(Name = "Fecha de Nacimiento")]
+    public DateTime FechaNacimiento { get; set; }
+
     [Required]
     [StringLength(20)]
     [Display(Name = "Estado del Subsidio")]
