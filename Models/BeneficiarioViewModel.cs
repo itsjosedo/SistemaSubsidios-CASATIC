@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Text.RegularExpressions;
 
 public class BeneficiarioViewModel
 {
+
     public int Id_Beneficiario { get; set; }
 
     //[Required(ErrorMessage = "El nombre es obligatorio")]
@@ -12,33 +14,38 @@ public class BeneficiarioViewModel
 
     //public string Correo { get; set; }
 
+    // ------------------  DUI  ------------------
     [Required(ErrorMessage = "El DUI es obligatorio")]
     [StringLength(10, ErrorMessage = "El DUI debe tener 10 caracteres")]
     [RegularExpression(@"^\d{8}-\d{1}$", ErrorMessage = "Formato de DUI inválido. Use: 12345678-9")]
     [Display(Name = "Número de DUI")]
     public string Dui { get; set; } = string.Empty;
 
+    // ------------------  DIRECCIÓN  ------------------
     [Required(ErrorMessage = "La dirección es obligatoria")]
     [StringLength(200, MinimumLength = 10, ErrorMessage = "La dirección debe tener entre 10 y 200 caracteres")]
     [Display(Name = "Dirección Completa")]
     public string Direccion { get; set; } = string.Empty;
 
+    // ------------------  TELÉFONO  ------------------
     [Required(ErrorMessage = "El teléfono es obligatorio")]
     [StringLength(9, MinimumLength = 8, ErrorMessage = "El teléfono debe tener 8 o 9 dígitos")]
     [RegularExpression(@"^[267]\d{7,8}$", ErrorMessage = "Formato de teléfono inválido")]
     [Display(Name = "Teléfono")]
     public string Telefono { get; set; } = string.Empty;
 
+    // ------------------  GÉNERO  ------------------
     [Required(ErrorMessage = "Seleccione un género")]
     [Display(Name = "Género")]
     public string Genero { get; set; } = string.Empty;
 
+    // ------------------  FECHA DE NACIMIENTO  ------------------
     [Required(ErrorMessage = "La fecha de nacimiento es obligatoria")]
     [DataType(DataType.Date)]
     [Display(Name = "Fecha de Nacimiento")]
     public DateTime FechaNacimiento { get; set; } = DateTime.Now;
 
-
+    // ------------------  OTROS CAMPOS  ------------------
     [Display(Name = "Entidad (Opcional)")]
     public int? EntidadId { get; set; }
 
@@ -50,5 +57,40 @@ public class BeneficiarioViewModel
     public bool AceptaTerminos { get; set; }
     public string? EntidadNombre { get; set; }
 
+    // ============================================================
+    // VALIDACIÓN REAL DEL DUI (módulo 11)
+    // ============================================================
 
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (!EsDuiValido(Dui))
+        {
+            yield return new ValidationResult("El DUI ingresado no es válido.", new[] { "Dui" });
+        }
+    }
+
+    private bool EsDuiValido(string dui)
+    {
+        if (string.IsNullOrWhiteSpace(dui)) return false;
+        if (!Regex.IsMatch(dui, @"^\d{8}-\d{1}$")) return false;
+
+        string numeros = dui.Split('-')[0];
+        int verificador = int.Parse(dui.Split('-')[1]);
+
+        int[] pesos = { 9, 8, 7, 6, 5, 4, 3, 2 };
+        int suma = 0;
+
+        for (int i = 0; i < 8; i++)
+        {
+            suma += (numeros[i] - '0') * pesos[i];
+        }
+
+        int residuo = suma % 11;
+        int calculado = 11 - residuo;
+
+        if (calculado == 10 || calculado == 11)
+            calculado = 0;
+
+        return calculado == verificador;
+    }
 }
