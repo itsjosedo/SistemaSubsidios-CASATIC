@@ -26,32 +26,12 @@
                 <i class="fas fa-hand-holding-usd me-2"></i>SistemaSubsidios
             </a>
             
-                <!-- Dropdown de usuario -->
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-                           aria-expanded="false">
-                            <i class="fas fa-user me-1"></i>@User.Identity.Name
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configuración</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="dropdown-item">
-                                        <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+            <!-- ELIMINADO: Dropdown de usuario -->
         </div>
     </nav>
 
     <!-- Contenido principal -->
-    <main role="main" >
+    <main role="main">
         @RenderBody()
     </main>
 

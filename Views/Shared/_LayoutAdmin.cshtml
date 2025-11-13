@@ -1,88 +1,655 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SistemaSubsidios (Admin)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>@ViewData["Title"] - SistemaSubsidios</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                <i class="fas fa-hand-holding-usd me-2"></i>SistemaSubsidios - Administrador
-            </a>
-            
-            <!-- 🍔 BOTÓN HAMBURGUESA PARA MÓVILES -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- 📱 MENÚ COLAPSABLE -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">
-                            <i class="fas fa-home me-1"></i>Inicio
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Admin" asp-action="Index">
-                            <i class="fas fa-users me-1"></i>Beneficiarios
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Subsidios" asp-action="Index">
-                            <i class="fas fa-hand-holding-usd me-1"></i>Subsidios
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Entidad" asp-action="Index">
-                            <i class="fas fa-building me-1"></i>Entidades
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Reports" asp-action="Index">
-                            <i class="fas fa-chart-bar me-1"></i>Reportes
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user me-1"></i>@ViewBag.NombreUsuario (Admin)
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cog me-2"></i>Configuración
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="dropdown-item">
-                                        <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <main role="main" class="container my-4">
-        @RenderBody()
-    </main>
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 280px;
+            background: #1a1d2e;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow: hidden;
+            transform: translateX(-100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        /* Logo - CORREGIDO */
+        .sidebar-logo {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            flex-shrink: 0;
+            min-height: 80px;
+        }
+
+        /* BOTÓN DE CERRAR DENTRO DEL SIDEBAR - SOLO EN MÓVIL - CORREGIDO */
+        .sidebar-close {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1002;
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo i {
+            font-size: 24px;
+            min-width: 40px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo span {
+            font-size: 18px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: opacity 0.3s;
+            flex: 1;
+            padding-right: 50px; /* Espacio para el botón de cerrar */
+        }
+
+        .sidebar.collapsed .sidebar-logo span {
+            opacity: 0;
+            display: none;
+        }
+
+        /* Menu Items */
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+            flex: 1;
+            overflow-y: auto;
+            max-height: calc(100vh - 160px);
+        }
+
+        .sidebar-menu li {
+            position: relative;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu a.active {
+            background: rgba(102, 126, 234, 0.3);
+            color: white;
+            border-left: 4px solid #667eea;
+        }
+
+        .sidebar-menu i {
+            font-size: 20px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .sidebar-menu span {
+            white-space: nowrap;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar.collapsed .sidebar-menu span {
+            opacity: 0;
+            display: none;
+        }
+
+        /* Profile - CORREGIDO PARA NO CORTARSE */
+        .sidebar-profile {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            flex-shrink: 0;
+            min-height: 80px;
+        }
+
+        .sidebar-profile i {
+            font-size: 22px;
+            min-width: 35px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .profile-info {
+            flex: 1;
+            transition: opacity 0.3s;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .profile-info {
+            opacity: 0;
+            display: none;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+            margin-bottom: 2px;
+        }
+
+        .profile-role {
+            font-size: 12px;
+            opacity: 0.7;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            flex-shrink: 0;
+            border-radius: 4px;
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar.collapsed .logout-btn {
+            margin-left: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 0;
+            min-height: 100vh;
+            background: #f5f6fa;
+            transition: all 0.3s ease;
+            padding: 0;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Clase específica para el fondo degradado del Dashboard */
+        .main-content.dashboard-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* Desktop styles */
+        @@media (min-width: 769px) {
+            .sidebar {
+                transform: translateX(0) !important;
+                width: 260px;
+            }
+
+            .sidebar.collapsed {
+                width: 80px;
+            }
+
+            .main-content {
+                margin-left: 260px;
+                width: calc(100% - 260px);
+                transform: translateX(0) !important;
+            }
+
+            .sidebar.collapsed ~ .main-content {
+                margin-left: 80px;
+                width: calc(100% - 80px);
+            }
+
+            .sidebar-close {
+                display: none !important;
+            }
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: #ffffff;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .top-bar .menu-toggle {
+            background: none;
+            border: none;
+            color: #333;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px 10px;
+            display: block;
+        }
+
+        .top-bar .page-title {
+            color: #333;
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Top Bar - Estilos para cuando SÍ está en Dashboard */
+        .main-content.dashboard-bg .top-bar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        .main-content.dashboard-bg .top-bar .menu-toggle {
+            color: white;
+        }
+
+        .main-content.dashboard-bg .top-bar .page-title {
+            color: white;
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 30px;
+        }
+
+        /* Mobile Open State - CORREGIDO */
+        .sidebar.mobile-open {
+            transform: translateX(0) !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            z-index: 1001;
+        }
+
+        .main-content.menu-pushed {
+            transform: translateX(0);
+        }
+
+        /* Overlay para móviles */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* Responsive MEJORADO */
+        @@media (max-width: 768px) {
+            .top-bar {
+                padding: 15px 20px;
+                gap: 15px;
+            }
+
+            .top-bar .menu-toggle {
+                display: block !important;
+            }
+
+            .top-bar .page-title {
+                font-size: 18px;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+
+            .sidebar:not(.mobile-open) {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-open .sidebar-close {
+                display: flex;
+            }
+
+            /* SIDEBAR EN MÓVIL OCUPA EL 100% */
+            .sidebar.mobile-open {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* AJUSTES ESPECÍFICOS PARA EL PERFIL EN MÓVIL */
+            .sidebar-profile {
+                padding: 12px 20px;
+                gap: 10px;
+                min-height: 70px;
+            }
+
+            .sidebar-profile i {
+                font-size: 20px;
+                min-width: 30px;
+            }
+
+            .profile-name {
+                font-size: 13px;
+            }
+
+            .profile-role {
+                font-size: 11px;
+            }
+
+            .logout-btn {
+                padding: 6px;
+                min-width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+
+            /* Safe areas para iPhone */
+            @@supports (padding: max(0px)) {
+                .sidebar {
+                    padding-top: max(0px, env(safe-area-inset-top));
+                    padding-bottom: max(0px, env(safe-area-inset-bottom));
+                    padding-left: max(0px, env(safe-area-inset-left));
+                    padding-right: max(0px, env(safe-area-inset-right));
+                }
+                
+                .sidebar-profile {
+                    padding-bottom: max(12px, env(safe-area-inset-bottom));
+                }
+                
+                .top-bar {
+                    padding-top: max(15px, env(safe-area-inset-top));
+                    padding-left: max(20px, env(safe-area-inset-left));
+                    padding-right: max(20px, env(safe-area-inset-right));
+                }
+            }
+        }
+
+        /* Scrollbar */
+        .sidebar-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        /* Mejoras para tablets pequeñas */
+        @@media (max-width: 480px) {
+            .content-area {
+                padding: 15px;
+            }
+            
+            .top-bar {
+                padding: 12px 15px;
+            }
+            
+            .top-bar .page-title {
+                font-size: 16px;
+            }
+            
+            .sidebar.mobile-open {
+                width: 100% !important;
+            }
+        }
+
+        /* Mejoras para orientación landscape en móviles */
+        @@media (max-width: 768px) and (orientation: landscape) {
+            .sidebar {
+                height: 100%;
+                overflow-y: auto;
+            }
+            
+            .sidebar-profile {
+                min-height: 60px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Overlay para móviles -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <!-- Logo con botón de cerrar - CORREGIDO -->
+        <div class="sidebar-logo">
+            <i class="fas fa-hand-holding-usd"></i>
+            <span>SistemaSubsidios</span>
+            <!-- BOTÓN DE CERRAR DENTRO DEL SIDEBAR - POSICIONADO CORRECTAMENTE -->
+            <button class="sidebar-close" onclick="closeSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Menu Simplificado -->
+        <ul class="sidebar-menu">
+            <li>
+                <a asp-controller="Home" asp-action="Index" class="active">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="Admin" asp-action="Index">
+                    <i class="fas fa-users"></i>
+                    <span>Beneficiarios</span>
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Entidad" asp-action="Index">
+                    <i class="fas fa-building"></i>
+                    <span>Entidades</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="Subsidios" asp-action="Index">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    <span>Subsidios</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-controller="Reports" asp-action="Index">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reportes</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Profile - CORREGIDO -->
+        <div class="sidebar-profile">
+            <i class="fas fa-user-circle"></i>
+            <div class="profile-info">
+                <div class="profile-name">@ViewBag.NombreUsuario</div>
+                <div class="profile-role">Administrador</div>
+            </div>
+            <form asp-controller="Account" asp-action="Logout" method="post" style="margin: 0;">
+                <button type="submit" class="logout-btn" title="Cerrar sesión">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div
+        class="main-content @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "dashboard-bg" : "")"
+        id="mainContent">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">@ViewData["Title"]</h1>
+        </div>
+
+        <!-- Content -->
+        <div class="content-area">
+            @RenderBody()
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (window.innerWidth <= 768) {
+                const isOpening = !sidebar.classList.contains('mobile-open');
+                
+                if (isOpening) {
+                    sidebar.classList.add('mobile-open');
+                    mainContent.classList.add('menu-pushed');
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    closeSidebar();
+                }
+            } else {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            }
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.remove('mobile-open');
+            mainContent.classList.remove('menu-pushed');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Cerrar sidebar al hacer clic en un enlace (solo móviles)
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        // Cerrar sidebar con ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSidebar();
+            }
+        });
+
+        // Manejo responsive
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (window.innerWidth > 768) {
+                closeSidebar();
+                const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                if (isCollapsed) {
+                    sidebar.classList.add('collapsed');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                }
+            } else {
+                sidebar.classList.remove('collapsed');
+                closeSidebar();
+            }
+        });
+
+        // Inicializar estado del sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            
+            if (window.innerWidth > 768) {
+                const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                if (isCollapsed) {
+                    sidebar.classList.add('collapsed');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
