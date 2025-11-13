@@ -101,8 +101,23 @@ namespace SistemaSubsidios_CASATIC.Controllers
         [HttpPost]
         public async Task<IActionResult> CompletarPerfil(BeneficiarioViewModel model)
         {
+            Console.WriteLine("---- POST Recibido ----");
+            Console.WriteLine("DUI recibido: " + model.Dui);
+
+
+
             if (!ModelState.IsValid)
             {
+                Console.WriteLine("---- ERRORES DE MODELSTATE ----");
+                foreach (var kv in ModelState)
+                {
+                    var key = kv.Key;
+                    var entry = kv.Value;
+                    foreach (var err in entry.Errors)
+                    {
+                        Console.WriteLine($"Key: {key} -> Error: {err.ErrorMessage}");
+                    }
+                }
                 var errores = ModelState.Values
                 .SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage)
@@ -111,6 +126,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 _logger.LogWarning("Errores de validación: {Errores}", string.Join(", ", errores));
                 ViewBag.Errores = errores;
                 return View(model);
+
+
             }
 
             var userId = GetUserId();
@@ -248,6 +265,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
             TempData["MensajeExito"] = "Perfil actualizado correctamente.";
             return RedirectToAction("Index");
         }
-        
+
     }
 }
