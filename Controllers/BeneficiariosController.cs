@@ -248,7 +248,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
             TempData["MensajeExito"] = "Perfil actualizado correctamente.";
             return RedirectToAction("Index");
         }
-
-
+        
     }
 }

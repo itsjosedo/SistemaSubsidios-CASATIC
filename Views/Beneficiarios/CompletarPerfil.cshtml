@@ -15,19 +15,19 @@
     <input type="hidden" asp-for="Id_Beneficiario" />
     <div class="form-group mb-3">
         <label asp-for="Dui"></label>
-        <input asp-for="Dui" class="form-control" />
+        <input asp-for="Dui" class="form-control" placeholder="Ingresa el DUI con guion Ejem: 12345678-9"/>
         <span asp-validation-for="Dui" class="text-danger"></span>
     </div>
 
     <div class="form-group mb-3">
         <label asp-for="Telefono"></label>
-        <input asp-for="Telefono" class="form-control" />
+        <input asp-for="Telefono" class="form-control" placeholder = "Ejemplo: 75658457"/>
         <span asp-validation-for="Telefono" class="text-danger"></span>
     </div>
 
     <div class="form-group mb-3">
         <label asp-for="Direccion"></label>
-        <textarea asp-for="Direccion" class="form-control"></textarea>
+        <textarea asp-for="Direccion" class="form-control" placeholder="Ejem: Colonia Escalon, San Salvador"></textarea>
         <span asp-validation-for="Direccion" class="text-danger"></span>
     </div>
 
