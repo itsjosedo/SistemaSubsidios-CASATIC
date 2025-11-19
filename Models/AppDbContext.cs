@@ -9,4 +9,13 @@ public class AppDbContext : DbContext
     public DbSet<Beneficiario> Beneficiarios { get; set; }
     public DbSet<Subsidio> Subsidios { get; set; }
     public DbSet<Notificacion> Notificaciones { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    // Solo configurar la relación muchos-a-muchos
+    modelBuilder.Entity<Subsidio>()
+        .HasMany(s => s.Beneficiarios)
+        .WithMany(b => b.Subsidios)
+        .UsingEntity(j => j.ToTable("SubsidioBeneficiario"));
+}
 }

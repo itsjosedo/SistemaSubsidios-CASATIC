@@ -140,62 +140,78 @@
         </div>
 
         <div class="col-lg-4">
-            <!-- Card de información del beneficiario -->
+            <!-- Card de información de beneficiarios -->
             <div class="card shadow mb-4 print-section">
                 <div class="card-header py-3 bg-primary print-section-header">
                     <h6 class="m-0 font-weight-bold text-white">
-                        <i class="fas fa-user me-2"></i>Información del beneficiario
+                        <i class="fas fa-users me-2"></i>Beneficiarios asignados (@Model.Beneficiarios.Count)
                     </h6>
                 </div>
-                <div class="card-body text-center">
-                    @if (Model.Beneficiario != null)
+                <div class="card-body">
+                    @if (Model.Beneficiarios.Any())
                     {
-                        <div class="avatar-lg mx-auto mb-3">
-                            <div class="avatar-initials bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" 
-                                 style="width: 80px; height: 80px; font-size: 2rem; font-weight: 600;">
-                                @GetInitials(Model.Beneficiario.Nombre)
-                            </div>
-                        </div>
-                        
-                        <h5 class="text-primary mb-2">@Model.Beneficiario.Nombre</h5>
-                        
-                        <div class="beneficiary-info">
-                            <div class="info-row mb-2">
-                                <i class="fas fa-id-card text-muted me-2"></i>
-                                <span class="text-dark">@Model.Beneficiario.Dui</span>
-                            </div>
-                            
-                            @if (!string.IsNullOrEmpty(Model.Beneficiario.Telefono))
+                        <div class="beneficiarios-list">
+                            @foreach (var beneficiario in Model.Beneficiarios)
                             {
-                                <div class="info-row mb-2">
-                                    <i class="fas fa-phone text-muted me-2"></i>
-                                    <span class="text-dark">@Model.Beneficiario.Telefono</span>
-                                </div>
-                            }
-                            
-                            @if (!string.IsNullOrEmpty(Model.Beneficiario.Direccion))
-                            {
-                                <div class="info-row mb-2">
-                                    <i class="fas fa-map-marker-alt text-muted me-2"></i>
-                                    <span class="text-dark">@Model.Beneficiario.Direccion</span>
-                                </div>
-                            }
+                                <div class="beneficiario-item border rounded p-3 mb-3">
+                                    <div class="d-flex align-items-start">
+                                        <div class="avatar-initials bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                             style="width: 50px; height: 50px; font-size: 1rem; font-weight: 600;">
+                                            @GetInitials(beneficiario.Nombre)
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="text-primary mb-2">@beneficiario.Nombre</h6>
+                                            
+                                            <div class="beneficiary-details">
+                                                <div class="detail-item mb-1">
+                                                    <i class="fas fa-id-card text-muted me-2"></i>
+                                                    <small class="text-dark">@beneficiario.Dui</small>
+                                                </div>
+                                                
+                                                @if (!string.IsNullOrEmpty(beneficiario.Telefono))
+                                                {
+                                                    <div class="detail-item mb-1">
+                                                        <i class="fas fa-phone text-muted me-2"></i>
+                                                        <small class="text-dark">@beneficiario.Telefono</small>
+                                                    </div>
+                                                }
+                                                
+                                                @if (!string.IsNullOrEmpty(beneficiario.Direccion))
+                                                {
+                                                    <div class="detail-item mb-1">
+                                                        <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                                                        <small class="text-dark">@beneficiario.Direccion</small>
+                                                    </div>
+                                                }
 
-                            @if (!string.IsNullOrEmpty(Model.Beneficiario.EstadoSubsidio))
-                            {
-                                <div class="info-row">
-                                    @{
-                                        var benefEstadoClass = Model.Beneficiario.EstadoSubsidio?.ToLower() switch
-                                        {
-                                            "activo" => "bg-success",
-                                            "pendiente" => "bg-warning",
-                                            "inactivo" => "bg-secondary",
-                                            _ => "bg-secondary"
-                                        };
-                                    }
-                                    <span class="badge @benefEstadoClass">
-                                        Estado: @Model.Beneficiario.EstadoSubsidio
-                                    </span>
+                                                @if (!string.IsNullOrEmpty(beneficiario.Genero))
+                                                {
+                                                    <div class="detail-item mb-1">
+                                                        <i class="fas fa-venus-mars text-muted me-2"></i>
+                                                        <small class="text-dark">@beneficiario.Genero</small>
+                                                    </div>
+                                                }
+
+                                                @if (!string.IsNullOrEmpty(beneficiario.EstadoSubsidio))
+                                                {
+                                                    <div class="detail-item">
+                                                        @{
+                                                            var benefEstadoClass = beneficiario.EstadoSubsidio?.ToLower() switch
+                                                            {
+                                                                "activo" => "bg-success",
+                                                                "pendiente" => "bg-warning",
+                                                                "inactivo" => "bg-secondary",
+                                                                _ => "bg-secondary"
+                                                            };
+                                                        }
+                                                        <span class="badge @benefEstadoClass">
+                                                            @beneficiario.EstadoSubsidio
+                                                        </span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             }
                         </div>
@@ -204,7 +220,10 @@
                     {
                         <div class="text-center py-4">
                             <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">Beneficiario no asignado</p>
+                            <p class="text-muted mb-3">No hay beneficiarios asignados</p>
+                            <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" class="btn btn-success btn-sm">
+                                <i class="fas fa-user-plus me-2"></i>Asignar beneficiarios
+                            </a>
                         </div>
                     }
                 </div>
@@ -219,7 +238,10 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg">
+                        <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" class="btn btn-success btn-lg">
+                            <i class="fas fa-users me-2"></i>Gestionar beneficiarios
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
                             <i class="fas fa-edit me-2"></i>Editar subsidio
                         </a>
                         <a asp-action="Index" class="btn btn-outline-secondary">
@@ -287,18 +309,14 @@
             font-weight: 600;
         }
 
-        .avatar-lg .avatar-initials {
-            font-size: 2rem;
+        .beneficiario-item {
+            background-color: #f8f9fc;
+            border: 1px solid #e3e6f0 !important;
         }
 
-        .info-item label {
-            font-size: 0.9rem;
-        }
-
-        .beneficiary-info .info-row {
+        .beneficiary-details .detail-item {
             display: flex;
             align-items: center;
-            justify-content: center;
         }
 
         .card-header.bg-info {

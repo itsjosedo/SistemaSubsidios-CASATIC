@@ -233,6 +233,12 @@
             font-size: 16px;
         }
 
+        /* OCULTAR BOTÓN DE CERRAR SESIÓN CUANDO EL SIDEBAR ESTÁ COLAPSADO */
+        .sidebar.collapsed .logout-btn {
+            opacity: 0;
+            display: none;
+        }
+
         /* Main Content */
         .main-content {
             min-height: 100vh;
@@ -393,6 +399,12 @@
             /* Safe areas */
             .sidebar {
                 padding-bottom: env(safe-area-inset-bottom, 0);
+            }
+
+            /* MOSTRAR BOTÓN DE CERRAR SESIÓN EN MÓVIL */
+            .sidebar.mobile-open .logout-btn {
+                opacity: 1;
+                display: flex;
             }
         }
 

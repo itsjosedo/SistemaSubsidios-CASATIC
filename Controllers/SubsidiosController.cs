@@ -2,6 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SistemaSubsidios_CASATIC.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SistemaSubsidios_CASATIC.Controllers
 {
@@ -20,7 +24,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Index()
         {
             var subsidios = await _context.Subsidios
-                .Include(s => s.Beneficiario)
+                .Include(s => s.Beneficiarios)  // ← CAMBIADO: Beneficiario -> Beneficiarios
                 .OrderByDescending(s => s.Id)
                 .ToListAsync();
 
@@ -28,9 +32,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
         }
 
         // GET: Subsidios/Create
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            await CargarBeneficiarios();
             return View();
         }
 
@@ -41,97 +44,28 @@ namespace SistemaSubsidios_CASATIC.Controllers
         {
             _logger.LogInformation("🎯 === INICIANDO CREACIÓN DE SUBSIDIO ===");
 
-            // Log de todos los datos recibidos
-            _logger.LogInformation("📥 DATOS RECIBIDOS:");
-            _logger.LogInformation($"   Programa: {model.NombrePrograma ?? "NULL"}");
-            _logger.LogInformation($"   Tipo: {model.Tipo ?? "NULL"}");
-            _logger.LogInformation($"   Monto: {model.Monto}");
-            _logger.LogInformation($"   BeneficiarioId: {model.BeneficiarioId}");
-            _logger.LogInformation($"   FechaAsignacion: {model.FechaAsignacion}");
-            _logger.LogInformation($"   Estado: {model.Estado ?? "NULL"}");
+            // ✅ REMOVER validación de propiedades [NotMapped]
+            ModelState.Remove("BeneficiarioId");
+            ModelState.Remove("Beneficiario");
 
-            // Validar ModelState
             if (!ModelState.IsValid)
             {
-                _logger.LogError("❌ MODELSTATE NO VÁLIDO - Errores encontrados:");
-
-                foreach (var state in ModelState)
-                {
-                    var errors = state.Value.Errors;
-                    if (errors.Count > 0)
-                    {
-                        _logger.LogError($"   📍 {state.Key}:");
-                        foreach (var error in errors)
-                        {
-                            _logger.LogError($"      - {error.ErrorMessage}");
-                        }
-                    }
-                }
-
-                await CargarBeneficiarios();
+                _logger.LogError("❌ MODELSTATE NO VÁLIDO");
                 return View(model);
             }
-
-            _logger.LogInformation("✅ MODELSTATE VÁLIDO - Todos los campos son correctos");
 
             try
             {
-                _logger.LogInformation("🔍 Validando que el beneficiario existe...");
-
-                // Validar que el beneficiario existe
-                var beneficiarioExiste = await _context.Beneficiarios
-                    .AnyAsync(b => b.Id_Beneficiario == model.BeneficiarioId);
-
-                if (!beneficiarioExiste)
-                {
-                    _logger.LogError($"❌ BENEFICIARIO NO ENCONTRADO - ID: {model.BeneficiarioId}");
-                    ModelState.AddModelError("BeneficiarioId", "El beneficiario seleccionado no existe");
-                    await CargarBeneficiarios();
-                    return View(model);
-                }
-
-                _logger.LogInformation("✅ Beneficiario validado correctamente");
-
-                // Proceder a guardar
-                _logger.LogInformation("💾 Agregando subsidio al contexto de base de datos...");
                 _context.Subsidios.Add(model);
-
-                _logger.LogInformation("💿 Ejecutando SaveChangesAsync()...");
-                int filasAfectadas = await _context.SaveChangesAsync();
-
-                _logger.LogInformation($"✅ SUBSIDIO GUARDADO EXITOSAMENTE");
-                _logger.LogInformation($"   📋 ID generado: {model.Id}");
-                _logger.LogInformation($"   📊 Filas afectadas: {filasAfectadas}");
-                _logger.LogInformation($"   🏷️ Programa: {model.NombrePrograma}");
-
-                // Configurar mensaje de éxito
-                TempData["SuccessMessage"] = $"Subsidio '{model.NombrePrograma}' creado correctamente";
-                _logger.LogInformation($"📢 Mensaje de éxito configurado en TempData");
-
-                _logger.LogInformation("🔄 Redirigiendo a Index...");
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = $"Subsidio '{model.NombrePrograma}' creado correctamente. Ahora puede asignar beneficiarios.";
                 return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateException dbEx)
-            {
-                _logger.LogError(dbEx, "💥 ERROR CRÍTICO DE BASE DE DATOS");
-                _logger.LogError($"   Mensaje: {dbEx.Message}");
-                if (dbEx.InnerException != null)
-                {
-                    _logger.LogError($"   Inner Exception: {dbEx.InnerException.Message}");
-                }
-
-                ModelState.AddModelError("", "Error de base de datos al guardar el subsidio. Verifique los datos.");
-                await CargarBeneficiarios();
-                return View(model);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "💥 ERROR INESPERADO");
-                _logger.LogError($"   Tipo: {ex.GetType().Name}");
-                _logger.LogError($"   Mensaje: {ex.Message}");
-
-                ModelState.AddModelError("", "Ocurrió un error inesperado al guardar el subsidio");
-                await CargarBeneficiarios();
+                _logger.LogError(ex, "Error al crear subsidio");
+                ModelState.AddModelError("", "Error al crear el subsidio: " + ex.Message);
                 return View(model);
             }
         }
@@ -139,10 +73,11 @@ namespace SistemaSubsidios_CASATIC.Controllers
         // GET: Subsidios/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var subsidio = await _context.Subsidios.FindAsync(id);
+            var subsidio = await _context.Subsidios
+                .Include(s => s.Beneficiarios)  // ← CAMBIADO: Beneficiario -> Beneficiarios
+                .FirstOrDefaultAsync(s => s.Id == id);
+                
             if (subsidio == null) return NotFound();
-
-            await CargarBeneficiarios();
             return View(subsidio);
         }
 
@@ -151,104 +86,46 @@ namespace SistemaSubsidios_CASATIC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Subsidio model)
         {
-            _logger.LogInformation("🎯 === INICIANDO ACTUALIZACIÓN DE SUBSIDIO ===");
-            _logger.LogInformation($"📝 ID del subsidio a actualizar: {model.Id}");
+            // ✅ REMOVER validación de propiedades [NotMapped]
+            ModelState.Remove("BeneficiarioId");
+            ModelState.Remove("Beneficiario");
 
-            // Log de todos los datos recibidos
-            _logger.LogInformation("📥 DATOS RECIBIDOS PARA ACTUALIZAR:");
-            _logger.LogInformation($"   Programa: {model.NombrePrograma ?? "NULL"}");
-            _logger.LogInformation($"   Tipo: {model.Tipo ?? "NULL"}");
-            _logger.LogInformation($"   Monto: {model.Monto}");
-            _logger.LogInformation($"   BeneficiarioId: {model.BeneficiarioId}");
-            _logger.LogInformation($"   FechaAsignacion: {model.FechaAsignacion}");
-            _logger.LogInformation($"   Estado: {model.Estado ?? "NULL"}");
-
-            // Validar ModelState
             if (!ModelState.IsValid)
             {
-                _logger.LogError("❌ MODELSTATE NO VÁLIDO - Errores encontrados:");
-
-                foreach (var state in ModelState)
-                {
-                    var errors = state.Value.Errors;
-                    if (errors.Count > 0)
-                    {
-                        _logger.LogError($"   📍 {state.Key}:");
-                        foreach (var error in errors)
-                        {
-                            _logger.LogError($"      - {error.ErrorMessage}");
-                        }
-                    }
-                }
-
-                await CargarBeneficiarios();
                 return View(model);
             }
-
-            _logger.LogInformation("✅ MODELSTATE VÁLIDO");
 
             try
             {
-                _logger.LogInformation("🔍 Buscando subsidio existente en la base de datos...");
-
-                // Buscar el subsidio existente
-                var subsidioExistente = await _context.Subsidios.FindAsync(model.Id);
+                var subsidioExistente = await _context.Subsidios
+                    .Include(s => s.Beneficiarios)  // ← CAMBIADO
+                    .FirstOrDefaultAsync(s => s.Id == model.Id);
+                    
                 if (subsidioExistente == null)
                 {
-                    _logger.LogError($"❌ SUBSIDIO NO ENCONTRADO - ID: {model.Id}");
                     ModelState.AddModelError("", "El subsidio que intenta actualizar no existe");
-                    await CargarBeneficiarios();
                     return View(model);
                 }
 
-                _logger.LogInformation("✅ Subsidio encontrado, actualizando propiedades...");
-
-                // Actualizar propiedades
+                // Actualizar propiedades básicas
                 subsidioExistente.NombrePrograma = model.NombrePrograma;
                 subsidioExistente.Tipo = model.Tipo;
                 subsidioExistente.Monto = model.Monto;
-                subsidioExistente.BeneficiarioId = model.BeneficiarioId;
                 subsidioExistente.FechaAsignacion = model.FechaAsignacion;
                 subsidioExistente.Estado = model.Estado;
 
-                _logger.LogInformation("💾 Actualizando subsidio en el contexto...");
-                _context.Subsidios.Update(subsidioExistente);
+                // NOTA: La asignación de beneficiarios se hace con los métodos específicos
+                // GestionarBeneficiarios o AsignarBeneficiariosMultiples
 
-                _logger.LogInformation("💿 Ejecutando SaveChangesAsync()...");
-                int filasAfectadas = await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"✅ SUBSIDIO ACTUALIZADO EXITOSAMENTE");
-                _logger.LogInformation($"   📊 Filas afectadas: {filasAfectadas}");
-                _logger.LogInformation($"   🏷️ Programa actualizado: {model.NombrePrograma}");
-
-                // Configurar mensaje de éxito
                 TempData["SuccessMessage"] = $"Subsidio '{model.NombrePrograma}' actualizado correctamente";
-                _logger.LogInformation($"📢 Mensaje de éxito configurado en TempData: {TempData["SuccessMessage"]}");
-
-                _logger.LogInformation("🔄 Redirigiendo a Index...");
                 return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateException dbEx)
-            {
-                _logger.LogError(dbEx, "💥 ERROR DE BASE DE DATOS al actualizar subsidio");
-                _logger.LogError($"   Mensaje: {dbEx.Message}");
-                if (dbEx.InnerException != null)
-                {
-                    _logger.LogError($"   Inner Exception: {dbEx.InnerException.Message}");
-                }
-
-                ModelState.AddModelError("", "Error de base de datos al actualizar el subsidio. Verifique los datos.");
-                await CargarBeneficiarios();
-                return View(model);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "💥 ERROR INESPERADO al actualizar subsidio");
-                _logger.LogError($"   Tipo: {ex.GetType().Name}");
-                _logger.LogError($"   Mensaje: {ex.Message}");
-
-                ModelState.AddModelError("", "Ocurrió un error inesperado al actualizar el subsidio");
-                await CargarBeneficiarios();
+                _logger.LogError(ex, "Error al actualizar subsidio");
+                ModelState.AddModelError("", "Error al actualizar el subsidio: " + ex.Message);
                 return View(model);
             }
         }
@@ -257,7 +134,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var subsidio = await _context.Subsidios
-                .Include(s => s.Beneficiario)
+                .Include(s => s.Beneficiarios)  // ← CAMBIADO: Beneficiario -> Beneficiarios
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (subsidio == null) return NotFound();
@@ -268,7 +145,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var subsidio = await _context.Subsidios
-                .Include(s => s.Beneficiario)
+                .Include(s => s.Beneficiarios)  // ← CAMBIADO: Beneficiario -> Beneficiarios
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (subsidio == null) return NotFound();
@@ -280,9 +157,14 @@ namespace SistemaSubsidios_CASATIC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var subsidio = await _context.Subsidios.FindAsync(id);
+            var subsidio = await _context.Subsidios
+                .Include(s => s.Beneficiarios)  // ← CAMBIADO
+                .FirstOrDefaultAsync(s => s.Id == id);
+                
             if (subsidio != null)
             {
+                // Limpiar relaciones muchos-a-muchos antes de eliminar
+                subsidio.Beneficiarios.Clear();
                 _context.Subsidios.Remove(subsidio);
                 await _context.SaveChangesAsync();
             }
@@ -293,7 +175,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Reporte()
         {
             var subsidios = await _context.Subsidios
-                .Include(s => s.Beneficiario)
+                .Include(s => s.Beneficiarios)  // ← CAMBIADO: Beneficiario -> Beneficiarios
                 .OrderByDescending(s => s.Id)
                 .ToListAsync();
 
@@ -308,8 +190,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Activos()
         {
             var subsidiosActivos = await _context.Subsidios
-                .Include(s => s.Beneficiario)
-                .Where(s => s.Estado == "Activo") // Ajusta según tu campo de estado
+                .Include(s => s.Beneficiarios)  // ← CAMBIADO: Beneficiario -> Beneficiarios
+                .Where(s => s.Estado == "Activo")
                 .OrderByDescending(s => s.Id)
                 .ToListAsync();
 
@@ -317,22 +199,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return View(subsidiosActivos);
         }
 
-        // Método privado para llenar SelectList de Beneficiarios
-        private async Task CargarBeneficiarios()
-        {
-            var beneficiarios = await _context.Beneficiarios
-                .OrderBy(b => b.Dui)
-                .Select(b => new SelectListItem
-                {
-                    Value = b.Id_Beneficiario.ToString(),
-                    Text = b.Dui
-                })
-                .ToListAsync();
-
-            ViewBag.Beneficiarios = beneficiarios;
-        }
-
-        //Mostar detalles del subsidio en beneficiario
+        // Mostrar detalles del subsidio en beneficiario
         [HttpGet]
         public async Task<IActionResult> Detalles(int id)
         {
@@ -341,9 +208,9 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return RedirectToAction("Login", "Account");
 
             var subsidio = await _context.Subsidios
-                .Include(s => s.Beneficiario)
+                .Include(s => s.Beneficiarios)  // ← CAMBIADO
                 .ThenInclude(b => b.Entidad)
-                .FirstOrDefaultAsync(s => s.Id == id && s.Beneficiario.UsuarioId == userId.Value);
+                .FirstOrDefaultAsync(s => s.Id == id && s.Beneficiarios.Any(b => b.UsuarioId == userId.Value));
 
             if (subsidio == null)
                 return NotFound();
@@ -351,5 +218,156 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return View(subsidio);
         }
 
+        // ==============================================
+        // 🆕 MÉTODOS NUEVOS PARA ASIGNACIÓN MÚLTIPLE DE BENEFICIARIOS
+        // ==============================================
+
+        // GET: Subsidios/GestionarBeneficiarios/5
+        public async Task<IActionResult> GestionarBeneficiarios(int id)
+        {
+            var subsidio = await _context.Subsidios
+                .Include(s => s.Beneficiarios)
+                .FirstOrDefaultAsync(s => s.Id == id);
+            
+            if (subsidio == null)
+            {
+                TempData["ErrorMessage"] = "Subsidio no encontrado";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Obtener TODOS los beneficiarios disponibles
+            var todosBeneficiarios = await _context.Beneficiarios
+                .Where(b => !string.IsNullOrEmpty(b.Dui) && !string.IsNullOrEmpty(b.Nombre))
+                .OrderBy(b => b.Nombre)
+                .ToListAsync();
+
+            ViewBag.BeneficiariosDisponibles = todosBeneficiarios;
+            ViewBag.BeneficiariosAsignados = subsidio.Beneficiarios.Select(b => b.Id_Beneficiario).ToList();
+
+            return View(subsidio);
+        }
+
+        // POST: Subsidios/GestionarBeneficiarios/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GestionarBeneficiarios(int id, List<int> beneficiariosIds)
+        {
+            try
+            {
+                var subsidio = await _context.Subsidios
+                    .Include(s => s.Beneficiarios)
+                    .FirstOrDefaultAsync(s => s.Id == id);
+                
+                if (subsidio == null)
+                {
+                    TempData["ErrorMessage"] = "Subsidio no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Limpiar beneficiarios actuales
+                subsidio.Beneficiarios.Clear();
+
+                // Agregar nuevos beneficiarios seleccionados
+                if (beneficiariosIds != null && beneficiariosIds.Any())
+                {
+                    var beneficiarios = await _context.Beneficiarios
+                        .Where(b => beneficiariosIds.Contains(b.Id_Beneficiario))
+                        .ToListAsync();
+
+                    foreach (var beneficiario in beneficiarios)
+                    {
+                        subsidio.Beneficiarios.Add(beneficiario);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = $"Beneficiarios actualizados correctamente para el subsidio '{subsidio.NombrePrograma}'";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al gestionar beneficiarios");
+                TempData["ErrorMessage"] = "Error al gestionar los beneficiarios: " + ex.Message;
+                return RedirectToAction(nameof(GestionarBeneficiarios), new { id });
+            }
+        }
+
+        // GET: Subsidios/QuitarBeneficiario/5
+        public async Task<IActionResult> QuitarBeneficiario(int id, int beneficiarioId)
+        {
+            var subsidio = await _context.Subsidios
+                .Include(s => s.Beneficiarios)
+                .FirstOrDefaultAsync(s => s.Id == id);
+            
+            if (subsidio == null)
+            {
+                TempData["ErrorMessage"] = "Subsidio no encontrado";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var beneficiario = subsidio.Beneficiarios.FirstOrDefault(b => b.Id_Beneficiario == beneficiarioId);
+            if (beneficiario == null)
+            {
+                TempData["WarningMessage"] = "Beneficiario no encontrado en este subsidio";
+                return RedirectToAction(nameof(GestionarBeneficiarios), new { id });
+            }
+
+            ViewBag.Beneficiario = beneficiario;
+            return View(subsidio);
+        }
+
+        // POST: Subsidios/QuitarBeneficiario/5
+        [HttpPost, ActionName("QuitarBeneficiario")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> QuitarBeneficiarioConfirmed(int id, int beneficiarioId)
+        {
+            try
+            {
+                var subsidio = await _context.Subsidios
+                    .Include(s => s.Beneficiarios)
+                    .FirstOrDefaultAsync(s => s.Id == id);
+                    
+                if (subsidio == null)
+                {
+                    TempData["ErrorMessage"] = "Subsidio no encontrado";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var beneficiario = subsidio.Beneficiarios.FirstOrDefault(b => b.Id_Beneficiario == beneficiarioId);
+                if (beneficiario != null)
+                {
+                    subsidio.Beneficiarios.Remove(beneficiario);
+                    await _context.SaveChangesAsync();
+                    
+                    TempData["SuccessMessage"] = $"Beneficiario '{beneficiario.Nombre}' removido correctamente del subsidio '{subsidio.NombrePrograma}'";
+                }
+
+                return RedirectToAction(nameof(GestionarBeneficiarios), new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al quitar beneficiario");
+                TempData["ErrorMessage"] = "Error al quitar el beneficiario: " + ex.Message;
+                return RedirectToAction(nameof(GestionarBeneficiarios), new { id });
+            }
+        }
+
+        // ==============================================
+        // 📊 MÉTODOS AUXILIARES
+        // ==============================================
+
+        // Método para obtener estadísticas de beneficiarios
+        public JsonResult GetEstadisticasBeneficiarios()
+        {
+            var estadisticas = new
+            {
+                TotalSubsidios = _context.Subsidios.Count(),
+                SubsidiosConBeneficiarios = _context.Subsidios.Count(s => s.Beneficiarios.Any()),
+                TotalBeneficiariosAsignados = _context.Subsidios.Sum(s => s.Beneficiarios.Count)
+            };
+
+            return Json(estadisticas);
+        }
     }
 }

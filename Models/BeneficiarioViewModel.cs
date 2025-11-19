@@ -111,4 +111,5 @@ public class BeneficiarioViewModel : IValidatableObject
 
         return calculado == verificadorIngresado;
     }
+    public List<Subsidio> Subsidios { get; set; } = new List<Subsidio>();
 }

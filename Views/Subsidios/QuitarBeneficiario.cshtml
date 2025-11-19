@@ -1,0 +1,66 @@
+@model Subsidio
+@{
+    ViewData["Title"] = "Quitar Beneficiario";
+    Layout = ViewBag.Layout ?? "_Layout";
+    
+    var beneficiario = ViewBag.Beneficiario as Beneficiario;
+}
+
+<div class="container-fluid px-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-danger text-white py-3">
+                    <h4 class="mb-0 text-center">
+                        <i class="fas fa-user-times me-2"></i>@ViewData["Title"]
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-warning">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle me-2"></i>¿Está seguro que desea quitar este beneficiario?
+                        </h5>
+                        <p class="mb-0">Esta acción no se puede deshacer.</p>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="font-weight-bold text-gray-800">Información del Subsidio</h6>
+                            <div class="small">
+                                <div><strong>Programa:</strong> @Model.NombrePrograma</div>
+                                <div><strong>ID:</strong> #@Model.Id</div>
+                                <div><strong>Monto:</strong> $@Model.Monto.ToString("N2")</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="font-weight-bold text-gray-800">Beneficiario a Remover</h6>
+                            @if (beneficiario != null)
+                            {
+                                <div class="small">
+                                    <div><strong>Nombre:</strong> @beneficiario.Nombre</div>
+                                    <div><strong>DUI:</strong> @beneficiario.Dui</div>
+                                    <div><strong>Teléfono:</strong> @beneficiario.Telefono</div>
+                                    <div><strong>Género:</strong> @beneficiario.Genero</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <form asp-action="QuitarBeneficiarioConfirmed" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="beneficiarioId" value="@beneficiario?.Id_Beneficiario" />
+                        
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Confirmar Eliminación
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

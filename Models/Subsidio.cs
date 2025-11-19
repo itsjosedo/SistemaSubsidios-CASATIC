@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class Subsidio
 {
@@ -11,24 +12,29 @@ public class Subsidio
 
     [Required]
     [Display(Name = "Tipo de Subsidio")]
-    public string Tipo { get; set; } = "Canasta básica"; // Ej: Canasta, Beca, Vale transporte
+    public string Tipo { get; set; } = "Canasta básica";
 
     [Required]
     [Display(Name = "Monto")]
-    [DisplayFormat(DataFormatString = "{0:0.00}")] // ← Esto fuerza 2 decimales
+    [DisplayFormat(DataFormatString = "{0:0.00}")]
     public decimal Monto { get; set; }
 
     [Required]
     [Display(Name = "Fecha de Asignación")]
-    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")] // ← Formato de fecha
+    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
     public DateTime FechaAsignacion { get; set; } = DateTime.Now;
 
     [Required]
     [Display(Name = "Estado")]
     public string Estado { get; set; } = "Pendiente";
 
-    // Relación con Beneficiario
-    [Required]
-    public int BeneficiarioId { get; set; }
+    // 🔹 MARCAR como No Mapeada (solo para compatibilidad temporal)
+    [NotMapped]
+    public int? BeneficiarioId { get; set; }
+    
+    [NotMapped]
     public Beneficiario? Beneficiario { get; set; }
+
+    // 🔹 RELACIÓN NUEVA muchos-a-muchos
+    public virtual ICollection<Beneficiario> Beneficiarios { get; set; } = new List<Beneficiario>();
 }
