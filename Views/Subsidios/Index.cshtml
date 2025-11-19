@@ -13,7 +13,7 @@
             </h1>
             <p class="mb-0 text-muted small">Administre y gestione los programas de subsidios</p>
         </div>
-        
+
         <div class="col-12 col-md-4">
             <div class="d-flex gap-2 justify-content-start justify-content-md-end">
                 <a asp-action="Create" class="btn btn-success btn-sm shadow-sm">
@@ -27,6 +27,7 @@
             </div>
         </div>
     </div>
+
     <!-- Tarjetas de estadísticas -->
     <div class="row mb-4">
         <div class="col-6 col-xl-3 mb-3 mb-xl-0">
@@ -53,14 +54,14 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Activos/Aprobados
+                                Con beneficiarios
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @Model.Count(s => s.Estado == "Aprobado" || s.Estado == "Activo")
+                                @Model.Count(s => s.Beneficiarios.Any())
                             </div>
                         </div>
                         <div class="col-auto d-none d-sm-block">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -125,7 +126,8 @@
 
     <!-- Tabla de subsidios -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+        <div
+            class="card-header py-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
             <h6 class="m-0 font-weight-bold text-success">
                 <i class="fas fa-table me-2"></i>Programas de subsidios
             </h6>
@@ -146,11 +148,11 @@
                             <tr>
                                 <th>Programa</th>
                                 <th>Tipo</th>
-                                <th>Beneficiario</th>
+                                <th class="text-center">Beneficiarios</th>
                                 <th class="text-end">Monto</th>
                                 <th class="text-center">Fecha asignación</th>
                                 <th class="text-center">Estado</th>
-                                <th class="text-center" style="width: 150px;">Acciones</th>
+                                <th class="text-center" style="width: 180px;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -176,19 +178,19 @@
                                             <i class="fas fa-tag me-1"></i>@s.Tipo
                                         </span>
                                     </td>
-                                    <td>
-                                        @if (s.Beneficiario != null)
+                                    <td class="text-center">
+                                        @if (s.Beneficiarios.Any())
                                         {
-                                            <div>
-                                                <h6 class="mb-1">@s.Beneficiario.Nombre</h6>
-                                                <small class="text-muted">
-                                                    <i class="fas fa-id-card me-1"></i>@s.Beneficiario.Dui
-                                                </small>
-                                            </div>
+                                            <span class="badge bg-success text-white" data-bs-toggle="tooltip"
+                                                title="@s.Beneficiarios.Count beneficiario(s)">
+                                                <i class="fas fa-users me-1"></i>@s.Beneficiarios.Count
+                                            </span>
                                         }
                                         else
                                         {
-                                            <span class="text-muted">No asignado</span>
+                                            <span class="badge bg-secondary text-white">
+                                                <i class="fas fa-user-times me-1"></i>Sin asignar
+                                            </span>
                                         }
                                     </td>
                                     <td class="text-end">
@@ -210,6 +212,12 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
+                                            <!-- Botón para gestionar beneficiarios -->
+                                            <a asp-action="GestionarBeneficiarios" asp-route-id="@s.Id"
+                                                class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip"
+                                                title="Gestionar beneficiarios">
+                                                <i class="fas fa-users"></i>
+                                            </a>
                                             <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-outline-info"
                                                 data-bs-toggle="tooltip" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
@@ -237,10 +245,11 @@
                         var estadoClass = GetEstadoBadgeClass(s.Estado);
                         var estadoIcon = GetEstadoIcon(s.Estado);
                         var itemId = $"subsidio-{s.Id}";
-                        
+
                         <div class="border-bottom subsidio-item">
                             <!-- Fila principal (siempre visible) -->
-                            <div class="p-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#@itemId" aria-expanded="false">
+                            <div class="p-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#@itemId"
+                                aria-expanded="false">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div class="flex-grow-1">
                                         <div class="d-flex align-items-center mb-2">
@@ -262,6 +271,21 @@
                                             </span>
                                             <span class="fw-bold text-success">$@s.Monto.ToString("N2")</span>
                                         </div>
+                                        <!-- Estado del beneficiario en vista móvil -->
+                                        <div class="mt-2">
+                                            @if (s.Beneficiarios.Any())
+                                            {
+                                                <span class="badge bg-success text-white">
+                                                    <i class="fas fa-users me-1"></i>@s.Beneficiarios.Count beneficiario(s)
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary text-white">
+                                                    <i class="fas fa-user-times me-1"></i>Sin beneficiarios
+                                                </span>
+                                            }
+                                        </div>
                                     </div>
                                     <i class="fas fa-chevron-down text-muted ms-2"></i>
                                 </div>
@@ -270,18 +294,41 @@
                             <!-- Detalles expandibles -->
                             <div class="collapse" id="@itemId">
                                 <div class="px-3 pb-3 bg-light">
+                                    <!-- Información de beneficiarios solo visible al expandir -->
                                     <div class="mb-2">
-                                        <small class="text-muted d-block">Beneficiario</small>
-                                        @if (s.Beneficiario != null)
+                                        <small class="text-muted d-block">Beneficiarios (@s.Beneficiarios.Count)</small>
+                                        <!-- En la vista móvil, dentro del collapse -->
+                                        @if (s.Beneficiarios.Any())
                                         {
-                                            <strong>@s.Beneficiario.Nombre</strong><br>
-                                            <small class="text-muted">
-                                                <i class="fas fa-id-card me-1"></i>@s.Beneficiario.Dui
-                                            </small>
+                                            <div class="mt-1">
+                                                @foreach (var beneficiario in s.Beneficiarios.Take(3))
+                                                {
+                                                    <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                                                        <div>
+                                                            <strong>@beneficiario.Nombre</strong>
+                                                            <small class="text-muted d-block">
+                                                                <i class="fas fa-id-card me-1"></i>@beneficiario.Dui
+                                                            </small>
+                                                            <small class="text-muted d-block">
+                                                                <i class="fas fa-phone me-1"></i>@beneficiario.Telefono
+                                                            </small>
+                                                        </div>
+                                                        <span
+                                                            class="badge @(beneficiario.EstadoSubsidio == "pendiente" ? "bg-warning" : "bg-success") small">
+                                                            @beneficiario.EstadoSubsidio
+                                                        </span>
+                                                    </div>
+                                                }
+                                                @if (s.Beneficiarios.Count > 3)
+                                                {
+                                                    <small class="text-muted">+ @(s.Beneficiarios.Count - 3) más...</small>
+                                                }
+                                            </div>
                                         }
+                                        
                                         else
                                         {
-                                            <span class="text-muted">No asignado</span>
+                                        <span class="text-muted">No asignado</span>
                                         }
                                     </div>
                                     <div class="mb-3">
@@ -291,9 +338,13 @@
                                             @s.FechaAsignacion.ToString("dd/MM/yyyy")
                                         </strong>
                                     </div>
-                                    
+
                                     <!-- Botones de acción -->
                                     <div class="d-grid gap-2">
+                                        <a asp-action="GestionarBeneficiarios" asp-route-id="@s.Id"
+                                            class="btn btn-success btn-sm">
+                                            <i class="fas fa-users me-2"></i>Gestionar beneficiarios
+                                        </a>
                                         <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-info btn-sm">
                                             <i class="fas fa-eye me-2"></i>Ver detalles
                                         </a>
@@ -338,14 +389,14 @@
         // Búsqueda en tiempo real
         document.getElementById('searchInput').addEventListener('input', function () {
             const searchText = this.value.toLowerCase();
-            
+
             // Desktop: buscar en tabla
             const desktopRows = document.querySelectorAll('#dataTable tbody tr');
             desktopRows.forEach(row => {
                 const text = row.textContent.toLowerCase();
                 row.style.display = text.includes(searchText) ? '' : 'none';
             });
-            
+
             // Mobile: buscar en items expandibles
             const mobileItems = document.querySelectorAll('.subsidio-item');
             mobileItems.forEach(item => {
@@ -361,33 +412,40 @@
         });
 
         // Animar el ícono de chevron cuando se expande/colapsa
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const collapseElements = document.querySelectorAll('.collapse');
-            collapseElements.forEach(function(element) {
-                element.addEventListener('show.bs.collapse', function() {
+            collapseElements.forEach(function (element) {
+                element.addEventListener('show.bs.collapse', function () {
                     const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
                     if (chevron) chevron.classList.add('rotate-180');
                 });
-                element.addEventListener('hide.bs.collapse', function() {
+                element.addEventListener('hide.bs.collapse', function () {
                     const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
                     if (chevron) chevron.classList.remove('rotate-180');
                 });
             });
         });
     </script>
-    
+
     <style>
         .cursor-pointer {
             cursor: pointer;
         }
+
         .fa-chevron-down {
             transition: transform 0.3s ease;
         }
+
         .rotate-180 {
             transform: rotate(180deg);
         }
+
         .subsidio-item:hover {
             background-color: #f8f9fa;
+        }
+
+        .avatar-initials {
+            font-weight: 600;
         }
     </style>
 }

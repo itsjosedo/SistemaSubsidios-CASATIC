@@ -1,0 +1,180 @@
+@model Subsidio
+@{
+    ViewData["Title"] = "Gestionar Beneficiarios";
+    Layout = ViewBag.Layout ?? "_Layout";
+}
+
+<div class="container-fluid px-4">
+    <div class="row align-items-center mb-4">
+        <div class="col-12 col-md-8 mb-3 mb-md-0">
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-users me-2 text-success"></i>@ViewData["Title"]
+            </h1>
+            <p class="mb-0 text-muted small">Asigne o remueva beneficiarios del subsidio: <strong>@Model.NombrePrograma</strong></p>
+        </div>
+        
+        <div class="col-12 col-md-4">
+            <div class="d-flex gap-2 justify-content-start justify-content-md-end">
+                <a asp-action="Index" class="btn btn-secondary btn-sm shadow-sm">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    <span>Volver</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes de alerta -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-hand-holding-usd me-2"></i>Subsidio: @Model.NombrePrograma
+                    </h6>
+                    <small class="mt-1 d-block">
+                        <i class="fas fa-info-circle me-1"></i>
+                        ID: #@Model.Id | Monto: $@Model.Monto.ToString("N2") | Estado: @Model.Estado
+                    </small>
+                </div>
+                <div class="card-body">
+                    <form asp-action="GestionarBeneficiarios" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        
+                        <!-- Información del subsidio -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="font-weight-bold text-gray-800">
+                                    <i class="fas fa-info-circle me-2 text-success"></i>Información del Subsidio
+                                </h6>
+                                <div class="small">
+                                    <div><strong>Programa:</strong> @Model.NombrePrograma</div>
+                                    <div><strong>Tipo:</strong> @Model.Tipo</div>
+                                    <div><strong>Monto:</strong> $@Model.Monto.ToString("N2")</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="font-weight-bold text-gray-800">
+                                    <i class="fas fa-users me-2 text-success"></i>Beneficiarios Actuales
+                                </h6>
+                                <div class="small">
+                                    <div><strong>Total asignados:</strong> @Model.Beneficiarios.Count</div>
+                                    <div><strong>Fecha asignación:</strong> @Model.FechaAsignacion.ToString("dd/MM/yyyy")</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Selección de beneficiarios -->
+                        <div class="mb-4">
+                            <h6 class="font-weight-bold text-gray-800 mb-3">
+                                <i class="fas fa-list-check me-2 text-success"></i>Seleccione los beneficiarios:
+                            </h6>
+                            
+                            @if (ViewBag.BeneficiariosDisponibles != null && ViewBag.BeneficiariosDisponibles.Count > 0)
+                            {
+                                <div class="row">
+                                    @foreach (var beneficiario in ViewBag.BeneficiariosDisponibles)
+                                    {
+                                        var isChecked = ViewBag.BeneficiariosAsignados != null && 
+                                                       ((List<int>)ViewBag.BeneficiariosAsignados).Contains(beneficiario.Id_Beneficiario);
+                                        
+                                        // Validar y formatear datos
+                                        var telefono = !string.IsNullOrEmpty(beneficiario.Telefono) ? beneficiario.Telefono : "N/A";
+                                        var genero = !string.IsNullOrEmpty(beneficiario.Genero) ? beneficiario.Genero : "No especificado";
+                                        var fechaNacimiento = beneficiario.FechaNacimiento > DateTime.MinValue ? 
+                                            beneficiario.FechaNacimiento.ToString("dd/MM/yyyy") : "No especificada";
+                                        
+                                        <div class="col-md-6 col-lg-4 mb-3">
+                                            <div class="form-check card @(isChecked ? "border-success bg-light-success" : "border") p-3 h-100">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       name="beneficiariosIds" 
+                                                       value="@beneficiario.Id_Beneficiario" 
+                                                       id="beneficiario_@beneficiario.Id_Beneficiario"
+                                                       @(isChecked ? "checked" : "")>
+                                                <label class="form-check-label w-100" for="beneficiario_@beneficiario.Id_Beneficiario">
+                                                    <div class="d-flex align-items-start">
+                                                        <div class="flex-grow-1">
+                                                            <strong class="d-block text-dark">@beneficiario.Nombre</strong>
+                                                            <div class="small text-muted mt-2">
+                                                                <i class="fas fa-id-card me-1"></i>@beneficiario.Dui
+                                                            </div>
+                                                            <div class="small text-muted">
+                                                                <i class="fas fa-phone me-1"></i>@telefono
+                                                            </div>
+                                                            <div class="small text-muted">
+                                                                <i class="fas fa-venus-mars me-1"></i>@genero
+                                                            </div>
+                                                            <div class="small text-muted">
+                                                                <i class="fas fa-calendar me-1"></i>@fechaNacimiento
+                                                            </div>
+                                                            <div class="small mt-1">
+                                                                <span class="badge @(beneficiario.EstadoSubsidio?.ToLower() == "pendiente" ? "bg-warning" : "bg-success")">
+                                                                    @beneficiario.EstadoSubsidio
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        @if (isChecked)
+                                                        {
+                                                            <span class="badge bg-success ms-2">
+                                                                <i class="fas fa-check"></i>
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    No hay beneficiarios disponibles en el sistema.
+                                </div>
+                            }
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Volver al listado
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Guardar asignaciones
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-light-success {
+            background-color: #d1f7e9 !important;
+        }
+        .form-check-input:checked {
+            background-color: #198754;
+            border-color: #198754;
+        }
+        .card {
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .text-dark {
+            color: #2d3748 !important;
+        }
+    </style>
+}

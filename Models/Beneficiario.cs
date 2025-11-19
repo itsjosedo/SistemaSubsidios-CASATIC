@@ -56,5 +56,7 @@ public class Beneficiario
     public int UsuarioId { get; set; }
     public Usuario Usuario { get; set; } = null!;
 
+//Relación muchos-a-muchos con Subsidio
+    public virtual ICollection<Subsidio> Subsidios { get; set; } = new List<Subsidio>();
     // ... el resto del código igual ...
 }

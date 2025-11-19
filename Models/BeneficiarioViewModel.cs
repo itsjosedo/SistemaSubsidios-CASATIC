@@ -93,4 +93,5 @@ public class BeneficiarioViewModel
 
         return calculado == verificador;
     }
+    public List<Subsidio> Subsidios { get; set; } = new List<Subsidio>();
 }

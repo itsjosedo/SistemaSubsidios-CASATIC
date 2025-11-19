@@ -125,25 +125,6 @@
                         </div>
 
                         <div class="row">
-                            <!-- Beneficiario -->
-                            <div class="col-md-6 mb-4">
-                                <label asp-for="BeneficiarioId" class="form-label fw-bold">
-                                    <i class="fas fa-user me-2 text-primary"></i>Beneficiario *
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-users"></i></span>
-                                    <select asp-for="BeneficiarioId" class="form-select" asp-items="ViewBag.Beneficiarios">
-                                        <option value="">-- Seleccione un beneficiario --</option>
-                                    </select>
-                                </div>
-                                <div class="error-message" data-for="BeneficiarioId">
-                                    <div class="text-danger small d-flex align-items-center mt-1">
-                                        <i class="fas fa-exclamation-circle me-1"></i>
-                                        <span>Debe seleccionar un beneficiario</span>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Fecha de Asignación -->
                             <div class="col-md-6 mb-4">
                                 <label asp-for="FechaAsignacion" class="form-label fw-bold">
@@ -160,29 +141,53 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Estado -->
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Estado" class="form-label fw-bold">
+                                    <i class="fas fa-toggle-on me-2 text-primary"></i>Estado *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                    <select asp-for="Estado" class="form-select">
+                                        <option value="">-- Seleccione el estado --</option>
+                                        <option value="Pendiente">Pendiente</option>
+                                        <option value="Aprobado">Aprobado</option>
+                                        <option value="Rechazado">Rechazado</option>
+                                        <option value="Activo">Activo</option>
+                                        <option value="Finalizado">Finalizado</option>
+                                    </select>
+                                </div>
+                                <div class="error-message" data-for="Estado">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>El estado es obligatorio</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Estado -->
+                        <!-- Información de beneficiarios -->
                         <div class="mb-4">
-                            <label asp-for="Estado" class="form-label fw-bold">
-                                <i class="fas fa-toggle-on me-2 text-primary"></i>Estado *
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-users me-2 text-primary"></i>Beneficiarios asignados
                             </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
-                                <select asp-for="Estado" class="form-select">
-                                    <option value="">-- Seleccione el estado --</option>
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Aprobado">Aprobado</option>
-                                    <option value="Rechazado">Rechazado</option>
-                                    <option value="Activo">Activo</option>
-                                    <option value="Finalizado">Finalizado</option>
-                                </select>
-                            </div>
-                            <div class="error-message" data-for="Estado">
-                                <div class="text-danger small d-flex align-items-center mt-1">
-                                    <i class="fas fa-exclamation-circle me-1"></i>
-                                    <span>El estado es obligatorio</span>
+                            <div class="alert alert-info border-0">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <div class="flex-grow-1">
+                                        <h6 class="alert-heading mb-1">Gestión de beneficiarios</h6>
+                                        <p class="mb-0 small">
+                                            Actualmente tiene <strong>@Model.Beneficiarios.Count beneficiario(s)</strong> asignado(s).
+                                            Para gestionar los beneficiarios, utilice la opción específica.
+                                        </p>
+                                    </div>
                                 </div>
+                            </div>
+                            <div class="text-center">
+                                <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-users me-2"></i>Gestionar beneficiarios
+                                </a>
                             </div>
                         </div>
 
@@ -230,6 +235,12 @@
                             <div class="mb-2">
                                 <strong>Monto:</strong> <span class="text-success fw-bold">$@Model.Monto.ToString("N2")</span>
                             </div>
+                            <div class="mb-2">
+                                <strong>Beneficiarios:</strong> 
+                                <span class="badge @(Model.Beneficiarios.Any() ? "bg-success" : "bg-secondary")">
+                                    @Model.Beneficiarios.Count asignado(s)
+                                </span>
+                            </div>
                             <div>
                                 <strong>Estado:</strong> 
                                 @{
@@ -254,6 +265,7 @@
                             <li>Los cambios se guardarán inmediatamente</li>
                             <li>Verifique la información antes de actualizar</li>
                             <li>El historial de cambios será registrado</li>
+                            <li>Los beneficiarios se gestionan por separado</li>
                         </ul>
                     </div>
                 </div>
@@ -268,6 +280,9 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
+                        <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" class="btn btn-success btn-sm">
+                            <i class="fas fa-users me-2"></i>Gestionar beneficiarios
+                        </a>
                         <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info btn-sm">
                             <i class="fas fa-eye me-2"></i>Ver detalles
                         </a>
@@ -456,7 +471,6 @@
         });
     </script>
 }
-
 
 <style>
     .is-valid {

@@ -32,35 +32,34 @@
                 </div>
                 <div class="card-body">
                     <!-- ========== SECCIÓN DE MENSAJES ========== -->
-    <!-- Mensajes de Error del ModelState -->
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle fa-lg me-3"></i>
-                <div class="flex-grow-1">
-                    <h6 class="alert-heading mb-2">Errores en el formulario:</h6>
-                    <div asp-validation-summary="All" class="mb-0 small"></div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-    }
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-triangle fa-lg me-3"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="alert-heading mb-2">Errores en el formulario:</h6>
+                                    <div asp-validation-summary="All" class="mb-0 small"></div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    }
 
-    <!-- Mensajes de Éxito -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-check-circle fa-lg me-3"></i>
-                <div class="flex-grow-1">
-                    <h6 class="alert-heading mb-1">¡Éxito!</h6>
-                    <p class="mb-0">@TempData["SuccessMessage"]</p>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-    }
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle fa-lg me-3"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="alert-heading mb-1">¡Éxito!</h6>
+                                    <p class="mb-0">@TempData["SuccessMessage"]</p>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    }
+                    
                     <form asp-action="Create" method="post" id="subsidioForm">
                         <!-- Programa -->
                         <div class="mb-3">
@@ -124,25 +123,6 @@
                         </div>
 
                         <div class="row">
-                            <!-- Beneficiario -->
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="BeneficiarioId" class="form-label fw-bold">
-                                    <i class="fas fa-user me-2 text-primary"></i>Beneficiario *
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-users"></i></span>
-                                    <select asp-for="BeneficiarioId" class="form-select" asp-items="ViewBag.Beneficiarios">
-                                        <option value="">-- Seleccione un beneficiario --</option>
-                                    </select>
-                                </div>
-                                <div class="error-message" data-for="BeneficiarioId">
-                                    <div class="text-danger small d-flex align-items-center mt-1">
-                                        <i class="fas fa-exclamation-circle me-1"></i>
-                                        <span>Debe seleccionar un beneficiario</span>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Fecha de Asignación -->
                             <div class="col-md-6 mb-3">
                                 <label asp-for="FechaAsignacion" class="form-label fw-bold">
@@ -159,28 +139,28 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Estado -->
-                        <div class="mb-4">
-                            <label asp-for="Estado" class="form-label fw-bold">
-                                <i class="fas fa-toggle-on me-2 text-primary"></i>Estado *
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
-                                <select asp-for="Estado" class="form-select">
-                                    <option value="">-- Seleccione el estado --</option>
-                                    <option value="Pendiente">Pendiente</option>
-                                    <option value="Aprobado">Aprobado</option>
-                                    <option value="Rechazado">Rechazado</option>
-                                    <option value="Activo">Activo</option>
-                                    <option value="Finalizado">Finalizado</option>
-                                </select>
-                            </div>
-                            <div class="error-message" data-for="Estado">
-                                <div class="text-danger small d-flex align-items-center mt-1">
-                                    <i class="fas fa-exclamation-circle me-1"></i>
-                                    <span>El estado es obligatorio</span>
+                            <!-- Estado -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Estado" class="form-label fw-bold">
+                                    <i class="fas fa-toggle-on me-2 text-primary"></i>Estado *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                    <select asp-for="Estado" class="form-select">
+                                        <option value="">-- Seleccione el estado --</option>
+                                        <option value="Pendiente">Pendiente</option>
+                                        <option value="Aprobado">Aprobado</option>
+                                        <option value="Rechazado">Rechazado</option>
+                                        <option value="Activo">Activo</option>
+                                        <option value="Finalizado">Finalizado</option>
+                                    </select>
+                                </div>
+                                <div class="error-message" data-for="Estado">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>El estado es obligatorio</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -220,7 +200,7 @@
                             <li>Todos los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios</li>
                             <li>El monto debe ser mayor a $0.00</li>
                             <li>La fecha no puede ser anterior al día actual</li>
-                            <li>Verifique que el beneficiario esté activo en el sistema</li>
+                            <li>Los beneficiarios se asignan después de crear el subsidio</li>
                         </ul>
                     </div>
                     
@@ -380,7 +360,6 @@
             console.log('🎉 INICIALIZACIÓN COMPLETADA');
         });
     </script>
-
 }
 
 <style>
