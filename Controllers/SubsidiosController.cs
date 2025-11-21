@@ -277,15 +277,34 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return View(subsidios);
         }
 
+        // GET: Subsidios/Activos
         public async Task<IActionResult> Activos()
         {
-            var subsidiosActivos = await _context.Subsidios
+            var userId = GetUserId();
+            var rolUsuario = GetRolUsuario(); // 🔥 AGREGAR ESTA LÍNEA
+
+            if (userId == null)
+            {
+                TempData["ErrorMessage"] = "Debe iniciar sesión para ver los subsidios activos";
+                return RedirectToAction("Login", "Account");
+            }
+
+            IQueryable<Subsidio> subsidiosQuery = _context.Subsidios
                 .Include(s => s.Beneficiarios)
-                .Where(s => s.Estado == "Activo")
+                .Where(s => s.Estado == "Activo");
+
+            // 🔥 APLICAR EL MISMO FILTRO QUE EN INDEX
+            if (rolUsuario?.ToLower() == "entidad" && userId.HasValue)
+            {
+                subsidiosQuery = subsidiosQuery.Where(s => s.UsuarioCreacionId == userId.Value.ToString());
+            }
+
+            var subsidiosActivos = await subsidiosQuery
                 .OrderByDescending(s => s.Id)
                 .ToListAsync();
 
-            ViewData["Title"] = "Subsidios Activos";
+            ViewData["Title"] = "Subsidios Activos de Mi Entidad";
+            ViewBag.EsEntidad = rolUsuario?.ToLower() == "entidad"; // 🔥 AGREGAR PARA LA VISTA
             return View(subsidiosActivos);
         }
 

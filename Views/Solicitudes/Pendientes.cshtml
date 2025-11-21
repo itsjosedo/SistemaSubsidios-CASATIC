@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Solicitudes pendientes";
     Layout = ViewBag.Layout ?? "_Layout";
+    var esEntidad = ViewBag.EsEntidad ?? false;
 }
 
 <div class="container-fluid px-4">
@@ -11,7 +12,16 @@
             <h1 class="h3 mb-0 text-gray-800">
                 <i class="fas fa-clock me-2 text-warning"></i>@ViewData["Title"]
             </h1>
-            <p class="mb-0 text-muted small">Solicitudes de subsidios pendientes de aprobación</p>
+            <p class="mb-0 text-muted small">
+                @if (esEntidad)
+                {
+                    <text>Solicitudes de subsidios pendientes creadas por mi entidad</text>
+                }
+                else
+                {
+                    <text>Todas las solicitudes de subsidios pendientes de aprobación</text>
+                }
+            </p>
         </div>
         
         <div class="col-12 col-md-4">
@@ -35,8 +45,8 @@
                             <tr>
                                 <th>Programa</th>
                                 <th>Tipo</th>
-                                <th class="text-end">Monto solicitado</th>
-                                <th>Beneficiario</th>
+                                <th>Beneficiarios</th>
+                                <th class="text-end">Monto</th>
                                 <th class="text-center">Fecha solicitud</th>
                                 <th class="text-center">Estado</th>
                                 <th class="text-center">Acciones</th>
@@ -65,16 +75,18 @@
                                             <i class="fas fa-tag me-1"></i>@solicitud.Tipo
                                         </span>
                                     </td>
-                                    <td class="text-end">
-                                        <span class="fw-bold text-warning">@solicitud.Monto.ToString("C")</span>
-                                    </td>
                                     <td>
-                                        @if (solicitud.Beneficiario != null)
+                                        @if (solicitud.Beneficiarios.Any())
                                         {
                                             <div>
-                                                <h6 class="mb-1">@solicitud.Beneficiario.Nombre</h6>
+                                                <h6 class="mb-1">@solicitud.Beneficiarios.Count beneficiario(s)</h6>
                                                 <small class="text-muted">
-                                                    <i class="fas fa-id-card me-1"></i>@solicitud.Beneficiario.Dui
+                                                    <i class="fas fa-users me-1"></i>
+                                                    @string.Join(", ", solicitud.Beneficiarios.Take(2).Select(b => b.Nombre))
+                                                    @if (solicitud.Beneficiarios.Count > 2)
+                                                    {
+                                                        <text> y @(solicitud.Beneficiarios.Count - 2) más</text>
+                                                    }
                                                 </small>
                                             </div>
                                         }
@@ -83,17 +95,16 @@
                                             <span class="text-muted">No asignado</span>
                                         }
                                     </td>
+                                    <td class="text-end">
+                                        <span class="fw-bold text-warning">$@solicitud.Monto.ToString("N2")</span>
+                                    </td>
                                     <td class="text-center">
                                         <i class="fas fa-calendar me-2 text-muted"></i>
                                         @solicitud.FechaAsignacion.ToString("dd/MM/yyyy")
                                     </td>
                                     <td class="text-center">
-                                        @{
-                                            var badgeClass = solicitud.Estado == "Pendiente" ? "bg-warning" : "bg-info";
-                                            var estadoIcon = solicitud.Estado == "Pendiente" ? "fas fa-clock" : "fas fa-info-circle";
-                                        }
-                                        <span class="badge @badgeClass">
-                                            <i class="@estadoIcon me-1"></i>@solicitud.Estado
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock me-1"></i>@solicitud.Estado
                                         </span>
                                     </td>
                                     <td class="text-center">
@@ -113,8 +124,6 @@
                     @foreach (var solicitud in Model)
                     {
                         var itemId = $"solicitud-{solicitud.Id}";
-                        var badgeClass = solicitud.Estado == "Pendiente" ? "bg-warning" : "bg-info";
-                        var estadoIcon = solicitud.Estado == "Pendiente" ? "fas fa-clock" : "fas fa-info-circle";
                         
                         <div class="border-bottom solicitud-item">
                             <!-- Fila principal (siempre visible) -->
@@ -132,13 +141,28 @@
                                             </div>
                                         </div>
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <span class="badge @badgeClass">
-                                                <i class="@estadoIcon me-1"></i>@solicitud.Estado
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>@solicitud.Estado
                                             </span>
                                             <span class="badge bg-info">
                                                 <i class="fas fa-tag me-1"></i>@solicitud.Tipo
                                             </span>
-                                            <span class="fw-bold text-warning">@solicitud.Monto.ToString("C")</span>
+                                            <span class="fw-bold text-warning">$@solicitud.Monto.ToString("N2")</span>
+                                        </div>
+                                        <!-- Estado de beneficiarios en vista móvil -->
+                                        <div class="mt-2">
+                                            @if (solicitud.Beneficiarios.Any())
+                                            {
+                                                <span class="badge bg-primary text-white">
+                                                    <i class="fas fa-users me-1"></i>@solicitud.Beneficiarios.Count beneficiario(s)
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary text-white">
+                                                    <i class="fas fa-user-times me-1"></i>Sin beneficiarios
+                                                </span>
+                                            }
                                         </div>
                                     </div>
                                     <i class="fas fa-chevron-down text-muted ms-2"></i>
@@ -149,13 +173,26 @@
                             <div class="collapse" id="@itemId">
                                 <div class="px-3 pb-3 bg-light">
                                     <div class="mb-2">
-                                        <small class="text-muted d-block">Beneficiario</small>
-                                        @if (solicitud.Beneficiario != null)
+                                        <small class="text-muted d-block">Beneficiarios (@solicitud.Beneficiarios.Count)</small>
+                                        @if (solicitud.Beneficiarios.Any())
                                         {
-                                            <strong>@solicitud.Beneficiario.Nombre</strong><br>
-                                            <small class="text-muted">
-                                                <i class="fas fa-id-card me-1"></i>@solicitud.Beneficiario.Dui
-                                            </small>
+                                            <div class="mt-1">
+                                                @foreach (var beneficiario in solicitud.Beneficiarios.Take(3))
+                                                {
+                                                    <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                                                        <div>
+                                                            <strong>@beneficiario.Nombre</strong>
+                                                            <small class="text-muted d-block">
+                                                                <i class="fas fa-id-card me-1"></i>@beneficiario.Dui
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                @if (solicitud.Beneficiarios.Count > 3)
+                                                {
+                                                    <small class="text-muted">+ @(solicitud.Beneficiarios.Count - 3) más...</small>
+                                                }
+                                            </div>
                                         }
                                         else
                                         {
@@ -177,13 +214,13 @@
                                     </div>
                                     <div class="mb-3">
                                         <small class="text-muted d-block">Estado</small>
-                                        <span class="badge @badgeClass">
-                                            <i class="@estadoIcon me-1"></i>@solicitud.Estado
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock me-1"></i>@solicitud.Estado
                                         </span>
                                     </div>
                                     <div class="mb-0">
                                         <small class="text-muted d-block">Monto solicitado</small>
-                                        <h5 class="text-warning mb-0">@solicitud.Monto.ToString("C")</h5>
+                                        <h5 class="text-warning mb-0">$@solicitud.Monto.ToString("N2")</h5>
                                     </div>
 
                                     <!-- Botón de acción -->
@@ -205,7 +242,16 @@
                     <div class="empty-state">
                         <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
                         <h4 class="text-muted">No hay solicitudes pendientes</h4>
-                        <p class="text-muted mb-4">Todas las solicitudes han sido procesadas.</p>
+                        <p class="text-muted mb-4">
+                            @if (esEntidad)
+                            {
+                                <text>Su entidad no tiene solicitudes pendientes en este momento.</text>
+                            }
+                            else
+                            {
+                                <text>Todas las solicitudes han sido procesadas.</text>
+                            }
+                        </p>
                         <a asp-controller="Subsidios" asp-action="Index" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Volver a subsidios
                         </a>

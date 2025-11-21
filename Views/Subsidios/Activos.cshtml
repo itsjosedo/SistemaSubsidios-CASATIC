@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Subsidios activos";
     Layout = ViewBag.Layout ?? "_Layout";
+    var esEntidad = ViewBag.EsEntidad ?? false;
 }
 
 <div class="container-fluid px-4">
@@ -11,7 +12,16 @@
             <h1 class="h3 mb-0 text-gray-800">
                 <i class="fas fa-hand-holding-usd me-2 text-success"></i>@ViewData["Title"]
             </h1>
-            <p class="mb-0 text-muted small">Lista de todos los subsidios activos en el sistema</p>
+            <p class="mb-0 text-muted small">
+                @if (esEntidad)
+                {
+                    <text>Lista de subsidios activos creados por mi entidad</text>
+                }
+                else
+                {
+                    <text>Lista de todos los subsidios activos del sistema</text>
+                }
+            </p>
         </div>
         
         <div class="col-12 col-md-4">
@@ -24,6 +34,7 @@
         </div>
     </div>
 
+    <!-- Card Principal -->
     <div class="card shadow">
         <div class="card-body p-0 p-sm-3">
             @if (Model.Any())
@@ -35,7 +46,7 @@
                             <tr>
                                 <th>Programa</th>
                                 <th>Tipo</th>
-                                <th>Beneficiario</th>
+                                <th>Beneficiarios</th>
                                 <th class="text-end">Monto</th>
                                 <th class="text-center">Fecha asignación</th>
                                 <th class="text-center">Estado</th>
@@ -65,12 +76,17 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if (subsidio.Beneficiario != null)
+                                        @if (subsidio.Beneficiarios.Any())
                                         {
                                             <div>
-                                                <h6 class="mb-1">@subsidio.Beneficiario.Nombre</h6>
+                                                <h6 class="mb-1">@subsidio.Beneficiarios.Count beneficiario(s)</h6>
                                                 <small class="text-muted">
-                                                    <i class="fas fa-id-card me-1"></i>@subsidio.Beneficiario.Dui
+                                                    <i class="fas fa-users me-1"></i>
+                                                    @string.Join(", ", subsidio.Beneficiarios.Take(2).Select(b => b.Nombre))
+                                                    @if (subsidio.Beneficiarios.Count > 2)
+                                                    {
+                                                        <text> y @(subsidio.Beneficiarios.Count - 2) más</text>
+                                                    }
                                                 </small>
                                             </div>
                                         }
@@ -127,6 +143,21 @@
                                             </span>
                                             <span class="fw-bold text-success">$@subsidio.Monto.ToString("N2")</span>
                                         </div>
+                                        <!-- Estado de beneficiarios en vista móvil -->
+                                        <div class="mt-2">
+                                            @if (subsidio.Beneficiarios.Any())
+                                            {
+                                                <span class="badge bg-success text-white">
+                                                    <i class="fas fa-users me-1"></i>@subsidio.Beneficiarios.Count beneficiario(s)
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary text-white">
+                                                    <i class="fas fa-user-times me-1"></i>Sin beneficiarios
+                                                </span>
+                                            }
+                                        </div>
                                     </div>
                                     <i class="fas fa-chevron-down text-muted ms-2"></i>
                                 </div>
@@ -136,13 +167,26 @@
                             <div class="collapse" id="@itemId">
                                 <div class="px-3 pb-3 bg-light">
                                     <div class="mb-2">
-                                        <small class="text-muted d-block">Beneficiario</small>
-                                        @if (subsidio.Beneficiario != null)
+                                        <small class="text-muted d-block">Beneficiarios (@subsidio.Beneficiarios.Count)</small>
+                                        @if (subsidio.Beneficiarios.Any())
                                         {
-                                            <strong>@subsidio.Beneficiario.Nombre</strong><br>
-                                            <small class="text-muted">
-                                                <i class="fas fa-id-card me-1"></i>@subsidio.Beneficiario.Dui
-                                            </small>
+                                            <div class="mt-1">
+                                                @foreach (var beneficiario in subsidio.Beneficiarios.Take(3))
+                                                {
+                                                    <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                                                        <div>
+                                                            <strong>@beneficiario.Nombre</strong>
+                                                            <small class="text-muted d-block">
+                                                                <i class="fas fa-id-card me-1"></i>@beneficiario.Dui
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                @if (subsidio.Beneficiarios.Count > 3)
+                                                {
+                                                    <small class="text-muted">+ @(subsidio.Beneficiarios.Count - 3) más...</small>
+                                                }
+                                            </div>
                                         }
                                         else
                                         {
@@ -178,7 +222,22 @@
                     <div class="empty-state">
                         <i class="fas fa-hand-holding-usd fa-4x text-muted mb-3"></i>
                         <h4 class="text-muted">No hay subsidios activos</h4>
-                        <p class="text-muted mb-4">No se encontraron subsidios en estado activo.</p>
+                        <p class="text-muted mb-4">
+                            @if (esEntidad)
+                            {
+                                <text>Su entidad no tiene subsidios activos en este momento.</text>
+                            }
+                            else
+                            {
+                                <text>No hay subsidios activos en el sistema.</text>
+                            }
+                        </p>
+                        @if (esEntidad)
+                        {
+                            <a asp-action="Create" class="btn btn-success me-2">
+                                <i class="fas fa-plus me-2"></i>Crear nuevo subsidio
+                            </a>
+                        }
                         <a asp-action="Index" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Volver a subsidios
                         </a>

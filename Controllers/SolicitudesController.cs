@@ -15,17 +15,28 @@ namespace SistemaSubsidios_CASATIC.Controllers
             _logger = logger;
         }
 
-        // GET: Solicitudes/Pendientes
+        // GET: Subsidios/SolicitudesPendientes
         public async Task<IActionResult> Pendientes()
         {
-            var solicitudesPendientes = await _context.Subsidios
-                .Include(s => s.Beneficiario)
-                .Where(s => s.Estado == "Pendiente" || s.Estado == "En Revisión")
+            var userId = GetUserId();
+            var rolUsuario = GetRolUsuario();
+
+            IQueryable<Subsidio> solicitudesQuery = _context.Subsidios
+                .Include(s => s.Beneficiarios)
+                .Where(s => s.Estado == "Pendiente");
+
+            // Filtrar por entidad si es necesario
+            if (rolUsuario?.ToLower() == "entidad" && userId.HasValue)
+            {
+                solicitudesQuery = solicitudesQuery.Where(s => s.UsuarioCreacionId == userId.Value.ToString());
+            }
+
+            var solicitudes = await solicitudesQuery
                 .OrderByDescending(s => s.Id)
                 .ToListAsync();
 
-            ViewData["Title"] = "Solicitudes Pendientes";
-            return View(solicitudesPendientes);
+            ViewBag.EsEntidad = rolUsuario?.ToLower() == "entidad";
+            return View(solicitudes);
         }
     }
 }
