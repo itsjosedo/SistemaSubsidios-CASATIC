@@ -10,9 +10,10 @@
             <h1 class="h3 mb-0 text-gray-800">
                 <i class="fas fa-users me-2 text-success"></i>@ViewData["Title"]
             </h1>
-            <p class="mb-0 text-muted small">Asigne o remueva beneficiarios del subsidio: <strong>@Model.NombrePrograma</strong></p>
+            <p class="mb-0 text-muted small">Asigne o remueva beneficiarios del subsidio:
+                <strong>@Model.NombrePrograma</strong></p>
         </div>
-        
+
         <div class="col-12 col-md-4">
             <div class="d-flex gap-2 justify-content-start justify-content-md-end">
                 <a asp-action="Index" class="btn btn-secondary btn-sm shadow-sm">
@@ -45,9 +46,9 @@
                     </small>
                 </div>
                 <div class="card-body">
-                    <form asp-action="GestionarBeneficiarios" method="post">
+                    <form asp-action="GestionarBeneficiarios" method="post" id="beneficiariosForm">
                         <input type="hidden" name="id" value="@Model.Id" />
-                        
+
                         <!-- Información del subsidio -->
                         <div class="row mb-4">
                             <div class="col-md-6">
@@ -65,88 +66,92 @@
                                     <i class="fas fa-users me-2 text-success"></i>Beneficiarios Actuales
                                 </h6>
                                 <div class="small">
-                                    <div><strong>Total asignados:</strong> @Model.Beneficiarios.Count</div>
-                                    <div><strong>Fecha asignación:</strong> @Model.FechaAsignacion.ToString("dd/MM/yyyy")</div>
+                                    <div><strong>Total asignados:</strong> <span
+                                            id="totalAsignados">@Model.Beneficiarios.Count</span></div>
+                                    <div><strong>Fecha asignación:</strong>
+                                        @Model.FechaAsignacion.ToString("dd/MM/yyyy")</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Selección de beneficiarios -->
-                        <div class="mb-4">
-                            <h6 class="font-weight-bold text-gray-800 mb-3">
-                                <i class="fas fa-list-check me-2 text-success"></i>Seleccione los beneficiarios:
-                            </h6>
-                            
-                            @if (ViewBag.BeneficiariosDisponibles != null && ViewBag.BeneficiariosDisponibles.Count > 0)
-                            {
+                        <!-- Barra de búsqueda -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold text-dark">
+                                    <i class="fas fa-search me-2 text-success"></i>Buscar Beneficiario por DUI
+                                </h6>
+                            </div>
+                            <div class="card-body">
                                 <div class="row">
-                                    @foreach (var beneficiario in ViewBag.BeneficiariosDisponibles)
-                                    {
-                                        var isChecked = ViewBag.BeneficiariosAsignados != null && 
-                                                       ((List<int>)ViewBag.BeneficiariosAsignados).Contains(beneficiario.Id_Beneficiario);
-                                        
-                                        // Validar y formatear datos
-                                        var telefono = !string.IsNullOrEmpty(beneficiario.Telefono) ? beneficiario.Telefono : "N/A";
-                                        var genero = !string.IsNullOrEmpty(beneficiario.Genero) ? beneficiario.Genero : "No especificado";
-                                        var fechaNacimiento = beneficiario.FechaNacimiento > DateTime.MinValue ? 
-                                            beneficiario.FechaNacimiento.ToString("dd/MM/yyyy") : "No especificada";
-                                        
-                                        <div class="col-md-6 col-lg-4 mb-3">
-                                            <div class="form-check card @(isChecked ? "border-success bg-light-success" : "border") p-3 h-100">
-                                                <input class="form-check-input" type="checkbox" 
-                                                       name="beneficiariosIds" 
-                                                       value="@beneficiario.Id_Beneficiario" 
-                                                       id="beneficiario_@beneficiario.Id_Beneficiario"
-                                                       @(isChecked ? "checked" : "")>
-                                                <label class="form-check-label w-100" for="beneficiario_@beneficiario.Id_Beneficiario">
-                                                    <div class="d-flex align-items-start">
-                                                        <div class="flex-grow-1">
-                                                            <strong class="d-block text-dark">@beneficiario.Nombre</strong>
-                                                            <div class="small text-muted mt-2">
-                                                                <i class="fas fa-id-card me-1"></i>@beneficiario.Dui
-                                                            </div>
-                                                            <div class="small text-muted">
-                                                                <i class="fas fa-phone me-1"></i>@telefono
-                                                            </div>
-                                                            <div class="small text-muted">
-                                                                <i class="fas fa-venus-mars me-1"></i>@genero
-                                                            </div>
-                                                            <div class="small text-muted">
-                                                                <i class="fas fa-calendar me-1"></i>@fechaNacimiento
-                                                            </div>
-                                                            <div class="small mt-1">
-                                                                <span class="badge @(beneficiario.EstadoSubsidio?.ToLower() == "pendiente" ? "bg-warning" : "bg-success")">
-                                                                    @beneficiario.EstadoSubsidio
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        @if (isChecked)
-                                                        {
-                                                            <span class="badge bg-success ms-2">
-                                                                <i class="fas fa-check"></i>
-                                                            </span>
-                                                        }
-                                                    </div>
-                                                </label>
-                                            </div>
+                                    <div class="col-md-8">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white">
+                                                <i class="fas fa-id-card text-muted"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="searchDui"
+                                                placeholder="Ingrese el número de DUI (ej: 12345678-9)" maxlength="12">
+                                            <button class="btn btn-success" type="button" id="btnBuscar">
+                                                <i class="fas fa-search me-1"></i>Buscar
+                                            </button>
                                         </div>
-                                    }
+                                        <small class="form-text text-muted mt-1">
+                                            Ingrese el DUI completo (formato: 00000000-0)
+                                        </small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="d-grid">
+                                            <button type="button" class="btn btn-outline-info" id="btnVerTodos">
+                                                <i class="fas fa-list me-1"></i>Ver todos los beneficiarios
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                            }
-                            else
-                            {
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    No hay beneficiarios disponibles en el sistema.
-                                </div>
-                            }
+                            </div>
                         </div>
 
-                        <div class="d-flex gap-2 justify-content-end border-top pt-3">
+                        <!-- Lista de beneficiarios seleccionados -->
+                        <div class="card mb-4" id="cardSeleccionados">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="m-0 font-weight-bold">
+                                    <i class="fas fa-user-check me-2"></i>Beneficiarios Seleccionados
+                                    <span class="badge bg-white text-primary ms-2" id="contadorSeleccionados">0</span>
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="listaSeleccionados" class="row">
+                                    <!-- Aquí se mostrarán los beneficiarios seleccionados -->
+                                </div>
+                                <div id="sinSeleccionados" class="text-center py-4">
+                                    <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted mb-0">No hay beneficiarios seleccionados</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resultados de búsqueda -->
+                        <div class="card" id="cardResultados" style="display: none;">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold text-dark">
+                                    <i class="fas fa-users me-2 text-success"></i>Resultados de Búsqueda
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="resultadosBusqueda">
+                                    <!-- Aquí se mostrarán los resultados -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista oculta de IDs para el formulario -->
+                        <div id="hiddenInputsContainer">
+                            <!-- Aquí se generarán los inputs hidden con los IDs seleccionados -->
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end border-top pt-3 mt-4">
                             <a asp-action="Index" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Volver al listado
                             </a>
-                            <button type="submit" class="btn btn-success">
+                            <button type="submit" class="btn btn-success" id="btnGuardar">
                                 <i class="fas fa-save me-2"></i>Guardar asignaciones
                             </button>
                         </div>
@@ -157,24 +162,347 @@
     </div>
 </div>
 
+@section Scripts {
+    <script>
+        // Beneficiarios disponibles desde el servidor
+        const beneficiariosDisponibles = [
+        @foreach (var beneficiario in ViewBag.BeneficiariosDisponibles)
+            {
+                <text>{
+                    id_Beneficiario: @beneficiario.Id_Beneficiario,
+                    nombre: "@Html.Raw(beneficiario.Nombre)",
+                    dui: "@beneficiario.Dui",
+                    telefono: "@(beneficiario.Telefono ?? "")",
+                    genero: "@(beneficiario.Genero ?? "")",
+                    fechaNacimiento: "@beneficiario.FechaNacimiento.ToString("yyyy-MM-dd")",
+                    estadoSubsidio: "@beneficiario.EstadoSubsidio"
+                },</text>
+        }
+    ];
+
+        const beneficiariosAsignados = [
+        @foreach (var id in (ViewBag.BeneficiariosAsignados ?? new List<int>()))
+            {
+                <text>@id,</text>
+        }
+    ];
+        // Beneficiarios seleccionados actualmente
+        let beneficiariosSeleccionados = new Map();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchDui = document.getElementById('searchDui');
+            const btnBuscar = document.getElementById('btnBuscar');
+            const btnVerTodos = document.getElementById('btnVerTodos');
+            const resultadosBusqueda = document.getElementById('resultadosBusqueda');
+            const listaSeleccionados = document.getElementById('listaSeleccionados');
+            const sinSeleccionados = document.getElementById('sinSeleccionados');
+            const cardResultados = document.getElementById('cardResultados');
+            const contadorSeleccionados = document.getElementById('contadorSeleccionados');
+            const hiddenInputsContainer = document.getElementById('hiddenInputsContainer');
+            const totalAsignados = document.getElementById('totalAsignados');
+            const form = document.getElementById('beneficiariosForm');
+
+            // Inicializar beneficiarios previamente asignados
+            function inicializarAsignadosPrevios() {
+                beneficiariosDisponibles.forEach(benef => {
+                    if (beneficiariosAsignados.includes(benef.id_Beneficiario)) {
+                        agregarBeneficiarioSeleccionado(benef);
+                    }
+                });
+                actualizarUI();
+            }
+
+            // Formatear DUI
+            function formatearDUI(dui) {
+                if (!dui) return '';
+                // Remover guiones y espacios
+                let cleanDui = dui.replace(/[-\s]/g, '');
+                // Formatear como 00000000-0
+                if (cleanDui.length === 9) {
+                    return cleanDui.substring(0, 8) + '-' + cleanDui.substring(8);
+                }
+                return dui;
+            }
+
+            // Buscar beneficiario por DUI
+            function buscarPorDUI(dui) {
+                const duiFormateado = formatearDUI(dui);
+                const resultado = beneficiariosDisponibles.find(b =>
+                    formatearDUI(b.dui) === duiFormateado
+                );
+
+                if (resultado) {
+                    mostrarResultadoIndividual(resultado);
+                } else {
+                    mostrarMensajeNoEncontrado(duiFormateado);
+                }
+            }
+
+            // Mostrar todos los beneficiarios
+            function mostrarTodosLosBeneficiarios() {
+                if (beneficiariosDisponibles.length === 0) {
+                    resultadosBusqueda.innerHTML = `
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                No hay beneficiarios disponibles en el sistema.
+                            </div>
+                        `;
+                    cardResultados.style.display = 'block';
+                    return;
+                }
+
+                let html = '<div class="row">';
+
+                beneficiariosDisponibles.forEach(benef => {
+                    const yaSeleccionado = beneficiariosSeleccionados.has(benef.id_Beneficiario);
+
+                    html += `
+                            <div class="col-md-6 mb-3">
+                                <div class="card ${yaSeleccionado ? 'border-success bg-light-success' : 'border'} h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="card-title mb-0">${benef.nombre}</h6>
+                                            ${yaSeleccionado ?
+                            '<span class="badge bg-success"><i class="fas fa-check"></i> Seleccionado</span>' :
+                            '<button type="button" class="btn btn-sm btn-outline-success btn-agregar" data-id="' + benef.id_Beneficiario + '">Agregar</button>'
+                        }
+                                        </div>
+                                        <div class="small text-muted">
+                                            <div><i class="fas fa-id-card me-1"></i> ${formatearDUI(benef.dui)}</div>
+                                            <div><i class="fas fa-phone me-1"></i> ${benef.telefono || 'N/A'}</div>
+                                            <div><i class="fas fa-venus-mars me-1"></i> ${benef.genero || 'No especificado'}</div>
+                                            <div class="mt-2">
+                                                <span class="badge ${benef.estadoSubsidio?.toLowerCase() === 'pendiente' ? 'bg-warning' : 'bg-success'}">
+                                                    ${benef.estadoSubsidio}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                });
+
+                html += '</div>';
+                resultadosBusqueda.innerHTML = html;
+                cardResultados.style.display = 'block';
+                agregarEventosBotones();
+            }
+
+            // Mostrar resultado individual
+            function mostrarResultadoIndividual(beneficiario) {
+                const yaSeleccionado = beneficiariosSeleccionados.has(beneficiario.id_Beneficiario);
+
+                resultadosBusqueda.innerHTML = `
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card ${yaSeleccionado ? 'border-success bg-light-success' : 'border-success'}">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h5 class="card-title">${beneficiario.nombre}</h5>
+                                                <div class="row small text-muted">
+                                                    <div class="col-6">
+                                                        <div><i class="fas fa-id-card me-1"></i> <strong>DUI:</strong> ${formatearDUI(beneficiario.dui)}</div>
+                                                        <div><i class="fas fa-phone me-1"></i> <strong>Teléfono:</strong> ${beneficiario.telefono || 'N/A'}</div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div><i class="fas fa-venus-mars me-1"></i> <strong>Género:</strong> ${beneficiario.genero || 'No especificado'}</div>
+                                                        <div><i class="fas fa-calendar me-1"></i> <strong>Estado:</strong> 
+                                                            <span class="badge ${beneficiario.estadoSubsidio?.toLowerCase() === 'pendiente' ? 'bg-warning' : 'bg-success'}">
+                                                                ${beneficiario.estadoSubsidio}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                ${yaSeleccionado ?
+                        '<span class="badge bg-success fs-6 p-2"><i class="fas fa-check me-1"></i>Ya está seleccionado</span>' :
+                        '<button type="button" class="btn btn-success btn-lg btn-agregar" data-id="' + beneficiario.id_Beneficiario + '">' +
+                        '<i class="fas fa-plus me-1"></i>Agregar</button>'
+                    }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                cardResultados.style.display = 'block';
+                agregarEventosBotones();
+            }
+
+            // Mostrar mensaje de no encontrado
+            function mostrarMensajeNoEncontrado(dui) {
+                resultadosBusqueda.innerHTML = `
+                        <div class="alert alert-warning">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-search fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="alert-heading mb-1">Beneficiario no encontrado</h6>
+                                    <p class="mb-0">No se encontró ningún beneficiario con el DUI: <strong>${dui}</strong></p>
+                                    <small class="text-muted">Verifique que el DUI esté correctamente escrito.</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                cardResultados.style.display = 'block';
+            }
+
+            // Agregar beneficiario a la lista de seleccionados
+            function agregarBeneficiarioSeleccionado(beneficiario) {
+                if (!beneficiariosSeleccionados.has(beneficiario.id_Beneficiario)) {
+                    beneficiariosSeleccionados.set(beneficiario.id_Beneficiario, beneficiario);
+                    actualizarUI();
+                }
+            }
+
+            // Remover beneficiario de la lista de seleccionados
+            function removerBeneficiarioSeleccionado(idBeneficiario) {
+                beneficiariosSeleccionados.delete(idBeneficiario);
+                actualizarUI();
+            }
+
+            // Actualizar la interfaz de usuario
+            function actualizarUI() {
+                // Actualizar lista de seleccionados
+                if (beneficiariosSeleccionados.size > 0) {
+                    sinSeleccionados.style.display = 'none';
+                    listaSeleccionados.innerHTML = '';
+
+                    beneficiariosSeleccionados.forEach((benef, id) => {
+                        listaSeleccionados.innerHTML += `
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card border-success bg-light-success">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="card-title mb-1">${benef.nombre}</h6>
+                                                    <div class="small text-muted">
+                                                        <div><i class="fas fa-id-card me-1"></i> ${formatearDUI(benef.dui)}</div>
+                                                        <div><i class="fas fa-phone me-1"></i> ${benef.telefono || 'N/A'}</div>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-outline-danger btn-remover" data-id="${id}">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                    });
+                } else {
+                    sinSeleccionados.style.display = 'block';
+                    listaSeleccionados.innerHTML = '';
+                }
+
+                // Actualizar contador
+                contadorSeleccionados.textContent = beneficiariosSeleccionados.size;
+                totalAsignados.textContent = beneficiariosSeleccionados.size;
+
+                // Actualizar inputs hidden para el formulario
+                hiddenInputsContainer.innerHTML = '';
+                beneficiariosSeleccionados.forEach((benef, id) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'beneficiariosIds';
+                    input.value = id;
+                    hiddenInputsContainer.appendChild(input);
+                });
+
+                // Actualizar botones en resultados
+                document.querySelectorAll('.btn-agregar').forEach(btn => {
+                    const id = btn.getAttribute('data-id');
+                    if (beneficiariosSeleccionados.has(parseInt(id))) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fas fa-check me-1"></i>Seleccionado';
+                        btn.className = btn.className.replace('btn-outline-success', 'btn-success');
+                    }
+                });
+            }
+
+            // Agregar eventos a los botones
+            function agregarEventosBotones() {
+                document.querySelectorAll('.btn-agregar').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const id = parseInt(this.getAttribute('data-id'));
+                        const beneficiario = beneficiariosDisponibles.find(b => b.id_Beneficiario === id);
+                        if (beneficiario) {
+                            agregarBeneficiarioSeleccionado(beneficiario);
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.btn-remover').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const id = parseInt(this.getAttribute('data-id'));
+                        removerBeneficiarioSeleccionado(id);
+                    });
+                });
+            }
+
+            // Event listeners
+            btnBuscar.addEventListener('click', function () {
+                const dui = searchDui.value.trim();
+                if (dui) {
+                    buscarPorDUI(dui);
+                } else {
+                    alert('Por favor ingrese un número de DUI');
+                    searchDui.focus();
+                }
+            });
+
+            btnVerTodos.addEventListener('click', function () {
+                mostrarTodosLosBeneficiarios();
+            });
+
+            searchDui.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    btnBuscar.click();
+                }
+            });
+
+            // Formatear DUI mientras se escribe
+            searchDui.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/[^\d-]/g, '');
+
+                if (value.length === 8 && !value.includes('-')) {
+                    value = value + '-';
+                }
+
+                e.target.value = value;
+            });
+
+            // Inicializar
+            inicializarAsignadosPrevios();
+        });
+    </script>
+}
+
 @section Styles {
     <style>
         .bg-light-success {
             background-color: #d1f7e9 !important;
         }
-        .form-check-input:checked {
-            background-color: #198754;
-            border-color: #198754;
-        }
+
         .card {
             transition: all 0.2s ease;
         }
+
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .text-dark {
-            color: #2d3748 !important;
+
+        .btn-agregar:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-remover:hover {
+            transform: scale(1.1);
         }
     </style>
 }

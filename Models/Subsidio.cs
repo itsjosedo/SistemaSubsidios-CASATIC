@@ -28,6 +28,11 @@ public class Subsidio
     [Display(Name = "Estado")]
     public string Estado { get; set; } = "Pendiente";
 
+    // 🔹 NUEVA PROPIEDAD para filtrar por usuario creador
+    [Required]
+    [Display(Name = "Usuario Creación")]
+    public string UsuarioCreacionId { get; set; } = string.Empty;
+
     // 🔹 MARCAR como No Mapeada (solo para compatibilidad temporal)
     [NotMapped]
     public int? BeneficiarioId { get; set; }

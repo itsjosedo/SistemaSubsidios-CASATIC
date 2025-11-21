@@ -59,8 +59,10 @@
                             </div>
                         </div>
                     }
-                    
+
                     <form asp-action="Create" method="post" id="subsidioForm">
+                        <!-- 🔥 AGREGAR ESTE CAMPO OCULTO -->
+                        <input type="hidden" asp-for="UsuarioCreacionId" value="@ViewBag.UserId" />
                         <!-- Programa -->
                         <div class="mb-3">
                             <label asp-for="NombrePrograma" class="form-label fw-bold">
@@ -68,7 +70,8 @@
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-heading"></i></span>
-                                <input asp-for="NombrePrograma" class="form-control" placeholder="Ingrese el nombre del programa" />
+                                <input asp-for="NombrePrograma" class="form-control"
+                                    placeholder="Ingrese el nombre del programa" />
                             </div>
                             <div class="error-message" data-for="NombrePrograma">
                                 <div class="text-danger small d-flex align-items-center mt-1">
@@ -111,7 +114,8 @@
                                 </label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
-                                    <input asp-for="Monto" class="form-control" type="number" step="0.01" min="0.01" placeholder="0.00" />
+                                    <input asp-for="Monto" class="form-control" type="number" step="0.01" min="0.01"
+                                        placeholder="0.00" />
                                 </div>
                                 <div class="error-message" data-for="Monto">
                                     <div class="text-danger small d-flex align-items-center mt-1">
@@ -197,13 +201,14 @@
                     <div class="alert alert-info border-0">
                         <h6 class="alert-heading"><i class="fas fa-lightbulb me-2"></i>Requisitos:</h6>
                         <ul class="mb-0 small">
-                            <li>Todos los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios</li>
+                            <li>Todos los campos marcados con <span class="text-danger fw-bold">*</span> son
+                                obligatorios</li>
                             <li>El monto debe ser mayor a $0.00</li>
                             <li>La fecha no puede ser anterior al día actual</li>
                             <li>Los beneficiarios se asignan después de crear el subsidio</li>
                         </ul>
                     </div>
-                    
+
                     <div class="alert alert-warning border-0 mt-3">
                         <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Validaciones:</h6>
                         <ul class="mb-0 small">
@@ -220,11 +225,11 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('subsidioForm');
             const inputs = form.querySelectorAll('input, select');
             const submitBtn = form.querySelector('button[type="submit"]');
-            
+
             console.log('=== INICIALIZANDO FORMULARIO ===');
             console.log('Formulario encontrado:', !!form);
             console.log('Campos encontrados:', inputs.length);
@@ -249,7 +254,7 @@
             function validateField(field) {
                 const fieldName = field.name;
                 const errorMessage = document.querySelector(`.error-message[data-for="${fieldName}"]`);
-                
+
                 if (!errorMessage) return true;
 
                 // Remover clases anteriores
@@ -257,7 +262,7 @@
 
                 // Validar según el tipo de campo
                 let isValid = true;
-                
+
                 if (field.type === 'select-one') {
                     isValid = field.value !== '';
                 } else if (field.type === 'number') {
@@ -281,12 +286,12 @@
 
             // Agregar eventos a todos los campos
             inputs.forEach(input => {
-                input.addEventListener('blur', function() {
+                input.addEventListener('blur', function () {
                     console.log(`👁️ Campo ${this.name} perdió el foco - Valor: "${this.value}"`);
                     validateField(this);
                 });
-                
-                input.addEventListener('input', function() {
+
+                input.addEventListener('input', function () {
                     // Solo validar si ya tiene error
                     if (this.classList.contains('is-invalid')) {
                         console.log(`✏️ Campo ${this.name} siendo editado - Nuevo valor: "${this.value}"`);
@@ -296,19 +301,19 @@
             });
 
             // DEBUG: Agregar evento de clic al botón
-            submitBtn.addEventListener('click', function(e) {
+            submitBtn.addEventListener('click', function (e) {
                 console.log('🖱️ BOTÓN DE ENVIAR CLICKEADO');
                 console.log('Tipo de evento:', e.type);
             });
 
             // Validar formulario al enviar
-            form.addEventListener('submit', function(event) {
+            form.addEventListener('submit', function (event) {
                 console.log('🚀 === EVENTO SUBMIT DISPARADO ===');
                 console.log('Formulario válido HTML5:', form.checkValidity());
-                
+
                 let isFormValid = true;
                 let invalidFields = [];
-                
+
                 inputs.forEach(input => {
                     const isValid = validateField(input);
                     if (!isValid) {
@@ -325,14 +330,14 @@
                     console.log('🛑 FORMULARIO NO VÁLIDO - Cancelando envío');
                     event.preventDefault();
                     event.stopPropagation();
-                    
+
                     // Mostrar el primer error
                     const firstError = form.querySelector('.is-invalid');
                     if (firstError) {
                         console.log('📍 Primer campo con error:', firstError.name);
-                        firstError.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'center' 
+                        firstError.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
                         });
                         firstError.focus();
                     }
@@ -340,11 +345,11 @@
                     console.log('✅ FORMULARIO VÁLIDO - Enviando al servidor...');
                     // Cambiar texto del botón para indicar carga
                     submitBtn.innerHTML = `
-                        <span class="icon text-white-50">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </span>
-                        <span class="text">Guardando...</span>
-                    `;
+                            <span class="icon text-white-50">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                            <span class="text">Guardando...</span>
+                        `;
                     submitBtn.disabled = true;
                 }
             });

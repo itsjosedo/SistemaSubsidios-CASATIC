@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MySqlConnector;
+using System.Text.Json.Serialization;
+using System.Text.Json; // ← ESTE ES EL USING QUE NECESITAS
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +20,7 @@ Console.WriteLine($"📡 Conectando a base de datos '{csb.Database}' en servidor
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
         connectionString, 
-        new MySqlServerVersion(new Version(8, 0, 33))  // Especificar la versión de MySQL que estás usando
+        new MySqlServerVersion(new Version(8, 0, 33))
     )
 );
 
@@ -26,15 +28,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Account/Login"; // Ruta del login
-        options.AccessDeniedPath = "/Account/AccessDenied"; // Ruta para acceso denegado
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Tiempo de expiración de la sesión
-        options.SlidingExpiration = true; // Extiende la sesión si el usuario está activo
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+    });
+
+// 🔥 CONFIGURACIÓN COMPLETA PARA JSON
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // ← AHORA FUNCIONARÁ
     });
 
 // Para el manejo de MVC y Razor Pages
-builder.Services.AddControllersWithViews(); // MVC
-builder.Services.AddRazorPages(); // Razor Pages
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
