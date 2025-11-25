@@ -101,10 +101,11 @@ public class BeneficiarioViewModel : IValidatableObject
         int[] pesos = { 9, 8, 7, 6, 5, 4, 3, 2 };
         int suma = 0;
         for (int i = 0; i < 8; i++)
+        {
             suma += (numeros[i] - '0') * pesos[i];
-
-        int residuo = suma % 11;
-        int calculado = 11 - residuo;
+        }
+        int residuo = suma % 10;
+        int calculado = 10 - residuo;
 
         // reglas del RNPN: si da 10 u 11 -> 0
         if (calculado == 10 || calculado == 11) calculado = 0;

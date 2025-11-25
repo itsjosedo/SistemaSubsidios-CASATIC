@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MySqlConnector;
+using SistemaSubsidios_CASATIC.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Para el manejo de MVC y Razor Pages
 builder.Services.AddControllersWithViews(); // MVC
 builder.Services.AddRazorPages(); // Razor Pages
+
+//Servicio para correos email
+builder.Services.AddSingleton<EmailService>();
+
+//Servicio otp
+builder.Services.AddSingleton<OtpService>();
 
 var app = builder.Build();
 

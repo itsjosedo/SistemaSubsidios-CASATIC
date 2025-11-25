@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Restablecer";
+    Layout = ViewBag.Layout ?? "_Layout";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true" />
+}
+
+<div>
+    <form asp-controller="Account" asp-action="RestablecerContrasena" method="post">
+        <Div>
+            <H2>Restablce tu contraseña</H2>
+        </Div>
+    </form>
+</div>
