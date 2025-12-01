@@ -24,7 +24,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Index()
         {
             var subsidios = await _context.Subsidios
-                .Include(s => s.Beneficiarios)  // ← CAMBIADO: Beneficiario -> Beneficiarios
+                .Include(s => s.Beneficiarios)
                 .OrderByDescending(s => s.Id)
                 .ToListAsync();
 

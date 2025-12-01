@@ -15,7 +15,7 @@
                 <p>Únete a SistemasSubsidios</p>
             </div>
             <div class="login-card-body">
-                <!-- AGREGAR autocomplete="off" al form -->
+                
                 <form asp-controller="Account" asp-action="Register" method="post" autocomplete="off">
                     <div class="mb-4">
                         <label for="nombre" class="form-label login-form-label">Nombre completo</label>
@@ -23,7 +23,7 @@
                             <span class="input-group-text login-input-group-text">
                                 <i class="fas fa-user"></i>
                             </span>
-                            <!-- AGREGAR autocomplete="off" -->
+                            
                             <input type="text" id="nombre" name="nombre" class="form-control login-form-control" 
                                    placeholder="Ingrese su nombre completo" value="@ViewBag.Nombre" required 
                                    autocomplete="off" />
@@ -36,7 +36,7 @@
                             <span class="input-group-text login-input-group-text">
                                 <i class="fas fa-envelope"></i>
                             </span>
-                            <!-- AGREGAR autocomplete="off" -->
+                            
                             <input type="email" id="correo" name="correo" class="form-control login-form-control" 
                                    placeholder="Ingrese su correo" value="@ViewBag.Correo" required 
                                    autocomplete="off" />
@@ -120,8 +120,8 @@
             }
         }
 
-        // Validación en tiempo real de coincidencia de contraseñas
-        document.addEventListener('DOMContentLoaded', function() {
+            // Validación en tiempo real de coincidencia de contraseñas
+            document.addEventListener('DOMContentLoaded', function() {
             const contrasenaInput = document.getElementById('contrasena');
             const confirmarInput = document.getElementById('confirmarContrasena');
             const errorAlert = document.querySelector('.alert-danger');

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using SistemaSubsidios_CASATIC.Services;
+
 using System.Threading.Tasks;
 
 namespace SistemaSubsidios_CASATIC.Controllers
@@ -25,7 +26,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            // SI EL USUARIO YA ESTÁ AUTENTICADO, REDIRIGIR SEGÚN SU ROL
+            //Aunteticaciòn y direccionamiento segun roles
             if (User.Identity.IsAuthenticated)
             {
                 var rol = GetRolUsuario();
@@ -76,15 +77,15 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             // Crear claims con información adicional
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
-        new Claim(ClaimTypes.Email, usuario.Correo ?? ""),
-        new Claim(ClaimTypes.Role, usuario.Rol ?? "beneficiario"),
-        new Claim("UserId", usuario.Id_Usuario.ToString()),
-        new Claim("Rol", usuario.Rol ?? "beneficiario")
-    };
+            {
+            new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
+            new Claim(ClaimTypes.Email, usuario.Correo ?? ""),
+            new Claim(ClaimTypes.Role, usuario.Rol ?? "beneficiario"),
+            new Claim("UserId", usuario.Id_Usuario.ToString()),
+            new Claim("Rol", usuario.Rol ?? "beneficiario")
+            };
 
-            // Agregar EntidadId si existe
+            
             if (usuario.Entidad != null)
             {
                 claims.Add(new Claim("EntidadId", usuario.Entidad.Id.ToString()));
@@ -95,7 +96,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-            // CORREGIDO: Usar comparación case-insensitive
+        
             var rolNormalizado = usuario.Rol?.Trim() ?? "";
 
             if (rolNormalizado.Equals("admin", StringComparison.OrdinalIgnoreCase) ||
@@ -184,13 +185,13 @@ namespace SistemaSubsidios_CASATIC.Controllers
             await _db.SaveChangesAsync();
 
             //Genarar OTP
-            var codigo = _otp.Generar(correo);
+            var resultado = _otp.Generar(correo);
 
             //Enviar OTP al correo
             await _email.EnviarCorreo(
                 correo,
                 "Código de verificación",
-                $"<h3>Tu código es: <strong>{codigo}</strong></h3><p>Expira en 5 minutos.</p>"
+                EmailTemplates.OtpTemplate(resultado.Codigo)
             );
 
             return RedirectToAction("VerificarOtp", "Account", new { correo });
@@ -215,7 +216,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     usuario.Estado = "activo";
                     await _db.SaveChangesAsync();
                 }
-                // Activar usuario, permitir login, etc.
+                //Activacion de estado del usuario
                 TempData["MensajeExito"] = "Correo verificado correctamente.";
                 return RedirectToAction("Login");
             }
@@ -230,26 +231,50 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> ReenviarOtp(string correo)
         {
             var codigo = _otp.Generar(correo);
-
+            if (!codigo.Permitido)
+            {
+                ViewBag.Error = $"Debes esperar {codigo.SegundosRestantes} segundos para reenviar otro código.";
+                ViewBag.Correo = correo;
+                ViewBag.Cooldown = codigo.SegundosRestantes;
+                return View("VerificarOtp");
+            }
             await _email.EnviarCorreo(
                 correo,
                 "Nuevo código OTP",
-                $"<h2>Tu nuevo código es:</h2><h1>{codigo}</h1>"
+                EmailTemplates.OtpTemplate(codigo.Codigo!)
             );
 
             TempData["Mensaje"] = "Se ha enviado un nuevo código.";
             return RedirectToAction("VerificarOtp", new { correo });
         }
 
-        //Metodo para restablcer contraseña
+        //Metodo para verificar correo y proceder con el cambio de contraseña
+        [HttpGet]
+        public IActionResult VerificarCorreo()
+        {
+            return View();
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> VerificarCorreo(string correo)
+        {
+            var usuario = await _db.Usuarios.AnyAsync(u => u.Correo == correo);
+
+            if (usuario == null)
+            {
+                ViewBag.ErrorMessage = "Este correo no está registrado.";
+                return View();
+            }
+
+            return View();
+        }
         [HttpGet]
         public IActionResult RestablecerContrasena()
         {
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> RestablecerContrasena(string contrasena)
+        public async Task<IActionResult> RestablecerContrasena(string correo, string nuevaContrasena)
         {
             return View();
         }

@@ -45,9 +45,9 @@ public class Beneficiario
     [Display(Name = "Estado del Subsidio")]
     public string EstadoSubsidio { get; set; } = "pendiente";
 
-    // CAMBIO: Hacer opcional removiendo [Required] y usando int?
+
     [Display(Name = "Entidad")]
-    public int? EntidadId { get; set; }  // ← QUITAR [Required] y usar int?
+    public int? EntidadId { get; set; }
 
     [ForeignKey("EntidadId")]
     public virtual Entidad? Entidad { get; set; }
@@ -56,7 +56,6 @@ public class Beneficiario
     public int UsuarioId { get; set; }
     public Usuario Usuario { get; set; } = null!;
 
-//Relación muchos-a-muchos con Subsidio
+    //Relación muchos-a-muchos con Subsidio
     public virtual ICollection<Subsidio> Subsidios { get; set; } = new List<Subsidio>();
-    // ... el resto del código igual ...
 }

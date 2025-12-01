@@ -15,7 +15,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             _logger = logger;
         }
 
-        // GET: Entidad
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var entidades = await _db.Entidades
@@ -25,7 +25,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return View(entidades);
         }
 
-        // GET: Entidad/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
             var entidad = await _db.Entidades
@@ -37,13 +37,13 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return View(entidad);
         }
 
-        // GET: Entidad/Create
+        [HttpGet]
         public IActionResult CreateEntidad()
         {
             return View();
         }
 
-        // POST: Entidad/Create
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateEntidad(EntidadViewModel model)
@@ -98,7 +98,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             }
         }
 
-        // GET: Entidad/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             _logger.LogInformation($"Edit GET llamado - ID: {id}");
@@ -122,7 +122,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return View(model);
         }
 
-        // POST: Entidad/Edit
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EntidadViewModel model)
@@ -188,68 +188,68 @@ namespace SistemaSubsidios_CASATIC.Controllers
             }
         }
 
-      // GET: Entidad/Delete/5 - Muestra la página de confirmación
-[HttpGet]
-public async Task<IActionResult> Delete(int? id)
-{
-    if (id == null)
-    {
-        _logger.LogWarning("Delete GET - ID es null");
-        return NotFound();
-    }
-
-    var entidad = await _db.Entidades
-        .Include(e => e.Beneficiarios)
-        .FirstOrDefaultAsync(e => e.Id == id);
-
-    if (entidad == null)
-    {
-        _logger.LogWarning($"Delete GET - Entidad con ID {id} no encontrada");
-        return NotFound();
-    }
-
-    return View(entidad);
-}
-
-// POST: Entidad/Delete/5 - Ejecuta la eliminación
-[HttpPost, ActionName("Delete")]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> DeleteConfirmed(int id)
-{
-    try
-    {
-        var entidad = await _db.Entidades
-            .Include(e => e.Beneficiarios)
-            .FirstOrDefaultAsync(e => e.Id == id);
-
-        if (entidad == null)
-            return NotFound();
-
-        if (entidad.Beneficiarios != null && entidad.Beneficiarios.Any())
+        //Muestra la página de confirmación
+        [HttpGet]
+        public async Task<IActionResult> Delete(int? id)
         {
-            TempData["ErrorMessage"] = "No se puede eliminar la entidad porque tiene beneficiarios asociados.";
-            return RedirectToAction(nameof(Delete), new { id = id });
+            if (id == null)
+            {
+                _logger.LogWarning("Delete GET - ID es null");
+                return NotFound();
+            }
+
+            var entidad = await _db.Entidades
+                .Include(e => e.Beneficiarios)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (entidad == null)
+            {
+                _logger.LogWarning($"Delete GET - Entidad con ID {id} no encontrada");
+                return NotFound();
+            }
+
+            return View(entidad);
         }
 
-        _db.Entidades.Remove(entidad);
-        await _db.SaveChangesAsync();
+        //Ejecuta la eliminación
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            try
+            {
+                var entidad = await _db.Entidades
+                    .Include(e => e.Beneficiarios)
+                    .FirstOrDefaultAsync(e => e.Id == id);
 
-        TempData["SuccessMessage"] = "Entidad eliminada correctamente.";
-        return RedirectToAction(nameof(Index));
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error al eliminar la entidad");
-        TempData["ErrorMessage"] = "Ocurrió un error al eliminar la entidad.";
-        return RedirectToAction(nameof(Index));
-    }
-}
+                if (entidad == null)
+                    return NotFound();
+
+                if (entidad.Beneficiarios != null && entidad.Beneficiarios.Any())
+                {
+                    TempData["ErrorMessage"] = "No se puede eliminar la entidad porque tiene beneficiarios asociados.";
+                    return RedirectToAction(nameof(Delete), new { id = id });
+                }
+
+                _db.Entidades.Remove(entidad);
+                await _db.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Entidad eliminada correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al eliminar la entidad");
+                TempData["ErrorMessage"] = "Ocurrió un error al eliminar la entidad.";
+                return RedirectToAction(nameof(Index));
+            }
+        }
 
         // =============================================
         // MÉTODOS PARA ASIGNAR BENEFICIARIOS (CORREGIDOS)
         // =============================================
 
-        // GET: Entidad/GestionarBeneficiarios/5
+        [HttpGet]
         public async Task<IActionResult> GestionarBeneficiarios(int id)
         {
             var entidad = await _db.Entidades

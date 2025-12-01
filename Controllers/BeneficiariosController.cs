@@ -26,7 +26,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             var beneficiario = await _context.Beneficiarios
                 .Include(b => b.Entidad)
-                .Include(b => b.Subsidios)  // ← CAMBIADO: Incluir subsidios del beneficiario
+                .Include(b => b.Subsidios)
                 .FirstOrDefaultAsync(b => b.UsuarioId == userId.Value);
 
             if (beneficiario == null)
@@ -41,10 +41,10 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             ViewBag.PerfilIncompleto = perfilIncompleto;
 
-            // ✅ CAMBIADO: Obtener subsidios desde la relación muchos-a-muchos
+            //Obtener subsidios desde la relación muchos-a-muchos
             var subsidios = beneficiario.Subsidios?.ToList() ?? new List<Subsidio>();
 
-            // ✅ 2️⃣ Enviar los subsidios mediante ViewBag
+            //Enviar los subsidios mediante ViewBag
             ViewBag.Subsidios = subsidios;
             
             var model = new BeneficiarioViewModel
@@ -59,7 +59,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 EntidadNombre = beneficiario.Entidad?.Nombre,
                 Genero = beneficiario.Genero,
                 FechaNacimiento = beneficiario.FechaNacimiento,
-                // ✅ AGREGAR: Información de subsidios
                 Subsidios = subsidios
             };
 
@@ -74,7 +73,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return RedirectToAction("Login", "Account");
 
             var beneficiario = await _context.Beneficiarios
-                .Include(b => b.Subsidios)  // ← CAMBIADO: Incluir subsidios
+                .Include(b => b.Subsidios) 
                 .FirstOrDefaultAsync(b => b.UsuarioId == userId.Value);
 
             if (beneficiario == null)
@@ -96,7 +95,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 Telefono = beneficiario.Telefono,
                 Genero = beneficiario.Genero,
                 FechaNacimiento = beneficiario.FechaNacimiento,
-                // ✅ AGREGAR: Información de subsidios
                 Subsidios = beneficiario.Subsidios?.ToList() ?? new List<Subsidio>()
             };
 
@@ -141,12 +139,11 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             try
             {
-                // ✅ Buscamos el beneficiario del usuario
+                //Buscamos el beneficiario del usuario
                 var beneficiario = await _context.Beneficiarios
                     .Include(b => b.Subsidios)  // ← CAMBIADO: Incluir subsidios
                     .FirstOrDefaultAsync(b => b.UsuarioId == userId.Value);
 
-                // ✅ Si no existe, lo creamos
                 if (beneficiario == null)
                 {
                     beneficiario = new Beneficiario
@@ -164,14 +161,14 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     beneficiario.Nombre = usuario.Nombre;
                 }
 
-                // ✅ Aquí sí asignamos los datos del formulario
+                //Aquí sí asignamos los datos del formulario
                 beneficiario.Dui = model.Dui?.Trim();
                 beneficiario.Telefono = model.Telefono?.Trim();
                 beneficiario.Direccion = model.Direccion?.Trim();
                 beneficiario.Genero = model.Genero?.Trim();
                 beneficiario.FechaNacimiento = model.FechaNacimiento;
 
-                // ✅ Guardamos los cambios
+                //Guardamos los cambios
                 await _context.SaveChangesAsync();
 
                 Console.WriteLine("Guardado exitoso, redirigiendo...");
@@ -192,7 +189,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         {
             var beneficiarios = await _context.Beneficiarios
                 .Include(b => b.Entidad)
-                .Include(b => b.Subsidios)  // ← CAMBIADO: Incluir subsidios
+                .Include(b => b.Subsidios) 
                 .Where(b => !string.IsNullOrEmpty(b.Dui) && !string.IsNullOrEmpty(b.Nombre))
                 .OrderBy(b => b.Nombre)
                 .ToListAsync();
@@ -201,7 +198,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return View(beneficiarios);
         }
 
-        //GET: Editar Perfil beneficiario
+        //Editar Perfil beneficiario
         [HttpGet]
         public async Task<IActionResult> EditarPerfil()
         {
@@ -210,7 +207,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return RedirectToAction("Login", "Account");
 
             var beneficiario = await _context.Beneficiarios
-                .Include(b => b.Subsidios)  // ← CAMBIADO: Incluir subsidios
+                .Include(b => b.Subsidios)
                 .FirstOrDefaultAsync(b => b.UsuarioId == userId.Value);
 
             if (beneficiario == null)
@@ -220,14 +217,13 @@ namespace SistemaSubsidios_CASATIC.Controllers
             {
                 Telefono = beneficiario.Telefono,
                 Direccion = beneficiario.Direccion,
-                // ✅ AGREGAR: Información de subsidios
                 Subsidios = beneficiario.Subsidios?.ToList() ?? new List<Subsidio>()
             };
 
             return View(model);
         }
 
-        // POST: Beneficiarios/EditarPerfil
+        //Beneficiarios/EditarPerfil
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditarPerfil(BeneficiarioViewModel model)
@@ -240,9 +236,9 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Buscamos al beneficiario ANTES de validar
+            // Buscamos al beneficiario antes de validar
             var beneficiario = await _context.Beneficiarios
-                .Include(b => b.Subsidios)  // ← CAMBIADO: Incluir subsidios
+                .Include(b => b.Subsidios) 
                 .FirstOrDefaultAsync(b => b.UsuarioId == userId.Value);
 
             if (beneficiario == null)
@@ -250,7 +246,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return RedirectToAction("CompletarPerfil");
             }
 
-            // ✅ Validamos solo lo que realmente se está editando
+            //Obviamos los demas campos que no queremos editar
             ModelState.Remove("Nombre");
             ModelState.Remove("Dui");
             ModelState.Remove("Correo");
@@ -259,14 +255,13 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             if (!ModelState.IsValid)
             {
-                // ✅ Reasignamos datos actuales para que no se pierdan en la vista
                 model.Telefono = beneficiario.Telefono;
                 model.Direccion = beneficiario.Direccion;
                 model.Subsidios = beneficiario.Subsidios?.ToList() ?? new List<Subsidio>();
                 return View(model);
             }
 
-            // ✅ Guardamos los cambios permitidos
+            //uardamos los cambios permitidos
             beneficiario.Telefono = model.Telefono?.Trim();
             beneficiario.Direccion = model.Direccion?.Trim();
 

@@ -60,10 +60,7 @@ public class BeneficiarioViewModel : IValidatableObject
     public bool AceptaTerminos { get; set; }
     public string? EntidadNombre { get; set; }
 
-    // ============================================================
-    // VALIDACIÓN REAL DEL DUI (módulo 11)
-    // ============================================================
-
+    // VALIDACIÓN REAL DEL DUI (módulo 10)
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         // Normalizar
