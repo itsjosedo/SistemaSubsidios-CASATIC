@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MySqlConnector;
-using System.Text.Json.Serialization;
-using System.Text.Json; // ← ESTE ES EL USING QUE NECESITAS
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,7 +42,8 @@ builder.Services.AddControllersWithViews()
     });
 
 // Para el manejo de MVC y Razor Pages
-builder.Services.AddRazorPages();
+builder.Services.AddControllersWithViews(); // MVC
+builder.Services.AddRazorPages(); // Razor Pages
 
 var app = builder.Build();
 

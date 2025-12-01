@@ -1,8 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Linq;
+using System.ComponentModel;
 
-public class BeneficiarioViewModel
+public class BeneficiarioViewModel : IValidatableObject
 {
 
     public int Id_Beneficiario { get; set; }
@@ -57,41 +60,54 @@ public class BeneficiarioViewModel
     public bool AceptaTerminos { get; set; }
     public string? EntidadNombre { get; set; }
 
-    // ============================================================
-    // VALIDACIÓN REAL DEL DUI (módulo 11)
-    // ============================================================
-
+    // VALIDACIÓN REAL DEL DUI (módulo 10)
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (!EsDuiValido(Dui))
+        // Normalizar
+        var duiNormalized = (Dui ?? "").Trim();
+
+        if (string.IsNullOrEmpty(duiNormalized))
         {
-            yield return new ValidationResult("El DUI ingresado no es válido.", new[] { "Dui" });
+            yield return new ValidationResult("El DUI es obligatorio.", new[] { nameof(Dui) });
+            yield break;
+        }
+
+        if (!Regex.IsMatch(duiNormalized, @"^\d{8}-\d{1}$"))
+        {
+            yield return new ValidationResult("Formato de DUI inválido. Use: 12345678-9", new[] { nameof(Dui) });
+            yield break;
+        }
+
+        if (!EsDuiValido(duiNormalized))
+        {
+            yield return new ValidationResult("El DUI ingresado no es válido.", new[] { nameof(Dui) });
         }
     }
 
     private bool EsDuiValido(string dui)
     {
-        if (string.IsNullOrWhiteSpace(dui)) return false;
-        if (!Regex.IsMatch(dui, @"^\d{8}-\d{1}$")) return false;
+        // espera formato 12345678-9
+        var partes = dui.Split('-');
+        if (partes.Length != 2) return false;
 
-        string numeros = dui.Split('-')[0];
-        int verificador = int.Parse(dui.Split('-')[1]);
+        var numeros = partes[0];
+        if (numeros.Length != 8 || !numeros.All(char.IsDigit)) return false;
+
+        if (!int.TryParse(partes[1], out var verificadorIngresado)) return false;
 
         int[] pesos = { 9, 8, 7, 6, 5, 4, 3, 2 };
         int suma = 0;
-
         for (int i = 0; i < 8; i++)
         {
             suma += (numeros[i] - '0') * pesos[i];
         }
+        int residuo = suma % 10;
+        int calculado = 10 - residuo;
 
-        int residuo = suma % 11;
-        int calculado = 11 - residuo;
+        // reglas del RNPN: si da 10 u 11 -> 0
+        if (calculado == 10 || calculado == 11) calculado = 0;
 
-        if (calculado == 10 || calculado == 11)
-            calculado = 0;
-
-        return calculado == verificador;
+        return calculado == verificadorIngresado;
     }
     public List<Subsidio> Subsidios { get; set; } = new List<Subsidio>();
 }

@@ -46,14 +46,14 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return View(beneficiario);
         }
 
-        // GET: Beneficiarios/Create
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
             await CargarEntidadesViewBag();
             return View();
         }
 
-        // POST: Beneficiarios/Create
+        //Metodo para crear un nuevo beneficiario
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BeneficiarioViewModel model)
@@ -66,7 +66,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     return View(model);
                 }
 
-                // Validar DUI único
+                // Validacion si existe un dui o no
                 if (await _context.Beneficiarios.AnyAsync(b => b.Dui == model.Dui))
                 {
                     ModelState.AddModelError("Dui", "Este DUI ya está registrado en el sistema");
@@ -74,7 +74,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     return View(model);
                 }
 
-                // Validar que la entidad existe (solo si se proporciona)
+                // Validar que la entidad existe
                 if (model.EntidadId.HasValue)
                 {
                     var entidadExiste = await _context.Entidades.AnyAsync(e => e.Id == model.EntidadId.Value);
@@ -86,7 +86,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     }
                 }
 
-                // Crear nuevo beneficiario
+                //Creacion de un  nuevo beneficiario
                 var beneficiario = new Beneficiario
                 {
                     Nombre = model.Nombre.Trim(),
@@ -150,96 +150,96 @@ namespace SistemaSubsidios_CASATIC.Controllers
         }
 
         // POST: Beneficiarios/Edit
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Edit(BeneficiarioViewModel model)
-{
-    _logger.LogInformation("=== EDIT POST INICIADO ===");
-    _logger.LogInformation($"ID del modelo: {model.Id_Beneficiario}");
-
-    // SOLUCIÓN: Remover el error de AceptaTerminos del ModelState
-    if (ModelState.ContainsKey("AceptaTerminos"))
-    {
-        ModelState["AceptaTerminos"].Errors.Clear();
-        _logger.LogInformation("Error de AceptaTerminos removido del ModelState");
-    }
-
-    if (!ModelState.IsValid)
-    {
-        _logger.LogWarning("=== MODELSTATE NO VÁLIDO ===");
-        foreach (var state in ModelState)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(BeneficiarioViewModel model)
         {
-            var errors = state.Value.Errors;
-            if (errors.Count > 0)
+            _logger.LogInformation("=== EDIT POST INICIADO ===");
+            _logger.LogInformation($"ID del modelo: {model.Id_Beneficiario}");
+
+            
+            if (ModelState.ContainsKey("AceptaTerminos"))
             {
-                foreach (var error in errors)
-                {
-                    _logger.LogError($"CAMPO: {state.Key} -> ERROR: {error.ErrorMessage}");
-                }
+                ModelState["AceptaTerminos"].Errors.Clear();
+                _logger.LogInformation("Error de AceptaTerminos removido del ModelState");
             }
-        }
-        
-        await CargarEntidadesViewBag();
-        return View(model);
-    }
 
-    try
-    {
-        _logger.LogInformation("Buscando beneficiario en la base de datos...");
-        var beneficiario = await _context.Beneficiarios.FindAsync(model.Id_Beneficiario);
-        if (beneficiario == null)
-        {
-            _logger.LogError($"Beneficiario con ID {model.Id_Beneficiario} no encontrado en BD");
-            return NotFound();
-        }
-
-        // Validar DUI único (excluyendo el actual)
-        if (await _context.Beneficiarios.AnyAsync(b => b.Dui == model.Dui && b.Id_Beneficiario != model.Id_Beneficiario))
-        {
-            _logger.LogWarning($"DUI duplicado: {model.Dui}");
-            ModelState.AddModelError("Dui", "Este DUI ya está registrado en el sistema");
-            await CargarEntidadesViewBag();
-            return View(model);
-        }
-
-        // Validar que la entidad existe (solo si se proporciona)
-        if (model.EntidadId.HasValue)
-        {
-            var entidadExiste = await _context.Entidades.AnyAsync(e => e.Id == model.EntidadId.Value);
-            if (!entidadExiste)
+            if (!ModelState.IsValid)
             {
-                _logger.LogWarning($"Entidad con ID {model.EntidadId} no existe");
-                ModelState.AddModelError("EntidadId", "La entidad seleccionada no es válida");
+                _logger.LogWarning("=== MODELSTATE NO VÁLIDO ===");
+                foreach (var state in ModelState)
+                {
+                    var errors = state.Value.Errors;
+                    if (errors.Count > 0)
+                    {
+                        foreach (var error in errors)
+                        {
+                            _logger.LogError($"CAMPO: {state.Key} -> ERROR: {error.ErrorMessage}");
+                        }
+                    }
+                }
+                
                 await CargarEntidadesViewBag();
                 return View(model);
             }
+
+            try
+            {
+                _logger.LogInformation("Buscando beneficiario en la base de datos...");
+                var beneficiario = await _context.Beneficiarios.FindAsync(model.Id_Beneficiario);
+                if (beneficiario == null)
+                {
+                    _logger.LogError($"Beneficiario con ID {model.Id_Beneficiario} no encontrado en BD");
+                    return NotFound();
+                }
+
+                // Validar DUI único
+                if (await _context.Beneficiarios.AnyAsync(b => b.Dui == model.Dui && b.Id_Beneficiario != model.Id_Beneficiario))
+                {
+                    _logger.LogWarning($"DUI duplicado: {model.Dui}");
+                    ModelState.AddModelError("Dui", "Este DUI ya está registrado en el sistema");
+                    await CargarEntidadesViewBag();
+                    return View(model);
+                }
+
+                // Validar que la entidad existe
+                if (model.EntidadId.HasValue)
+                {
+                    var entidadExiste = await _context.Entidades.AnyAsync(e => e.Id == model.EntidadId.Value);
+                    if (!entidadExiste)
+                    {
+                        _logger.LogWarning($"Entidad con ID {model.EntidadId} no existe");
+                        ModelState.AddModelError("EntidadId", "La entidad seleccionada no es válida");
+                        await CargarEntidadesViewBag();
+                        return View(model);
+                    }
+                }
+
+                // Actualizar propiedades
+                beneficiario.Nombre = model.Nombre?.Trim();
+                beneficiario.Dui = model.Dui;
+                beneficiario.Telefono = model.Telefono;
+                beneficiario.Direccion = model.Direccion?.Trim();
+                beneficiario.EntidadId = model.EntidadId;
+                beneficiario.EstadoSubsidio = model.EstadoSubsidio;
+
+                _context.Beneficiarios.Update(beneficiario);
+                int cambios = await _context.SaveChangesAsync();
+                
+                _logger.LogInformation($"=== ACTUALIZACIÓN EXITOSA ===");
+                _logger.LogInformation($"Cambios guardados: {cambios}");
+
+                TempData["SuccessMessage"] = "Los datos del beneficiario se han actualizado correctamente";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al editar beneficiario");
+                await CargarEntidadesViewBag();
+            ModelState.AddModelError("", "Ocurrió un error al actualizar los datos del beneficiario.");
+                return View(model);
+            }
         }
-
-        // Actualizar propiedades
-        beneficiario.Nombre = model.Nombre?.Trim();
-        beneficiario.Dui = model.Dui;
-        beneficiario.Telefono = model.Telefono;
-        beneficiario.Direccion = model.Direccion?.Trim();
-        beneficiario.EntidadId = model.EntidadId;
-        beneficiario.EstadoSubsidio = model.EstadoSubsidio;
-
-        _context.Beneficiarios.Update(beneficiario);
-        int cambios = await _context.SaveChangesAsync();
-        
-        _logger.LogInformation($"=== ACTUALIZACIÓN EXITOSA ===");
-        _logger.LogInformation($"Cambios guardados: {cambios}");
-
-        TempData["SuccessMessage"] = "Los datos del beneficiario se han actualizado correctamente";
-        return RedirectToAction(nameof(Index));
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error al editar beneficiario");
-        await CargarEntidadesViewBag();
-       ModelState.AddModelError("", "Ocurrió un error al actualizar los datos del beneficiario.");
-        return View(model);
-    }
-}
 
         // GET: Beneficiarios/Delete/5
         public async Task<IActionResult> Delete(int? id)

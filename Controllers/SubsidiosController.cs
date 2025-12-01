@@ -24,6 +24,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         // GET: Subsidios
         public async Task<IActionResult> Index()
         {
+<<<<<<< HEAD
             var userId = GetUserId();
             var rolUsuario = GetRolUsuario(); // 🔥 USAR GetRolUsuario() en lugar de User.IsInRole()
 
@@ -42,6 +43,12 @@ namespace SistemaSubsidios_CASATIC.Controllers
             ViewBag.EsEntidad = rolUsuario?.ToLower() == "entidad";
             ViewBag.UserName = User.Identity?.Name;
             ViewBag.TieneSubsidios = subsidios.Any();
+=======
+            var subsidios = await _context.Subsidios
+                .Include(s => s.Beneficiarios)
+                .OrderByDescending(s => s.Id)
+                .ToListAsync();
+>>>>>>> Develop
 
             return View(subsidios);
         }

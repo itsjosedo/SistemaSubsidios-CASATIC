@@ -14,7 +14,7 @@
                 <h2>Iniciar sesión</h2>
                 <p>Accede a tu cuenta de SistemasSubsidios</p>
             </div>
-
+ 
             <div class="login-card-body">
                 <form asp-controller="Account" asp-action="Login" method="post" autocomplete="off">
                     <div class="mb-4">
@@ -63,6 +63,12 @@
                 <div class="text-center">
                     <p class="mb-0">¿No tienes cuenta?
                         <a asp-controller="Account" asp-action="Register" class="login-register-link">Regístrate aquí</a>
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <p class="mb-0">
+                        <a asp-controller="Account" asp-action="VerificarCorreo" class="login-register-link">Restablecer contraseña</a>
                     </p>
                 </div>
             </div>
