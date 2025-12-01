@@ -2,6 +2,10 @@ using SistemaSubsidios_CASATIC.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.UserSecrets;
+using CsvHelper;
+using CsvHelper.Configuration; // <-- Necesaria para configurar la lectura
+using System.Globalization;
+using System.IO;
 
 namespace SistemaSubsidios_CASATIC.Controllers
 {
@@ -339,6 +343,122 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             ViewBag.Estadisticas = estadisticas;
             return View();
+        }
+
+        // ==========================================
+        // 📥 MÓDULO DE IMPORTACIÓN CSV (NUEVO)
+        // ==========================================
+
+        // 1. GET: Mostrar la pantalla para subir el archivo
+        [HttpGet]
+        public IActionResult CargaMasiva()
+        {
+            return View();
+        }
+
+        // 2. POST: Recibir y procesar el archivo
+        [HttpPost]
+        public async Task<IActionResult> ProcesarCargaMasiva(IFormFile archivoCSV)
+        {
+            if (archivoCSV == null || archivoCSV.Length == 0)
+            {
+                ViewBag.Error = "Por favor, selecciona un archivo CSV válido.";
+                return View("CargaMasiva");
+            }
+
+            int guardados = 0;
+            int errores = 0;
+            List<string> listaErrores = new List<string>();
+
+            try
+            {
+                // Leemos el archivo usando un flujo de memoria (Stream)
+                using (var stream = new StreamReader(archivoCSV.OpenReadStream()))
+                using (var csv = new CsvReader(stream, CultureInfo.InvariantCulture))
+                {
+                    // Leemos los registros usando nuestro molde (DTO)
+                    var registros = csv.GetRecords<BeneficiarioImportDto>();
+
+                    foreach (var fila in registros)
+                    {
+                        // VERIFICACIÓN 1: ¿Ya existe este DUI en la base de datos?
+                        bool existe = await _context.Beneficiarios.AnyAsync(b => b.Dui == fila.Dui);
+                        
+                        if (existe)
+                        {
+                            errores++;
+                            listaErrores.Add($"DUI duplicado: {fila.Dui} ({fila.Nombre})");
+                            continue; // Saltamos al siguiente registro
+                        }
+
+                        // Si no existe, creamos la entidad real
+                        var nuevoBeneficiario = new Beneficiario
+                        {
+                            Nombre = fila.Nombre,
+                            Dui = fila.Dui,
+                            Direccion = fila.Direccion,
+                            Telefono = fila.Telefono,
+                            Genero = fila.Genero,
+                            FechaNacimiento = fila.FechaNacimiento ?? DateTime.Now,
+                            EstadoSubsidio = "pendiente",
+                            UsuarioId = null // Importante: Queda null porque viene de Excel
+                        };
+
+                        _context.Beneficiarios.Add(nuevoBeneficiario);
+                        guardados++;
+                    }
+                    
+                    // Guardamos todos los cambios en la base de datos de una sola vez
+                    await _context.SaveChangesAsync();
+                }
+
+                ViewBag.Exito = $"Proceso terminado. Se guardaron {guardados} beneficiarios nuevos.";
+                if (errores > 0)
+                {
+                    ViewBag.Advertencia = $"Hubo {errores} registros que no se guardaron (probablemente DUIs repetidos).";
+                    ViewBag.ListaErrores = listaErrores;
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = $"Ocurrió un error al leer el archivo: {ex.Message}";
+            }
+
+            return View("CargaMasiva");
+        }
+
+        // ==========================================
+        // 📤 MÓDULO DE EXPORTACIÓN (NUEVO)
+        // ==========================================
+        [HttpGet]
+        public async Task<IActionResult> ExportarListado()
+        {
+            // 1. Obtenemos los datos de la BD
+            var beneficiarios = await _context.Beneficiarios
+                .Select(b => new
+                {
+                    b.Nombre,
+                    b.Dui,
+                    b.Telefono,
+                    b.Direccion,
+                    b.Genero,
+                    // Damos formato a la fecha para que se lea bien en Excel
+                    FechaNacimiento = b.FechaNacimiento.ToString("yyyy-MM-dd"),
+                    Estado = b.EstadoSubsidio
+                })
+                .ToListAsync();
+
+            // 2. Generamos el archivo en memoria
+            using (var memory = new MemoryStream())
+            using (var writer = new StreamWriter(memory))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.WriteRecords(beneficiarios);
+                writer.Flush();
+                
+                // 3. Devolvemos el archivo al usuario
+                return File(memory.ToArray(), "text/csv", $"ListadoBeneficiarios_{DateTime.Now:yyyyMMdd_HHmm}.csv");
+            }
         }
     }
 }

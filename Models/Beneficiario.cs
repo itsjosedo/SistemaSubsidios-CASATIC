@@ -53,8 +53,8 @@ public class Beneficiario
     public virtual Entidad? Entidad { get; set; }
     
     [ForeignKey("UsuarioId")]
-    public int UsuarioId { get; set; }
-    public Usuario Usuario { get; set; } = null!;
+    public int? UsuarioId { get; set; } // Ahora es opcional
+    public Usuario? Usuario { get; set; } // Ahora puede ser null
 
 //Relación muchos-a-muchos con Subsidio
     public virtual ICollection<Subsidio> Subsidios { get; set; } = new List<Subsidio>();
