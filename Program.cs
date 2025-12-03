@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MySqlConnector;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using SistemaSubsidios_CASATIC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +47,11 @@ builder.Services.AddControllersWithViews()
 // Para el manejo de MVC y Razor Pages
 builder.Services.AddControllersWithViews(); // MVC
 builder.Services.AddRazorPages(); // Razor Pages
+//Servicio para correos email
+builder.Services.AddSingleton<EmailService>();
+
+//Servicio otp
+builder.Services.AddSingleton<OtpService>();
 
 var app = builder.Build();
 
