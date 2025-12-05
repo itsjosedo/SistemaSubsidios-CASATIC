@@ -14,35 +14,37 @@
         </div>
 
         <div class="col-12 col-md-4">
-            <div class="d-flex gap-2 justify-content-start justify-content-md-end">
-                
-                <a asp-controller="Beneficiarios" asp-action="ExportarListado" class="btn btn-outline-primary btn-sm shadow-sm">
+            <div class="d-flex gap-2 justify-content-start justify-content-md-end flex-wrap">
+                <a asp-controller="Beneficiarios" asp-action="ExportarListado" 
+                   class="btn btn-outline-primary btn-sm shadow-sm text-nowrap">
                     <i class="fas fa-file-download me-1"></i>
                     <span>Exportar CSV</span>
                 </a>
 
-                <a asp-controller="Beneficiarios" asp-action="CargaMasiva" class="btn btn-outline-success btn-sm shadow-sm">
+                <a asp-controller="Beneficiarios" asp-action="CargaMasiva" 
+                   class="btn btn-outline-success btn-sm shadow-sm text-nowrap">
                     <i class="fas fa-file-csv me-1"></i>
                     <span>Importar CSV</span>
                 </a>
 
-                <a asp-action="Create" class="btn btn-success btn-sm shadow-sm">
+                <a asp-action="Create" class="btn btn-success btn-sm shadow-sm text-nowrap">
                     <i class="fas fa-plus me-1"></i>
                     <span>Nuevo subsidio</span>
                 </a>
-                <a asp-action="Reporte" class="btn btn-primary btn-sm shadow-sm" target="_blank">
+                
+                <a asp-action="Reporte" class="btn btn-primary btn-sm shadow-sm text-nowrap" target="_blank">
                     <i class="fas fa-file-pdf me-1"></i>
                     <span>Reporte</span>
                 </a>
 
                 @if (User.IsInRole("Administrador") || User.IsInRole("Admin"))
-        {
-            <a asp-action="VerificarExpirados" class="btn btn-warning btn-sm shadow-sm" 
-               onclick="return confirm('¿Está seguro de verificar y actualizar los subsidios expirados?')">
-                <i class="fas fa-sync-alt me-1"></i>
-                <span>Verificar expirados</span>
-            </a>
-        }
+                {
+                    <a asp-action="VerificarExpirados" class="btn btn-warning btn-sm shadow-sm text-nowrap" 
+                       onclick="return confirm('¿Está seguro de verificar y actualizar los subsidios expirados?')">
+                        <i class="fas fa-sync-alt me-1"></i>
+                        <span>Verificar expirados</span>
+                    </a>
+                }
             </div>
         </div>
     </div>
@@ -309,7 +311,7 @@
             </h6>
             <div class="input-group input-group-sm" style="max-width: 250px;">
                 <input type="text" class="form-control" placeholder="Buscar subsidio..." id="searchInput">
-                <button class="btn btn-outline-secondary" type="button">
+                <button class="btn btn-outline-secondary text-nowrap" type="button">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
@@ -354,50 +356,50 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-info text-white">
+                                        <span class="badge bg-info text-white text-nowrap">
                                             <i class="fas fa-tag me-1"></i>@s.Tipo
                                         </span>
                                     </td>
                                     <td class="text-center">
                                         @if (s.Beneficiarios.Any())
                                         {
-                                            <span class="badge bg-success text-white" data-bs-toggle="tooltip"
+                                            <span class="badge bg-success text-white text-nowrap" data-bs-toggle="tooltip"
                                                 title="@s.Beneficiarios.Count beneficiario(s)">
                                                 <i class="fas fa-users me-1"></i>@s.Beneficiarios.Count
                                             </span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-secondary text-white">
+                                            <span class="badge bg-secondary text-white text-nowrap">
                                                 <i class="fas fa-user-times me-1"></i>Sin asignar
                                             </span>
                                         }
                                     </td>
                                     <td class="text-end">
-                                        <span class="fw-bold text-success">$@s.Monto.ToString("N2")</span>
+                                        <span class="fw-bold text-success text-nowrap">$@s.Monto.ToString("N2")</span>
                                     </td>
                                     <td class="text-center">
                                         <i class="fas fa-calendar me-2 text-muted"></i>
-                                        @s.FechaAsignacion.ToString("dd/MM/yyyy")
+                                        <span class="text-nowrap">@s.FechaAsignacion.ToString("dd/MM/yyyy")</span>
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex flex-column align-items-center">
-                                            <small>@s.FechaExpiracion.ToString("dd/MM/yyyy")</small>
+                                            <small class="text-nowrap">@s.FechaExpiracion.ToString("dd/MM/yyyy")</small>
                                             @if (estaExpirado)
                                             {
-                                                <span class="badge bg-danger small mt-1">
+                                                <span class="badge bg-danger small mt-1 text-nowrap">
                                                     <i class="fas fa-times-circle me-1"></i>Expirado
                                                 </span>
                                             }
                                             else if (porExpirar)
                                             {
-                                                <span class="badge bg-warning text-dark small mt-1">
+                                                <span class="badge bg-warning text-dark small mt-1 text-nowrap">
                                                     <i class="fas fa-exclamation-triangle me-1"></i>@diasRestantes días
                                                 </span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-success small mt-1">
+                                                <span class="badge bg-success small mt-1 text-nowrap">
                                                     <i class="fas fa-check-circle me-1"></i>@diasRestantes días
                                                 </span>
                                             }
@@ -408,7 +410,7 @@
                                             var estadoClass = GetEstadoBadgeClass(s.Estado);
                                             var estadoIcon = GetEstadoIcon(s.Estado);
                                         }
-                                        <span class="badge @estadoClass">
+                                        <span class="badge @estadoClass text-nowrap">
                                             <i class="@estadoIcon me-1"></i>
                                             @s.Estado
                                         </span>
@@ -416,15 +418,15 @@
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
                                             <a asp-action="GestionarBeneficiarios" asp-route-id="@s.Id"
-                                                class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip"
+                                                class="btn btn-sm btn-outline-success text-nowrap" data-bs-toggle="tooltip"
                                                 title="Gestionar beneficiarios">
                                                 <i class="fas fa-users"></i>
                                             </a>
-                                            <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-outline-info"
+                                            <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-outline-info text-nowrap"
                                                 data-bs-toggle="tooltip" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-warning"
+                                            <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-warning text-nowrap"
                                                 data-bs-toggle="tooltip" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
@@ -432,12 +434,12 @@
                                             @if ((s.Estado == "Activo" && porExpirar) || estaExpirado)
                                             {
                                                 <a asp-action="Renovar" asp-route-id="@s.Id" 
-                                                   class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip"
+                                                   class="btn btn-sm btn-outline-primary text-nowrap" data-bs-toggle="tooltip"
                                                    title="Renovar subsidio">
                                                     <i class="fas fa-sync-alt"></i>
                                                 </a>
                                             }
-                                            <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-sm btn-outline-danger"
+                                            <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-sm btn-outline-danger text-nowrap"
                                                 data-bs-toggle="tooltip" title="Eliminar">
                                                 <i class="fas fa-trash"></i>
                                             </a>
@@ -476,44 +478,44 @@
                                             </div>
                                         </div>
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <span class="badge @estadoClass">
+                                            <span class="badge @estadoClass text-nowrap">
                                                 <i class="@estadoIcon me-1"></i>@s.Estado
                                             </span>
-                                            <span class="badge bg-info">
+                                            <span class="badge bg-info text-nowrap">
                                                 <i class="fas fa-tag me-1"></i>@s.Tipo
                                             </span>
-                                            <span class="fw-bold text-success">$@s.Monto.ToString("N2")</span>
+                                            <span class="fw-bold text-success text-nowrap">$@s.Monto.ToString("N2")</span>
                                         </div>
                                         <!-- Estado del beneficiario en vista móvil -->
                                         <div class="mt-2">
                                             @if (s.Beneficiarios.Any())
                                             {
-                                                <span class="badge bg-success text-white">
+                                                <span class="badge bg-success text-white text-nowrap">
                                                     <i class="fas fa-users me-1"></i>@s.Beneficiarios.Count beneficiario(s)
                                                 </span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-secondary text-white">
+                                                <span class="badge bg-secondary text-white text-nowrap">
                                                     <i class="fas fa-user-times me-1"></i>Sin beneficiarios
                                                 </span>
                                             }
                                             
                                             @if (estaExpirado)
                                             {
-                                                <span class="badge bg-danger text-white">
+                                                <span class="badge bg-danger text-white text-nowrap">
                                                     <i class="fas fa-times-circle me-1"></i>Expirado
                                                 </span>
                                             }
                                             else if (porExpirar)
                                             {
-                                                <span class="badge bg-warning text-dark">
+                                                <span class="badge bg-warning text-dark text-nowrap">
                                                     <i class="fas fa-exclamation-triangle me-1"></i>@diasRestantes días
                                                 </span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-success text-white">
+                                                <span class="badge bg-success text-white text-nowrap">
                                                     <i class="fas fa-check-circle me-1"></i>@diasRestantes días
                                                 </span>
                                             }
@@ -535,15 +537,15 @@
                                                 {
                                                     <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
                                                         <div>
-                                                            <strong>@beneficiario.Nombre</strong>
-                                                            <small class="text-muted d-block">
+                                                            <strong class="text-nowrap">@beneficiario.Nombre</strong>
+                                                            <small class="text-muted d-block text-nowrap">
                                                                 <i class="fas fa-id-card me-1"></i>@beneficiario.Dui
                                                             </small>
-                                                            <small class="text-muted d-block">
+                                                            <small class="text-muted d-block text-nowrap">
                                                                 <i class="fas fa-phone me-1"></i>@beneficiario.Telefono
                                                             </small>
                                                         </div>
-                                                        <span class="badge @(beneficiario.EstadoSubsidio == "pendiente" ? "bg-warning" : "bg-success") small">
+                                                        <span class="badge @(beneficiario.EstadoSubsidio == "pendiente" ? "bg-warning" : "bg-success") small text-nowrap">
                                                             @beneficiario.EstadoSubsidio
                                                         </span>
                                                     </div>
@@ -565,14 +567,14 @@
                                     <div class="row mb-3">
                                         <div class="col-6">
                                             <small class="text-muted d-block">Fecha asignación</small>
-                                            <strong>
+                                            <strong class="text-nowrap">
                                                 <i class="fas fa-calendar me-1"></i>
                                                 @s.FechaAsignacion.ToString("dd/MM/yyyy")
                                             </strong>
                                         </div>
                                         <div class="col-6">
                                             <small class="text-muted d-block">Fecha expiración</small>
-                                            <strong>
+                                            <strong class="text-nowrap">
                                                 <i class="fas fa-calendar-times me-1"></i>
                                                 @s.FechaExpiracion.ToString("dd/MM/yyyy")
                                             </strong>
@@ -584,7 +586,7 @@
                                     {
                                         <div class="mb-3">
                                             <small class="text-muted d-block">Última renovación</small>
-                                            <strong>
+                                            <strong class="text-nowrap">
                                                 <i class="fas fa-sync-alt me-1"></i>
                                                 @s.FechaRenovacion.Value.ToString("dd/MM/yyyy")
                                             </strong>
@@ -595,7 +597,7 @@
                                     {
                                         <div class="mb-3">
                                             <small class="text-muted d-block">Próxima renovación sugerida</small>
-                                            <strong>
+                                            <strong class="text-nowrap">
                                                 <i class="fas fa-bell me-1"></i>
                                                 @s.ProximaRenovacion.Value.ToString("dd/MM/yyyy")
                                             </strong>
@@ -604,10 +606,10 @@
 
                                     <div class="d-grid gap-2">
                                         <a asp-action="GestionarBeneficiarios" asp-route-id="@s.Id"
-                                            class="btn btn-success btn-sm">
+                                            class="btn btn-success btn-sm text-nowrap">
                                             <i class="fas fa-users me-2"></i>Gestionar beneficiarios
                                         </a>
-                                        <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-info btn-sm">
+                                        <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-info btn-sm text-nowrap">
                                             <i class="fas fa-eye me-2"></i>Ver detalles
                                         </a>
                                         
@@ -615,19 +617,19 @@
                                         @if ((s.Estado == "Activo" && porExpirar) || estaExpirado)
                                         {
                                             <a asp-action="Renovar" asp-route-id="@s.Id" 
-                                               class="btn btn-primary btn-sm">
+                                               class="btn btn-primary btn-sm text-nowrap">
                                                 <i class="fas fa-sync-alt me-2"></i>Renovar subsidio
                                             </a>
                                         }
                                         
                                         <div class="row g-2">
                                             <div class="col-6">
-                                                <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-warning btn-sm w-100">
+                                                <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-warning btn-sm w-100 text-nowrap">
                                                     <i class="fas fa-edit me-1"></i>Editar
                                                 </a>
                                             </div>
                                             <div class="col-6">
-                                                <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-danger btn-sm w-100">
+                                                <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-danger btn-sm w-100 text-nowrap">
                                                     <i class="fas fa-trash me-1"></i>Eliminar
                                                 </a>
                                             </div>
@@ -646,7 +648,7 @@
                         <i class="fas fa-hand-holding-usd fa-4x text-muted mb-3"></i>
                         <h4 class="text-muted">No hay subsidios registrados</h4>
                         <p class="text-muted mb-4">Comience agregando el primer subsidio al sistema.</p>
-                        <a asp-action="Create" class="btn btn-success btn-lg">
+                        <a asp-action="Create" class="btn btn-success btn-lg text-nowrap">
                             <i class="fas fa-plus me-2"></i>Crear primer subsidio
                         </a>
                     </div>
@@ -735,6 +737,11 @@
         
         .border-warning {
             border-left: 4px solid #ffc107 !important;
+        }
+        
+        /* 🔥 NUEVO: Estilos para botones uniformes */
+        .btn-group .btn {
+            min-width: 36px;
         }
     </style>
 }
