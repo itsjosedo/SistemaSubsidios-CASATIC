@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using SistemaSubsidios_CASATIC.Services;
 
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace SistemaSubsidios_CASATIC.Controllers
 {
@@ -85,7 +86,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             new Claim("Rol", usuario.Rol ?? "beneficiario")
             };
 
-            
+
             if (usuario.Entidad != null)
             {
                 claims.Add(new Claim("EntidadId", usuario.Entidad.Id.ToString()));
@@ -96,7 +97,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-        
+
             var rolNormalizado = usuario.Rol?.Trim() ?? "";
 
             if (rolNormalizado.Equals("admin", StringComparison.OrdinalIgnoreCase) ||
@@ -154,6 +155,17 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             {
                 ViewBag.ErrorMessage = "Todos los campos son obligatorios.";
+                return View();
+            }
+
+            //Validacion de contraseña
+            var regexPassword = new Regex(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$");
+
+            if (!regexPassword.IsMatch(contrasena))
+            {
+                ViewBag.ErrorMessage = "La contraseña debe tener mínimo 8 caracteres, una mayúscula, un número y un carácter especial.";
+                ViewBag.Nombre = nombre;
+                ViewBag.Correo = correo;
                 return View();
             }
 

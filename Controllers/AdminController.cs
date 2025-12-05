@@ -56,7 +56,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         //Metodo para crear un nuevo beneficiario
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(BeneficiarioViewModel model)
+        public async Task<IActionResult> Create(BeneficiarioViewModel model) 
         {
             try
             {
