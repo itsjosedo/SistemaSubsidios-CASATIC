@@ -7,17 +7,27 @@ using SistemaSubsidios_CASATIC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Leer la cadena de conexión desde la variable de entorno (si existe), o desde appsettings.json
+// ==========================================
+// 1. CONFIGURACIÓN DE BASE DE DATOS
+// ==========================================
+
 var envConnection = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 var connectionString = string.IsNullOrEmpty(envConnection)
     ? builder.Configuration.GetConnectionString("DefaultConnection")
     : envConnection;
 
-// Verificación de la cadena de conexión correcta
-var csb = new MySqlConnectionStringBuilder(connectionString);
-Console.WriteLine($"📡 Conectando a base de datos '{csb.Database}' en servidor '{csb.Server}:{csb.Port}' con usuario '{csb.UserID}'.");
+connectionString ??= "";
 
-// Configuración del DbContext para MySQL
+try 
+{
+    var csb = new MySqlConnectionStringBuilder(connectionString);
+    Console.WriteLine($"📡 Conectando a base de datos '{csb.Database}' en servidor '{csb.Server}:{csb.Port}' con usuario '{csb.UserID}'.");
+}
+catch
+{
+    Console.WriteLine("⚠️ Advertencia: No se pudo analizar la cadena de conexión para el log.");
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
         connectionString, 
@@ -25,7 +35,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
-// Configuración para la autenticación con cookies
+// ==========================================
+// 2. CONFIGURACIÓN DE AUTENTICACIÓN
+// ==========================================
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -35,27 +47,37 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
     });
 
-// 🔥 CONFIGURACIÓN COMPLETA PARA JSON
+// ==========================================
+// 3. REGISTRO DE SERVICIOS (AQUÍ ESTABA EL ERROR)
+// ==========================================
+
+// EmailService se crea cada vez que se necesita (Transient)
+builder.Services.AddTransient<EmailService>();
+
+// 🔥 OtpService DEBE ser Singleton para que no olvide los códigos generados
+builder.Services.AddSingleton<OtpService>(); 
+
+// ==========================================
+// 4. CONFIGURACIÓN MVC Y JSON
+// ==========================================
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; // ← AHORA FUNCIONARÁ
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
 // Para el manejo de MVC y Razor Pages
 builder.Services.AddControllersWithViews(); // MVC
 builder.Services.AddRazorPages(); // Razor Pages
-//Servicio para correos email
-builder.Services.AddSingleton<EmailService>();
-
-//Servicio otp
-builder.Services.AddSingleton<OtpService>();
 
 var app = builder.Build();
 
-// Configuración del pipeline de solicitud HTTP
+// ==========================================
+// 5. PIPELINE DE SOLICITUDES HTTP
+// ==========================================
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -67,16 +89,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Habilitar la autenticación y autorización
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Mapeo de rutas del controlador MVC
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Mapeo de Razor Pages (si usas)
 app.MapRazorPages();
 
 app.Run();

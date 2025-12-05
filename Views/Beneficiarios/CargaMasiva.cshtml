@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Carga Masiva de Beneficiarios";
+}
+
+<div class="container mt-4">
+    <h2>📂 Importación masiva de beneficiarios</h2>
+    <p class="text-muted">Sube un archivo CSV o Excel para registrar múltiples beneficiarios a la vez.</p>
+
+    @if (ViewBag.Exito != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>¡Excelente!</strong> @ViewBag.Exito
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error:</strong> @ViewBag.Error
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (ViewBag.Advertencia != null)
+    {
+        <div class="alert alert-warning" role="alert">
+            <strong>Atención:</strong> @ViewBag.Advertencia
+            @if (ViewBag.ListaErrores != null)
+            {
+                <ul class="mt-2 mb-0">
+                    @foreach (string error in ViewBag.ListaErrores)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <form asp-action="ProcesarCargaMasiva" method="post" enctype="multipart/form-data">
+                
+                <div class="mb-3">
+                    <label for="archivoCSV" class="form-label fw-bold">Seleccionar archivo (.csv)</label>
+                    <input type="file" class="form-control" name="archivoCSV" id="archivoCSV" accept=".csv" required />
+                    <div class="form-text">
+                        Asegúrate de que el archivo tenga las columnas: 
+                        <code>Nombre, DUI, Direccion, Telefono, Genero, FechaNacimiento</code>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a asp-action="Index" class="btn btn-secondary me-md-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        📤 Subir y procesar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h5>📝 Formato requerido del CSV</h5>
+        <table class="table table-bordered table-sm text-center text-muted" style="font-size: 0.9em;">
+            <thead class="table-light">
+                <tr>
+                    <th>Nombre</th>
+                    <th>DUI</th>
+                    <th>Direccion</th>
+                    <th>Telefono</th>
+                    <th>Genero</th>
+                    <th>FechaNacimiento</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Juan Perez</td>
+                    <td>12345678-9</td>
+                    <td>San Salvador</td>
+                    <td>77778888</td>
+                    <td>M</td>
+                    <td>1990-01-01</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
