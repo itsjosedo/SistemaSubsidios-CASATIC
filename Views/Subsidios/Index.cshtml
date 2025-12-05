@@ -5,7 +5,6 @@
 }
 
 <div class="container-fluid px-4">
-    <!-- Header -->
     <div class="row align-items-center mb-4">
         <div class="col-12 col-md-8 mb-3 mb-md-0">
             <h1 class="h3 mb-0 text-gray-800">
@@ -16,6 +15,17 @@
 
         <div class="col-12 col-md-4">
             <div class="d-flex gap-2 justify-content-start justify-content-md-end">
+                
+                <a asp-controller="Beneficiarios" asp-action="ExportarListado" class="btn btn-outline-primary btn-sm shadow-sm">
+                    <i class="fas fa-file-download me-1"></i>
+                    <span>Exportar CSV</span>
+                </a>
+
+                <a asp-controller="Beneficiarios" asp-action="CargaMasiva" class="btn btn-outline-success btn-sm shadow-sm">
+                    <i class="fas fa-file-csv me-1"></i>
+                    <span>Importar CSV</span>
+                </a>
+
                 <a asp-action="Create" class="btn btn-success btn-sm shadow-sm">
                     <i class="fas fa-plus me-1"></i>
                     <span>Nuevo subsidio</span>
@@ -28,7 +38,6 @@
         </div>
     </div>
 
-    <!-- Tarjetas de estadísticas -->
     <div class="row mb-4">
         <div class="col-6 col-xl-3 mb-3 mb-xl-0">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -109,7 +118,6 @@
         </div>
     </div>
 
-    <!-- Mensajes -->
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
@@ -124,7 +132,6 @@
         </div>
     }
 
-    <!-- Tabla de subsidios -->
     <div class="card shadow mb-4">
         <div
             class="card-header py-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
@@ -141,7 +148,6 @@
         <div class="card-body p-0 p-sm-3">
             @if (Model.Any())
             {
-                <!-- 💻 VISTA DESKTOP (Tabla completa) -->
                 <div class="table-responsive d-none d-lg-block">
                     <table class="table table-bordered table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
                         <thead class="bg-gradient-success text-white">
@@ -212,7 +218,6 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <!-- Botón para gestionar beneficiarios -->
                                             <a asp-action="GestionarBeneficiarios" asp-route-id="@s.Id"
                                                 class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip"
                                                 title="Gestionar beneficiarios">
@@ -238,7 +243,6 @@
                     </table>
                 </div>
 
-                <!-- 📱 VISTA MÓVIL (Lista expandible) -->
                 <div class="d-lg-none">
                     @foreach (var s in Model)
                     {
@@ -247,7 +251,6 @@
                         var itemId = $"subsidio-{s.Id}";
 
                         <div class="border-bottom subsidio-item">
-                            <!-- Fila principal (siempre visible) -->
                             <div class="p-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#@itemId"
                                 aria-expanded="false">
                                 <div class="d-flex justify-content-between align-items-start">
@@ -271,7 +274,6 @@
                                             </span>
                                             <span class="fw-bold text-success">$@s.Monto.ToString("N2")</span>
                                         </div>
-                                        <!-- Estado del beneficiario en vista móvil -->
                                         <div class="mt-2">
                                             @if (s.Beneficiarios.Any())
                                             {
@@ -291,13 +293,10 @@
                                 </div>
                             </div>
 
-                            <!-- Detalles expandibles -->
                             <div class="collapse" id="@itemId">
                                 <div class="px-3 pb-3 bg-light">
-                                    <!-- Información de beneficiarios solo visible al expandir -->
                                     <div class="mb-2">
                                         <small class="text-muted d-block">Beneficiarios (@s.Beneficiarios.Count)</small>
-                                        <!-- En la vista móvil, dentro del collapse -->
                                         @if (s.Beneficiarios.Any())
                                         {
                                             <div class="mt-1">
@@ -325,10 +324,10 @@
                                                 }
                                             </div>
                                         }
-                                        
+
                                         else
                                         {
-                                        <span class="text-muted">No asignado</span>
+                                            <span class="text-muted">No asignado</span>
                                         }
                                     </div>
                                     <div class="mb-3">
@@ -339,7 +338,6 @@
                                         </strong>
                                     </div>
 
-                                    <!-- Botones de acción -->
                                     <div class="d-grid gap-2">
                                         <a asp-action="GestionarBeneficiarios" asp-route-id="@s.Id"
                                             class="btn btn-success btn-sm">
