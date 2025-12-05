@@ -26,7 +26,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
         {
             var userId = GetUserId();
             var rolUsuario = GetRolUsuario(); 
-            var rolUsuario = GetRolUsuario();
 
             IQueryable<Subsidio> subsidiosQuery = _context.Subsidios
                 .Include(s => s.Beneficiarios)
@@ -126,7 +125,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
         {
             var userId = GetUserId();
             var rolUsuario = GetRolUsuario(); 
-            var rolUsuario = GetRolUsuario();
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -161,7 +159,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
             {
                 var userId = GetUserId();
                 var rolUsuario = GetRolUsuario(); 
-                var rolUsuario = GetRolUsuario();
                 var subsidioExistente = await _context.Subsidios
                     .Include(s => s.Beneficiarios)
                     .FirstOrDefaultAsync(s => s.Id == model.Id);
@@ -205,7 +202,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
         {
             var userId = GetUserId();
             var rolUsuario = GetRolUsuario(); 
-            var rolUsuario = GetRolUsuario();
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -228,7 +224,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
         {
             var userId = GetUserId();
             var rolUsuario = GetRolUsuario(); 
-            var rolUsuario = GetRolUsuario();
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -252,7 +247,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario(); 
             var rolUsuario = GetRolUsuario(); 
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
@@ -296,7 +290,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Activos()
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario(); 
             var rolUsuario = GetRolUsuario(); 
 
             if (userId == null)
@@ -350,8 +343,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> GestionarBeneficiarios(int id)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario(); 
-            var rolUsuario = GetRolUsuario(); 
+            var rolUsuario = GetRolUsuario();  
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -390,8 +382,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             try
             {
                 var userId = GetUserId();
-                var rolUsuario = GetRolUsuario(); 
-                var rolUsuario = GetRolUsuario(); 
+                var rolUsuario = GetRolUsuario();  
                 var subsidio = await _context.Subsidios
                     .Include(s => s.Beneficiarios)
                     .FirstOrDefaultAsync(s => s.Id == id);
@@ -444,7 +435,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
         {
             var userId = GetUserId();
             var rolUsuario = GetRolUsuario(); 
-            var rolUsuario = GetRolUsuario();
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -482,7 +472,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
             {
                 var userId = GetUserId();
                 var rolUsuario = GetRolUsuario(); 
-                var rolUsuario = GetRolUsuario();
                 var subsidio = await _context.Subsidios
                     .Include(s => s.Beneficiarios)
                     .FirstOrDefaultAsync(s => s.Id == id);
@@ -560,4 +549,4 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return Json(estadisticas);
         }
     }
-}
+} 
