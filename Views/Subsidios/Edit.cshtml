@@ -70,7 +70,8 @@
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-heading"></i></span>
-                                <input asp-for="NombrePrograma" class="form-control" placeholder="Ingrese el nombre del programa" />
+                                <input asp-for="NombrePrograma" class="form-control"
+                                    placeholder="Ingrese el nombre del programa" />
                             </div>
                             <div class="error-message" data-for="NombrePrograma">
                                 <div class="text-danger small d-flex align-items-center mt-1">
@@ -113,7 +114,8 @@
                                 </label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
-                                    <input asp-for="Monto" class="form-control" type="number" step="0.01" min="0.01" placeholder="0.00" />
+                                    <input asp-for="Monto" class="form-control" type="number" step="0.01" min="0.01"
+                                        placeholder="0.00" />
                                 </div>
                                 <div class="error-message" data-for="Monto">
                                     <div class="text-danger small d-flex align-items-center mt-1">
@@ -139,6 +141,48 @@
                                         <i class="fas fa-exclamation-circle me-1"></i>
                                         <span>La fecha de asignación es obligatoria</span>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Fecha de Expiración -->
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="FechaExpiracion" class="form-label fw-bold">
+                                        <i class="fas fa-calendar-times me-2 text-primary"></i>Fecha de expiración *
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                        <input asp-for="FechaExpiracion" class="form-control" type="date" />
+                                    </div>
+                                    <span asp-validation-for="FechaExpiracion" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Fecha de Renovación -->
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="FechaRenovacion" class="form-label fw-bold">
+                                        <i class="fas fa-sync-alt me-2 text-primary"></i>Fecha de última renovación
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                        <input asp-for="FechaRenovacion" class="form-control" type="date" />
+                                    </div>
+                                    <small class="text-muted">Deje en blanco si no ha sido renovado</small>
+                                    <span asp-validation-for="FechaRenovacion" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Próxima Renovación -->
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="ProximaRenovacion" class="form-label fw-bold">
+                                        <i class="fas fa-bell me-2 text-primary"></i>Próxima renovación sugerida
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                        <input asp-for="ProximaRenovacion" class="form-control" type="date" />
+                                    </div>
+                                    <small class="text-muted">Fecha sugerida para la próxima renovación</small>
+                                    <span asp-validation-for="ProximaRenovacion" class="text-danger small"></span>
                                 </div>
                             </div>
 
@@ -178,14 +222,16 @@
                                     <div class="flex-grow-1">
                                         <h6 class="alert-heading mb-1">Gestión de beneficiarios</h6>
                                         <p class="mb-0 small">
-                                            Actualmente tiene <strong>@Model.Beneficiarios.Count beneficiario(s)</strong> asignado(s).
+                                            Actualmente tiene <strong>@Model.Beneficiarios.Count
+                                                beneficiario(s)</strong> asignado(s).
                                             Para gestionar los beneficiarios, utilice la opción específica.
                                         </p>
                                     </div>
                                 </div>
                             </div>
                             <div class="text-center">
-                                <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" class="btn btn-outline-success btn-sm">
+                                <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id"
+                                    class="btn btn-outline-success btn-sm">
                                     <i class="fas fa-users me-2"></i>Gestionar beneficiarios
                                 </a>
                             </div>
@@ -233,16 +279,17 @@
                                 <strong>Tipo:</strong> <span class="text-muted">@Model.Tipo</span>
                             </div>
                             <div class="mb-2">
-                                <strong>Monto:</strong> <span class="text-success fw-bold">$@Model.Monto.ToString("N2")</span>
+                                <strong>Monto:</strong> <span
+                                    class="text-success fw-bold">$@Model.Monto.ToString("N2")</span>
                             </div>
                             <div class="mb-2">
-                                <strong>Beneficiarios:</strong> 
+                                <strong>Beneficiarios:</strong>
                                 <span class="badge @(Model.Beneficiarios.Any() ? "bg-success" : "bg-secondary")">
                                     @Model.Beneficiarios.Count asignado(s)
                                 </span>
                             </div>
                             <div>
-                                <strong>Estado:</strong> 
+                                <strong>Estado:</strong>
                                 @{
                                     var estadoClass = Model.Estado?.ToLower() switch
                                     {
@@ -257,11 +304,13 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-warning border-0 mt-3">
-                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Notas importantes:</h6>
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Notas importantes:
+                        </h6>
                         <ul class="mb-0 small">
-                            <li>Todos los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios</li>
+                            <li>Todos los campos marcados con <span class="text-danger fw-bold">*</span> son
+                                obligatorios</li>
                             <li>Los cambios se guardarán inmediatamente</li>
                             <li>Verifique la información antes de actualizar</li>
                             <li>El historial de cambios será registrado</li>
@@ -301,12 +350,12 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('editSubsidioForm');
             const submitBtn = form.querySelector('button[type="submit"]');
-            
+
             console.log('🔍 === DEBUG: INICIALIZANDO FORMULARIO EDIT ===');
             console.log('📝 Formulario encontrado:', !!form);
             console.log('🖱️ Botón de enviar encontrado:', !!submitBtn);
@@ -316,7 +365,7 @@
             // Debug de todos los campos
             const inputs = form.querySelectorAll('input, select, textarea');
             console.log('📊 Total de campos encontrados:', inputs.length);
-            
+
             inputs.forEach((input, index) => {
                 console.log(`   ${index + 1}. ${input.name}: "${input.value}"`);
             });
@@ -332,13 +381,13 @@
             function validateField(field) {
                 const fieldName = field.name;
                 const errorMessage = document.querySelector(`.error-message[data-for="${fieldName}"]`);
-                
+
                 if (!errorMessage) return true;
 
                 field.classList.remove('is-valid', 'is-invalid');
 
                 let isValid = true;
-                
+
                 if (field.type === 'select-one') {
                     isValid = field.value !== '';
                 } else if (field.type === 'number') {
@@ -360,12 +409,12 @@
 
             // Agregar eventos a todos los campos
             inputs.forEach(input => {
-                input.addEventListener('blur', function() {
+                input.addEventListener('blur', function () {
                     console.log(`👁️ Campo ${this.name} perdió el foco - Valor: "${this.value}"`);
                     validateField(this);
                 });
-                
-                input.addEventListener('input', function() {
+
+                input.addEventListener('input', function () {
                     if (this.classList.contains('is-invalid')) {
                         console.log(`✏️ Campo ${this.name} siendo editado - Nuevo valor: "${this.value}"`);
                         validateField(this);
@@ -374,7 +423,7 @@
             });
 
             // DEBUG: Evento de clic en el botón
-            submitBtn.addEventListener('click', function(e) {
+            submitBtn.addEventListener('click', function (e) {
                 console.log('🖱️ === DEBUG: BOTÓN CLICKEADO ===');
                 console.log('📍 Tipo de evento:', e.type);
                 console.log('🎯 Elemento:', e.target);
@@ -382,11 +431,11 @@
             });
 
             // DEBUG: Evento submit del formulario
-            form.addEventListener('submit', function(event) {
+            form.addEventListener('submit', function (event) {
                 console.log('🚀 === DEBUG: EVENTO SUBMIT INICIADO ===');
                 console.log('✅ Formulario válido (HTML5):', form.checkValidity());
                 console.log('📋 Datos a enviar:');
-                
+
                 // Mostrar todos los valores actuales
                 inputs.forEach(input => {
                     console.log(`   📍 ${input.name}: "${input.value}"`);
@@ -394,7 +443,7 @@
 
                 let isFormValid = true;
                 let invalidFields = [];
-                
+
                 // Validar todos los campos
                 inputs.forEach(input => {
                     const isValid = validateField(input);
@@ -412,41 +461,41 @@
                     console.log('🛑 FORMULARIO NO VÁLIDO - Cancelando envío');
                     event.preventDefault();
                     event.stopPropagation();
-                    
+
                     // Mostrar el primer error
                     const firstError = form.querySelector('.is-invalid');
                     if (firstError) {
                         console.log('📍 Primer campo con error:', firstError.name);
-                        firstError.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'center' 
+                        firstError.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
                         });
                         firstError.focus();
                     }
                 } else {
                     console.log('✅ FORMULARIO VÁLIDO - Procediendo con envío...');
-                    
+
                     // Confirmación antes de enviar
                     const isConfirmed = confirm('¿Está seguro que desea actualizar este subsidio?');
                     console.log('🤔 Usuario confirmó:', isConfirmed);
-                    
+
                     if (!isConfirmed) {
                         console.log('❌ Usuario canceló - Deteniendo envío');
                         event.preventDefault();
                         return false;
                     }
-                    
+
                     console.log('✅ Usuario confirmó - Enviando formulario...');
-                    
+
                     // Cambiar texto del botón
                     submitBtn.innerHTML = `
-                        <span class="icon text-white-50">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </span>
-                        <span class="text">Actualizando...</span>
-                    `;
+                            <span class="icon text-white-50">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                            <span class="text">Actualizando...</span>
+                        `;
                     submitBtn.disabled = true;
-                    
+
                     console.log('🔄 Botón deshabilitado y mostrando spinner...');
                 }
             });
@@ -463,7 +512,7 @@
         });
 
         // Debug adicional para errores globales
-        window.addEventListener('error', function(e) {
+        window.addEventListener('error', function (e) {
             console.error('💥 ERROR GLOBAL:', e.error);
             console.error('📝 Mensaje:', e.message);
             console.error('🔗 URL:', e.filename);

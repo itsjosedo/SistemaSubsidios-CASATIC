@@ -1,0 +1,604 @@
+@model Subsidio
+@{
+    ViewData["Title"] = "Renovar Subsidio";
+    Layout = ViewBag.Layout ?? "_Layout";
+}
+
+<div class="container-fluid px-4">
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-sync-alt me-2 text-primary"></i>@ViewData["Title"]
+            </h1>
+            <p class="mb-0 text-muted">Extienda la vigencia de este subsidio</p>
+        </div>
+        <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm">
+            <span class="icon text-white-50">
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span class="text">Volver a la lista</span>
+        </a>
+    </div>
+
+    <!-- Información del subsidio -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header py-3 bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-info-circle me-2"></i>Información del Subsidio
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="font-weight-bold text-primary">Programa:</h6>
+                            <p class="h5">@Model.NombrePrograma</p>
+                            <small class="text-muted">ID: #@Model.Id</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="font-weight-bold text-primary">Estado Actual:</h6>
+                            <p>
+                                @{
+                                    var estadoClass = Model.Estado.ToLower() switch
+                                    {
+                                        "activo" => "bg-success",
+                                        "pendiente" => "bg-warning",
+                                        "rechazado" => "bg-danger",
+                                        "finalizado" => "bg-info",
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @estadoClass fs-6">
+                                    @Model.Estado
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="font-weight-bold text-primary">Fecha Actual de Expiración:</h6>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-calendar-times fa-lg text-danger me-2"></i>
+                                <div>
+                                    <p class="h5 text-danger mb-0">@Model.FechaExpiracion.ToString("dd/MM/yyyy")</p>
+                                    @{
+                                        var diasRestantes = (Model.FechaExpiracion - DateTime.Now).Days;
+                                        var badgeClass = diasRestantes <= 0 ? "bg-danger" : 
+                                                         diasRestantes <= 30 ? "bg-warning" : "bg-success";
+                                        var badgeText = diasRestantes <= 0 ? "EXpirado" : 
+                                                       $"{diasRestantes} días restantes";
+                                    }
+                                    <span class="badge @badgeClass">@badgeText</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @if (Model.FechaRenovacion.HasValue)
+                        {
+                            <div class="col-md-6 mb-3">
+                                <h6 class="font-weight-bold text-primary">Última Renovación:</h6>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-history fa-lg text-info me-2"></i>
+                                    <div>
+                                        <p class="h5 mb-0">@Model.FechaRenovacion.Value.ToString("dd/MM/yyyy")</p>
+                                        <small class="text-muted">Renovado anteriormente</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        
+                        @if (Model.ProximaRenovacion.HasValue)
+                        {
+                            <div class="col-md-6 mb-3">
+                                <h6 class="font-weight-bold text-primary">Próxima Renovación Sugerida:</h6>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-check fa-lg text-success me-2"></i>
+                                    <div>
+                                        <p class="h5 mb-0">@Model.ProximaRenovacion.Value.ToString("dd/MM/yyyy")</p>
+                                        <small class="text-muted">Fecha recomendada</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="font-weight-bold text-primary">Monto:</h6>
+                            <p class="h4 text-success">$@Model.Monto.ToString("N2")</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="font-weight-bold text-primary">Beneficiarios:</h6>
+                            <p class="h4">
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-users me-1"></i>@Model.Beneficiarios.Count
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de renovación -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header py-3 bg-success text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-calendar-plus me-2"></i>Nueva Fecha de Expiración
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Renovar" asp-route-id="@Model.Id" method="post" id="renovarForm">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold h5">
+                                <i class="fas fa-calendar-alt me-2 text-success"></i>Seleccione nueva fecha de expiración *
+                            </label>
+                            <input type="date" id="nuevaFechaExpiracion" name="nuevaFechaExpiracion" 
+                                   class="form-control form-control-lg" 
+                                   min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" 
+                                   value="@DateTime.Now.AddYears(1).ToString("yyyy-MM-dd")"
+                                   required />
+                            <div class="form-text">
+                                La fecha debe ser posterior a hoy (@DateTime.Now.ToString("dd/MM/yyyy")) y posterior a la fecha actual de expiración (@Model.FechaExpiracion.ToString("dd/MM/yyyy"))
+                            </div>
+                            <div id="fechaError" class="text-danger small mt-1" style="display: none;"></div>
+                        </div>
+
+                        <!-- Sugerencias de duración -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-clock me-2 text-success"></i>Sugerencias de duración
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3">
+                                    <button type="button" class="btn btn-outline-success w-100 h-100 py-3" 
+                                            onclick="setFechaExpiracion(3)">
+                                        <div>
+                                            <i class="fas fa-calendar fa-2x mb-2"></i>
+                                            <div class="fw-bold">3 meses</div>
+                                            <small class="text-muted d-block">@DateTime.Now.AddMonths(3).ToString("dd/MM/yyyy")</small>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <button type="button" class="btn btn-outline-success w-100 h-100 py-3" 
+                                            onclick="setFechaExpiracion(6)">
+                                        <div>
+                                            <i class="fas fa-calendar fa-2x mb-2"></i>
+                                            <div class="fw-bold">6 meses</div>
+                                            <small class="text-muted d-block">@DateTime.Now.AddMonths(6).ToString("dd/MM/yyyy")</small>
+                                            <small class="text-success fw-bold">(Recomendado)</small>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <button type="button" class="btn btn-outline-success w-100 h-100 py-3" 
+                                            onclick="setFechaExpiracion(12)">
+                                        <div>
+                                            <i class="fas fa-calendar fa-2x mb-2"></i>
+                                            <div class="fw-bold">1 año</div>
+                                            <small class="text-muted d-block">@DateTime.Now.AddYears(1).ToString("dd/MM/yyyy")</small>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <button type="button" class="btn btn-outline-success w-100 h-100 py-3" 
+                                            onclick="setFechaExpiracion(24)">
+                                        <div>
+                                            <i class="fas fa-calendar fa-2x mb-2"></i>
+                                            <div class="fw-bold">2 años</div>
+                                            <small class="text-muted d-block">@DateTime.Now.AddYears(2).ToString("dd/MM/yyyy")</small>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calculadora de fecha -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-calculator me-2 text-success"></i>Calculadora de fecha
+                            </label>
+                            <div class="input-group">
+                                <input type="number" id="mesesCalculadora" class="form-control" 
+                                       placeholder="Ingrese número de meses" min="1" max="60" value="6">
+                                <button type="button" class="btn btn-outline-success" 
+                                        onclick="calcularFechaDesdeMeses()">
+                                    <i class="fas fa-calculator me-1"></i>Calcular
+                                </button>
+                            </div>
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-info me-2" 
+                                        onclick="calcularFechaDesdeMeses(30)">
+                                    <i class="fas fa-calendar-day"></i> 30 días
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-info me-2" 
+                                        onclick="calcularFechaDesdeMeses(90)">
+                                    <i class="fas fa-calendar-week"></i> 90 días
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-info" 
+                                        onclick="calcularFechaDesdeMeses(180)">
+                                    <i class="fas fa-calendar-alt"></i> 180 días
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Notas de renovación -->
+                        <div class="mb-4">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-info-circle me-2"></i>¿Qué sucede al renovar?
+                                </h6>
+                                <ul class="mb-0">
+                                    <li>Se actualizará la fecha de expiración del subsidio</li>
+                                    <li>Se registrará la fecha de esta renovación</li>
+                                    <li>Se calculará automáticamente la próxima fecha sugerida para renovación</li>
+                                    <li>Todos los beneficiarios mantendrán su asignación</li>
+                                    <li>El monto y demás detalles permanecerán iguales</li>
+                                    <li><strong>Estado cambiará a: Activo</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+                                <i class="fas fa-sync-alt me-2"></i>Renovar Subsidio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de información -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-lightbulb me-2"></i>Consejos para renovación
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-check-circle me-2"></i>Mejores prácticas:
+                        </h6>
+                        <ul class="mb-0 small">
+                            <li><strong>Renovar con anticipación:</strong> Ideal 30 días antes de expirar</li>
+                            <li><strong>Revisar beneficiarios:</strong> Verifique que todos sigan siendo elegibles</li>
+                            <li><strong>Documentar cambios:</strong> Si hay modificaciones, actualice la información</li>
+                            <li><strong>Notificar beneficiarios:</strong> Informe sobre la renovación</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Consideraciones importantes:
+                        </h6>
+                        <ul class="mb-0 small">
+                            <li>Una vez renovado, no se puede revertir la acción</li>
+                            <li>La fecha de expiración anterior se perderá</li>
+                            <li>Se mantendrá el historial de renovaciones anteriores</li>
+                            <li>Verifique el presupuesto disponible para el período extendido</li>
+                            <li><strong>Nuevo estado:</strong> El subsidio cambiará a estado "Activo"</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-primary">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-calendar-check me-2"></i>Recordatorio automático:
+                        </h6>
+                        <p class="mb-0 small">
+                            El sistema calculará automáticamente una fecha sugerida para la próxima renovación (30 días antes de la nueva fecha de expiración).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de resumen -->
+            <div class="card shadow">
+                <div class="card-header py-3 bg-light">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line me-2"></i>Resumen de renovación
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <h6 class="font-weight-bold text-primary">Período actual:</h6>
+                            <div class="d-flex justify-content-between">
+                                <span>Inicio:</span>
+                                <span class="fw-bold">@Model.FechaAsignacion.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Fin:</span>
+                                <span class="fw-bold text-danger">@Model.FechaExpiracion.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div class="progress mt-2" style="height: 8px;">
+                                @{
+                                    var totalDias = (Model.FechaExpiracion - Model.FechaAsignacion).TotalDays;
+                                    var diasTranscurridos = (DateTime.Now - Model.FechaAsignacion).TotalDays;
+                                    var porcentaje = totalDias > 0 ? (diasTranscurridos / totalDias) * 100 : 0;
+                                    porcentaje = Math.Min(Math.Max(porcentaje, 0), 100);
+                                }
+                                <div class="progress-bar @(porcentaje > 80 ? "bg-danger" : "bg-success")" 
+                                     role="progressbar" 
+                                     style="width: @porcentaje%;" 
+                                     aria-valuenow="@porcentaje" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <h6 class="font-weight-bold text-success">Nuevo período:</h6>
+                            <div class="d-flex justify-content-between">
+                                <span>Inicio:</span>
+                                <span class="fw-bold">@DateTime.Now.ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Nuevo fin:</span>
+                                <span class="fw-bold text-success" id="nuevaFechaResumen">@DateTime.Now.AddYears(1).ToString("dd/MM/yyyy")</span>
+                            </div>
+                            <div class="mt-2 text-center">
+                                <small class="text-muted" id="duracionResumen">Duración: 1 año</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Fecha actual de expiración del modelo
+        const fechaExpiracionActual = new Date('@Model.FechaExpiracion.ToString("yyyy-MM-dd")');
+        
+        function setFechaExpiracion(meses) {
+            const hoy = new Date();
+            const nuevaFecha = new Date(hoy);
+            nuevaFecha.setMonth(nuevaFecha.getMonth() + parseInt(meses));
+            
+            setFechaInput(nuevaFecha);
+            
+            // Mostrar mensaje de confirmación
+            const fechaLegible = nuevaFecha.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            mostrarMensaje(`✅ Fecha establecida: ${fechaLegible} (${meses} meses desde hoy)`);
+        }
+        
+        function calcularFechaDesdeMeses(diasOpcional = null) {
+            const hoy = new Date();
+            const nuevaFecha = new Date(hoy);
+            
+            if (diasOpcional) {
+                nuevaFecha.setDate(nuevaFecha.getDate() + diasOpcional);
+                setFechaInput(nuevaFecha);
+                mostrarMensaje(`✅ Fecha establecida: ${nuevaFecha.toLocaleDateString('es-ES')} (${diasOpcional} días desde hoy)`);
+            } else {
+                const mesesInput = document.getElementById('mesesCalculadora');
+                const meses = parseInt(mesesInput.value);
+                if (meses && meses > 0 && meses <= 60) {
+                    nuevaFecha.setMonth(nuevaFecha.getMonth() + meses);
+                    setFechaInput(nuevaFecha);
+                    mostrarMensaje(`✅ Fecha establecida: ${nuevaFecha.toLocaleDateString('es-ES')} (${meses} meses desde hoy)`);
+                } else {
+                    mostrarError('Ingrese un número válido de meses (1-60)');
+                }
+            }
+        }
+        
+        function setFechaInput(fecha) {
+            const fechaFormateada = fecha.toISOString().split('T')[0];
+            const fechaInput = document.getElementById('nuevaFechaExpiracion');
+            fechaInput.value = fechaFormateada;
+            
+            // Actualizar resumen
+            actualizarResumen(fecha);
+            
+            // Validar
+            validarFecha(fecha);
+        }
+        
+        function actualizarResumen(fecha) {
+            const hoy = new Date();
+            const diferenciaMs = fecha - hoy;
+            const dias = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24));
+            const meses = Math.floor(dias / 30.44);
+            
+            document.getElementById('nuevaFechaResumen').textContent = 
+                fecha.toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            
+            let duracionTexto = '';
+            if (meses >= 24) {
+                const años = Math.floor(meses / 12);
+                duracionTexto = `Duración: ${años} año${años > 1 ? 's' : ''}`;
+            } else if (meses >= 1) {
+                duracionTexto = `Duración: ${meses} mes${meses > 1 ? 'es' : ''}`;
+            } else {
+                duracionTexto = `Duración: ${dias} día${dias > 1 ? 's' : ''}`;
+            }
+            
+            document.getElementById('duracionResumen').textContent = duracionTexto;
+        }
+        
+        function validarFecha(fecha) {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const fechaError = document.getElementById('fechaError');
+            
+            if (fecha <= hoy) {
+                fechaError.textContent = '❌ La fecha debe ser posterior a hoy.';
+                fechaError.style.display = 'block';
+                return false;
+            } else if (fecha <= fechaExpiracionActual) {
+                fechaError.textContent = `❌ La fecha debe ser posterior a la fecha actual de expiración (${fechaExpiracionActual.toLocaleDateString('es-ES')}).`;
+                fechaError.style.display = 'block';
+                return false;
+            } else {
+                fechaError.style.display = 'none';
+                return true;
+            }
+        }
+        
+        function mostrarMensaje(texto) {
+            // Crear notificación temporal
+            const notificacion = document.createElement('div');
+            notificacion.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            notificacion.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+            notificacion.innerHTML = `
+                ${texto}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notificacion);
+            
+            // Auto-remover después de 3 segundos
+            setTimeout(() => {
+                if (notificacion.parentNode) {
+                    notificacion.remove();
+                }
+            }, 3000);
+        }
+        
+        function mostrarError(texto) {
+            const notificacion = document.createElement('div');
+            notificacion.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+            notificacion.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+            notificacion.innerHTML = `
+                ${texto}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notificacion);
+            
+            setTimeout(() => {
+                if (notificacion.parentNode) {
+                    notificacion.remove();
+                }
+            }, 5000);
+        }
+        
+        // Establecer fecha mínima como mañana
+        document.addEventListener('DOMContentLoaded', function() {
+            const hoy = new Date();
+            const manana = new Date(hoy);
+            manana.setDate(manana.getDate() + 1);
+            const fechaInput = document.getElementById('nuevaFechaExpiracion');
+            
+            fechaInput.min = manana.toISOString().split('T')[0];
+            
+            // Actualizar resumen inicial
+            const fechaInicial = new Date(fechaInput.value);
+            actualizarResumen(fechaInicial);
+            
+            // Validar en tiempo real
+            fechaInput.addEventListener('change', function() {
+                const fechaSeleccionada = new Date(this.value);
+                validarFecha(fechaSeleccionada);
+                actualizarResumen(fechaSeleccionada);
+            });
+            
+            // Validar formulario
+            const form = document.getElementById('renovarForm');
+            form.addEventListener('submit', function(event) {
+                const fechaInput = document.getElementById('nuevaFechaExpiracion');
+                const fechaSeleccionada = new Date(fechaInput.value);
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                
+                if (!validarFecha(fechaSeleccionada)) {
+                    event.preventDefault();
+                    fechaInput.focus();
+                    return false;
+                }
+                
+                // Confirmación final
+                if (!confirm(`¿Está seguro de renovar el subsidio hasta el ${fechaSeleccionada.toLocaleDateString('es-ES')}?`)) {
+                    event.preventDefault();
+                    return false;
+                }
+                
+                // Cambiar texto del botón durante el envío
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.innerHTML = `
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    Renovando...
+                `;
+                submitBtn.disabled = true;
+                
+                return true;
+            });
+        });
+    </script>
+    
+    <style>
+        .btn-outline-success:hover {
+            background-color: #198754;
+            color: white;
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-outline-success {
+            border: 2px solid #198754;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control-lg {
+            font-size: 1.1rem;
+            padding: 0.75rem 1rem;
+            border: 2px solid #ced4da;
+        }
+        
+        .form-control-lg:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+        
+        .progress {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            transition: width 0.6s ease;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            border-bottom: none;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+    </style>
+}

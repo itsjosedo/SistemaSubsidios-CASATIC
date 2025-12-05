@@ -134,7 +134,7 @@
                                 </label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                    <input asp-for="FechaAsignacion" class="form-control" type="date" />
+                                    <input asp-for="FechaAsignacion" class="form-control" type="date" id="fechaAsignacion" />
                                 </div>
                                 <div class="error-message" data-for="FechaAsignacion">
                                     <div class="text-danger small d-flex align-items-center mt-1">
@@ -144,6 +144,47 @@
                                 </div>
                             </div>
 
+                            <!-- 🔥 NUEVO: Fecha de Expiración -->
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FechaExpiracion" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-times me-2 text-primary"></i>Fecha de expiración *
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <input asp-for="FechaExpiracion" class="form-control" type="date" 
+                                           id="fechaExpiracion" />
+                                </div>
+                                <div class="error-message" data-for="FechaExpiracion">
+                                    <div class="text-danger small d-flex align-items-center mt-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <span>La fecha de expiración es obligatoria</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 🔥 NUEVO: Selector de Duración -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-clock me-2 text-primary"></i>Duración del subsidio
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-hourglass-half"></i></span>
+                                    <select class="form-select" id="duracionSelect">
+                                        <option value="">-- Seleccione duración --</option>
+                                        <option value="3">3 meses</option>
+                                        <option value="6" selected>6 meses</option>
+                                        <option value="12">1 año</option>
+                                        <option value="24">2 años</option>
+                                        <option value="custom">Personalizado</option>
+                                    </select>
+                                </div>
+                                <small class="text-muted">Seleccione la duración para calcular automáticamente</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <!-- Estado -->
                             <div class="col-md-6 mb-3">
                                 <label asp-for="Estado" class="form-label fw-bold">
@@ -201,20 +242,30 @@
                     <div class="alert alert-info border-0">
                         <h6 class="alert-heading"><i class="fas fa-lightbulb me-2"></i>Requisitos:</h6>
                         <ul class="mb-0 small">
-                            <li>Todos los campos marcados con <span class="text-danger fw-bold">*</span> son
-                                obligatorios</li>
+                            <li>Todos los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios</li>
                             <li>El monto debe ser mayor a $0.00</li>
-                            <li>La fecha no puede ser anterior al día actual</li>
+                            <li>La fecha de expiración debe ser posterior a la fecha de asignación</li>
                             <li>Los beneficiarios se asignan después de crear el subsidio</li>
                         </ul>
                     </div>
 
                     <div class="alert alert-warning border-0 mt-3">
-                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Validaciones:</h6>
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Fechas importantes:</h6>
                         <ul class="mb-0 small">
-                            <li>Los campos con error se mostrarán en rojo</li>
-                            <li>Aparecerá un mensaje con icono de error debajo de cada campo</li>
-                            <li>Complete toda la información requerida antes de guardar</li>
+                            <li><strong>Fecha de asignación:</strong> Cuando se asigna el subsidio</li>
+                            <li><strong>Fecha de expiración:</strong> Cuando vence el subsidio</li>
+                            <li>Los subsidios se pueden renovar antes de su expiración</li>
+                            <li>Se recomienda establecer alertas para renovaciones</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-success border-0 mt-3">
+                        <h6 class="alert-heading"><i class="fas fa-calendar-check me-2"></i>Duración sugerida:</h6>
+                        <ul class="mb-0 small">
+                            <li><strong>3 meses:</strong> Programas temporales o de emergencia</li>
+                            <li><strong>6 meses:</strong> Programas regulares (recomendado)</li>
+                            <li><strong>1 año:</strong> Programas anuales o educativos</li>
+                            <li><strong>2 años:</strong> Programas de largo plazo</li>
                         </ul>
                     </div>
                 </div>
@@ -229,19 +280,113 @@
             const form = document.getElementById('subsidioForm');
             const inputs = form.querySelectorAll('input, select');
             const submitBtn = form.querySelector('button[type="submit"]');
+            const fechaAsignacionInput = document.getElementById('fechaAsignacion');
+            const fechaExpiracionInput = document.getElementById('fechaExpiracion');
+            const duracionSelect = document.getElementById('duracionSelect');
 
             console.log('=== INICIALIZANDO FORMULARIO ===');
             console.log('Formulario encontrado:', !!form);
             console.log('Campos encontrados:', inputs.length);
             console.log('Botón de enviar encontrado:', !!submitBtn);
 
-            // Establecer fecha actual por defecto
-            const fechaInput = document.querySelector('input[type="date"]');
-            if (fechaInput && !fechaInput.value) {
-                const today = new Date().toISOString().split('T')[0];
-                fechaInput.value = today;
-                console.log('📅 Fecha establecida:', today);
+            // 🔥 NUEVO: Configurar fechas por defecto
+            function configurarFechasPorDefecto() {
+                const hoy = new Date();
+                const seisMeses = new Date(hoy);
+                seisMeses.setMonth(seisMeses.getMonth() + 6);
+                
+                // Establecer fecha de asignación a hoy
+                fechaAsignacionInput.value = hoy.toISOString().split('T')[0];
+                
+                // Establecer fecha de expiración a 6 meses desde hoy
+                fechaExpiracionInput.value = seisMeses.toISOString().split('T')[0];
+                
+                console.log('📅 Fecha de asignación establecida:', fechaAsignacionInput.value);
+                console.log('📅 Fecha de expiración establecida:', fechaExpiracionInput.value);
             }
+
+            // 🔥 NUEVO: Función para calcular fecha de expiración basada en duración
+            function calcularFechaExpiracion(meses) {
+                if (!fechaAsignacionInput.value) {
+                    console.warn('⚠️ No hay fecha de asignación para calcular');
+                    return null;
+                }
+                
+                const fechaBase = new Date(fechaAsignacionInput.value);
+                const fechaExpiracion = new Date(fechaBase);
+                fechaExpiracion.setMonth(fechaExpiracion.getMonth() + parseInt(meses));
+                return fechaExpiracion.toISOString().split('T')[0];
+            }
+
+            // 🔥 NUEVO: Evento para el selector de duración
+            if (duracionSelect) {
+                duracionSelect.addEventListener('change', function() {
+                    console.log('⏱️ Selector de duración cambiado:', this.value);
+                    
+                    if (this.value && this.value !== 'custom') {
+                        const nuevaFecha = calcularFechaExpiracion(this.value);
+                        if (nuevaFecha) {
+                            fechaExpiracionInput.value = nuevaFecha;
+                            console.log('📅 Nueva fecha de expiración calculada:', nuevaFecha);
+                        }
+                    }
+                });
+            }
+
+            // 🔥 NUEVO: Evento para la fecha de asignación
+            if (fechaAsignacionInput) {
+                fechaAsignacionInput.addEventListener('change', function() {
+                    console.log('📅 Fecha de asignación cambiada:', this.value);
+                    
+                    if (duracionSelect && duracionSelect.value && duracionSelect.value !== 'custom') {
+                        const nuevaFecha = calcularFechaExpiracion(duracionSelect.value);
+                        if (nuevaFecha) {
+                            fechaExpiracionInput.value = nuevaFecha;
+                            console.log('📅 Fecha de expiración actualizada:', nuevaFecha);
+                        }
+                    }
+                });
+            }
+
+            // 🔥 NUEVO: Validación de fecha de expiración
+            function validarFechaExpiracion() {
+                if (!fechaAsignacionInput.value || !fechaExpiracionInput.value) {
+                    return true;
+                }
+                
+                const fechaAsignacion = new Date(fechaAsignacionInput.value);
+                const fechaExpiracion = new Date(fechaExpiracionInput.value);
+                
+                if (fechaExpiracion <= fechaAsignacion) {
+                    mostrarErrorFecha('La fecha de expiración debe ser posterior a la fecha de asignación');
+                    return false;
+                }
+                
+                return true;
+            }
+
+            function mostrarErrorFecha(mensaje) {
+                // Buscar o crear mensaje de error para fecha de expiración
+                let errorDiv = document.querySelector('.error-message[data-for="FechaExpiracion"]');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-message';
+                    errorDiv.setAttribute('data-for', 'FechaExpiracion');
+                    errorDiv.innerHTML = `
+                        <div class="text-danger small d-flex align-items-center mt-1">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            <span>${mensaje}</span>
+                        </div>
+                    `;
+                    fechaExpiracionInput.parentNode.parentNode.appendChild(errorDiv);
+                }
+                
+                fechaExpiracionInput.classList.add('is-invalid');
+                errorDiv.style.display = 'block';
+            }
+
+            // Configurar fechas por defecto al cargar
+            configurarFechasPorDefecto();
 
             // Ocultar todos los mensajes de error inicialmente
             const errorMessages = document.querySelectorAll('.error-message');
@@ -267,6 +412,8 @@
                     isValid = field.value !== '';
                 } else if (field.type === 'number') {
                     isValid = field.value !== '' && parseFloat(field.value) > 0;
+                } else if (field.type === 'date') {
+                    isValid = field.value !== '';
                 } else {
                     isValid = field.value.trim() !== '';
                 }
@@ -289,6 +436,11 @@
                 input.addEventListener('blur', function () {
                     console.log(`👁️ Campo ${this.name} perdió el foco - Valor: "${this.value}"`);
                     validateField(this);
+                    
+                    // Validar fecha de expiración específicamente
+                    if (this.name === 'FechaExpiracion') {
+                        validarFechaExpiracion();
+                    }
                 });
 
                 input.addEventListener('input', function () {
@@ -321,6 +473,15 @@
                         invalidFields.push(input.name);
                     }
                 });
+
+                // 🔥 NUEVO: Validar fecha de expiración
+                const fechaValida = validarFechaExpiracion();
+                if (!fechaValida) {
+                    isFormValid = false;
+                    if (!invalidFields.includes('FechaExpiracion')) {
+                        invalidFields.push('FechaExpiracion');
+                    }
+                }
 
                 console.log('📊 Resultado validación:');
                 console.log('   - Formulario válido:', isFormValid);

@@ -24,6 +24,15 @@
                     <i class="fas fa-file-pdf me-1"></i>
                     <span>Reporte</span>
                 </a>
+
+                @if (User.IsInRole("Administrador") || User.IsInRole("Admin"))
+        {
+            <a asp-action="VerificarExpirados" class="btn btn-warning btn-sm shadow-sm" 
+               onclick="return confirm('¿Está seguro de verificar y actualizar los subsidios expirados?')">
+                <i class="fas fa-sync-alt me-1"></i>
+                <span>Verificar expirados</span>
+            </a>
+        }
             </div>
         </div>
     </div>
@@ -109,6 +118,167 @@
         </div>
     </div>
 
+    <!-- 🔥 NUEVA: Tarjeta para subsidios por expirar -->
+    <div class="row mb-4">
+        <div class="col-6 col-xl-3 mb-3 mb-xl-0">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body p-2 p-sm-3">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Por expirar (≤30 días)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @{
+                                    var porExpirarCount = Model.Where(s => {
+                                        var dias = (s.FechaExpiracion - DateTime.Now).Days;
+                                        return dias <= 30 && dias > 0 && s.Estado == "Activo";
+                                    }).Count();
+                                }
+                                @porExpirarCount
+                            </div>
+                        </div>
+                        <div class="col-auto d-none d-sm-block">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3 mb-3 mb-xl-0">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body p-2 p-sm-3">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Expirados
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @{
+                                    var expiradosCount = Model.Where(s => 
+                                        s.FechaExpiracion < DateTime.Now && s.Estado == "Activo"
+                                    ).Count();
+                                }
+                                @expiradosCount
+                            </div>
+                        </div>
+                        <div class="col-auto d-none d-sm-block">
+                            <i class="fas fa-calendar-times fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body p-2 p-sm-3">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Renovados
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.Count(s => s.FechaRenovacion.HasValue)
+                            </div>
+                        </div>
+                        <div class="col-auto d-none d-sm-block">
+                            <i class="fas fa-sync-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body p-2 p-sm-3">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Próximos a renovar
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.Count(s => s.ProximaRenovacion.HasValue && s.ProximaRenovacion <= DateTime.Now.AddDays(30))
+                            </div>
+                        </div>
+                        <div class="col-auto d-none d-sm-block">
+                            <i class="fas fa-bell fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔥 NUEVO: Alerta para subsidios por expirar -->
+    @{
+        var subsidiosPorExpirar = Model.Where(s => {
+            var dias = (s.FechaExpiracion - DateTime.Now).Days;
+            return dias <= 30 && dias > 0 && s.Estado == "Activo";
+        }).ToList();
+        
+        var subsidiosExpirados = Model.Where(s => 
+            s.FechaExpiracion < DateTime.Now && s.Estado == "Activo"
+        ).ToList();
+    }
+
+    @if (subsidiosPorExpirar.Any())
+    {
+        <div class="alert alert-warning alert-dismissible fade show mb-4 shadow-sm" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle fa-lg me-3"></i>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading mb-1">
+                        <i class="fas fa-clock me-2"></i>¡Atención! Tiene @subsidiosPorExpirar.Count subsidio(s) por expirar
+                    </h6>
+                    <p class="mb-0 small">
+                        Los siguientes subsidios expiran en los próximos 30 días:
+                        @foreach (var subsidio in subsidiosPorExpirar.Take(3))
+                        {
+                            var diasRestantes = (subsidio.FechaExpiracion - DateTime.Now).Days;
+                            <span class="badge bg-warning text-dark ms-2">
+                                @subsidio.NombrePrograma (@diasRestantes días)
+                            </span>
+                        }
+                        @if (subsidiosPorExpirar.Count > 3)
+                        {
+                            <span class="text-muted">y @(subsidiosPorExpirar.Count - 3) más...</span>
+                        }
+                    </p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
+    @if (subsidiosExpirados.Any())
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-calendar-times fa-lg me-3"></i>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading mb-1">
+                        <i class="fas fa-exclamation-circle me-2"></i>¡Urgente! Tiene @subsidiosExpirados.Count subsidio(s) expirados
+                    </h6>
+                    <p class="mb-0 small">
+                        Los siguientes subsidios han expirado y requieren atención:
+                        @foreach (var subsidio in subsidiosExpirados.Take(3))
+                        {
+                            <span class="badge bg-danger ms-2">@subsidio.NombrePrograma</span>
+                        }
+                        @if (subsidiosExpirados.Count > 3)
+                        {
+                            <span class="text-muted">y @(subsidiosExpirados.Count - 3) más...</span>
+                        }
+                    </p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
     <!-- Mensajes -->
     @if (TempData["SuccessMessage"] != null)
     {
@@ -126,8 +296,7 @@
 
     <!-- Tabla de subsidios -->
     <div class="card shadow mb-4">
-        <div
-            class="card-header py-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+        <div class="card-header py-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
             <h6 class="m-0 font-weight-bold text-success">
                 <i class="fas fa-table me-2"></i>Programas de subsidios
             </h6>
@@ -151,14 +320,19 @@
                                 <th class="text-center">Beneficiarios</th>
                                 <th class="text-end">Monto</th>
                                 <th class="text-center">Fecha asignación</th>
+                                <th class="text-center">Expiración</th>
                                 <th class="text-center">Estado</th>
-                                <th class="text-center" style="width: 180px;">Acciones</th>
+                                <th class="text-center" style="width: 200px;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var s in Model)
                             {
-                                <tr>
+                                var diasRestantes = (s.FechaExpiracion - DateTime.Now).Days;
+                                var estaExpirado = s.FechaExpiracion < DateTime.Now && s.Estado == "Activo";
+                                var porExpirar = diasRestantes <= 30 && diasRestantes > 0 && s.Estado == "Activo";
+                                
+                                <tr class="@(estaExpirado ? "table-danger" : porExpirar ? "table-warning" : "")">
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="avatar-sm me-3">
@@ -201,6 +375,29 @@
                                         @s.FechaAsignacion.ToString("dd/MM/yyyy")
                                     </td>
                                     <td class="text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <small>@s.FechaExpiracion.ToString("dd/MM/yyyy")</small>
+                                            @if (estaExpirado)
+                                            {
+                                                <span class="badge bg-danger small mt-1">
+                                                    <i class="fas fa-times-circle me-1"></i>Expirado
+                                                </span>
+                                            }
+                                            else if (porExpirar)
+                                            {
+                                                <span class="badge bg-warning text-dark small mt-1">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>@diasRestantes días
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success small mt-1">
+                                                    <i class="fas fa-check-circle me-1"></i>@diasRestantes días
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
                                         @{
                                             var estadoClass = GetEstadoBadgeClass(s.Estado);
                                             var estadoIcon = GetEstadoIcon(s.Estado);
@@ -226,6 +423,15 @@
                                                 data-bs-toggle="tooltip" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+                                            <!-- 🔥 NUEVO: Botón para renovar (solo si está activo y por expirar o expirado) -->
+                                            @if ((s.Estado == "Activo" && porExpirar) || estaExpirado)
+                                            {
+                                                <a asp-action="Renovar" asp-route-id="@s.Id" 
+                                                   class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip"
+                                                   title="Renovar subsidio">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </a>
+                                            }
                                             <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-sm btn-outline-danger"
                                                 data-bs-toggle="tooltip" title="Eliminar">
                                                 <i class="fas fa-trash"></i>
@@ -245,8 +451,11 @@
                         var estadoClass = GetEstadoBadgeClass(s.Estado);
                         var estadoIcon = GetEstadoIcon(s.Estado);
                         var itemId = $"subsidio-{s.Id}";
+                        var diasRestantes = (s.FechaExpiracion - DateTime.Now).Days;
+                        var estaExpirado = s.FechaExpiracion < DateTime.Now && s.Estado == "Activo";
+                        var porExpirar = diasRestantes <= 30 && diasRestantes > 0 && s.Estado == "Activo";
 
-                        <div class="border-bottom subsidio-item">
+                        <div class="border-bottom subsidio-item @(estaExpirado ? "border-danger" : porExpirar ? "border-warning" : "")">
                             <!-- Fila principal (siempre visible) -->
                             <div class="p-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#@itemId"
                                 aria-expanded="false">
@@ -271,8 +480,9 @@
                                             </span>
                                             <span class="fw-bold text-success">$@s.Monto.ToString("N2")</span>
                                         </div>
-                                        <!-- Estado del beneficiario en vista móvil -->
-                                        <div class="mt-2">
+                                        
+                                        <!-- 🔥 NUEVO: Información de expiración en vista móvil -->
+                                        <div class="mt-2 d-flex align-items-center gap-2">
                                             @if (s.Beneficiarios.Any())
                                             {
                                                 <span class="badge bg-success text-white">
@@ -285,6 +495,25 @@
                                                     <i class="fas fa-user-times me-1"></i>Sin beneficiarios
                                                 </span>
                                             }
+                                            
+                                            @if (estaExpirado)
+                                            {
+                                                <span class="badge bg-danger text-white">
+                                                    <i class="fas fa-times-circle me-1"></i>Expirado
+                                                </span>
+                                            }
+                                            else if (porExpirar)
+                                            {
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>@diasRestantes días
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success text-white">
+                                                    <i class="fas fa-check-circle me-1"></i>@diasRestantes días
+                                                </span>
+                                            }
                                         </div>
                                     </div>
                                     <i class="fas fa-chevron-down text-muted ms-2"></i>
@@ -294,10 +523,9 @@
                             <!-- Detalles expandibles -->
                             <div class="collapse" id="@itemId">
                                 <div class="px-3 pb-3 bg-light">
-                                    <!-- Información de beneficiarios solo visible al expandir -->
+                                    <!-- Información de beneficiarios -->
                                     <div class="mb-2">
                                         <small class="text-muted d-block">Beneficiarios (@s.Beneficiarios.Count)</small>
-                                        <!-- En la vista móvil, dentro del collapse -->
                                         @if (s.Beneficiarios.Any())
                                         {
                                             <div class="mt-1">
@@ -313,8 +541,7 @@
                                                                 <i class="fas fa-phone me-1"></i>@beneficiario.Telefono
                                                             </small>
                                                         </div>
-                                                        <span
-                                                            class="badge @(beneficiario.EstadoSubsidio == "pendiente" ? "bg-warning" : "bg-success") small">
+                                                        <span class="badge @(beneficiario.EstadoSubsidio == "pendiente" ? "bg-warning" : "bg-success") small">
                                                             @beneficiario.EstadoSubsidio
                                                         </span>
                                                     </div>
@@ -325,19 +552,52 @@
                                                 }
                                             </div>
                                         }
-                                        
                                         else
                                         {
-                                        <span class="text-muted">No asignado</span>
+                                            <span class="text-muted">No asignado</span>
                                         }
                                     </div>
-                                    <div class="mb-3">
-                                        <small class="text-muted d-block">Fecha de asignación</small>
-                                        <strong>
-                                            <i class="fas fa-calendar me-1"></i>
-                                            @s.FechaAsignacion.ToString("dd/MM/yyyy")
-                                        </strong>
+                                    
+                                    <!-- 🔥 NUEVO: Información de fechas -->
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Fecha asignación</small>
+                                            <strong>
+                                                <i class="fas fa-calendar me-1"></i>
+                                                @s.FechaAsignacion.ToString("dd/MM/yyyy")
+                                            </strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Fecha expiración</small>
+                                            <strong>
+                                                <i class="fas fa-calendar-times me-1"></i>
+                                                @s.FechaExpiracion.ToString("dd/MM/yyyy")
+                                            </strong>
+                                        </div>
                                     </div>
+                                    
+                                    <!-- 🔥 NUEVO: Información de renovación -->
+                                    @if (s.FechaRenovacion.HasValue)
+                                    {
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block">Última renovación</small>
+                                            <strong>
+                                                <i class="fas fa-sync-alt me-1"></i>
+                                                @s.FechaRenovacion.Value.ToString("dd/MM/yyyy")
+                                            </strong>
+                                        </div>
+                                    }
+                                    
+                                    @if (s.ProximaRenovacion.HasValue)
+                                    {
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block">Próxima renovación sugerida</small>
+                                            <strong>
+                                                <i class="fas fa-bell me-1"></i>
+                                                @s.ProximaRenovacion.Value.ToString("dd/MM/yyyy")
+                                            </strong>
+                                        </div>
+                                    }
 
                                     <!-- Botones de acción -->
                                     <div class="d-grid gap-2">
@@ -348,6 +608,16 @@
                                         <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-info btn-sm">
                                             <i class="fas fa-eye me-2"></i>Ver detalles
                                         </a>
+                                        
+                                        <!-- 🔥 NUEVO: Botón de renovación en móvil -->
+                                        @if ((s.Estado == "Activo" && porExpirar) || estaExpirado)
+                                        {
+                                            <a asp-action="Renovar" asp-route-id="@s.Id" 
+                                               class="btn btn-primary btn-sm">
+                                                <i class="fas fa-sync-alt me-2"></i>Renovar subsidio
+                                            </a>
+                                        }
+                                        
                                         <div class="row g-2">
                                             <div class="col-6">
                                                 <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-warning btn-sm w-100">
@@ -446,6 +716,23 @@
 
         .avatar-initials {
             font-weight: 600;
+        }
+        
+        /* 🔥 NUEVO: Estilos para filas con alertas */
+        .table-danger {
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+        
+        .table-warning {
+            background-color: rgba(255, 193, 7, 0.05);
+        }
+        
+        .border-danger {
+            border-left: 4px solid #dc3545 !important;
+        }
+        
+        .border-warning {
+            border-left: 4px solid #ffc107 !important;
         }
     </style>
 }
