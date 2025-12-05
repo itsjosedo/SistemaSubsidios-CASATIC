@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using MySqlConnector;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-// 1. IMPORTANTE: Agregamos el namespace donde viven tus servicios
-using SistemaSubsidios_CASATIC.Services; 
+using SistemaSubsidios_CASATIC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,7 +68,9 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
-builder.Services.AddRazorPages();
+// Para el manejo de MVC y Razor Pages
+builder.Services.AddControllersWithViews(); // MVC
+builder.Services.AddRazorPages(); // Razor Pages
 
 var app = builder.Build();
 

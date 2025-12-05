@@ -45,7 +45,6 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             return View(subsidios);
         }
-
         // GET: Subsidios/Create
         public IActionResult Create()
         {
