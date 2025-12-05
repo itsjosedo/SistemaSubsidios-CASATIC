@@ -245,10 +245,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
             }
         }
 
-        // =============================================
-        // MÉTODOS PARA ASIGNAR BENEFICIARIOS (CORREGIDOS)
-        // =============================================
-
+        
+        // MÉTODOS PARA ASIGNAR BENEFICIARIOS 
         [HttpGet]
         public async Task<IActionResult> GestionarBeneficiarios(int id)
         {
