@@ -25,12 +25,14 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Index()
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario();
+            var rolUsuario = GetRolUsuario(); 
 
             IQueryable<Subsidio> subsidiosQuery = _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .OrderByDescending(s => s.Id);
 
+            // Filtro para Entidades: Solo ven lo que ellos crearon
+            //GetRolUsuario() para Cookie Authentication
             if (rolUsuario?.ToLower() == "entidad" && userId.HasValue)
             {
                 subsidiosQuery = subsidiosQuery.Where(s => s.UsuarioCreacionId == userId.Value.ToString());
@@ -55,11 +57,13 @@ namespace SistemaSubsidios_CASATIC.Controllers
             {
                 var tieneSubsidios = _context.Subsidios.Any(s => s.UsuarioCreacionId == userId.Value.ToString());
                 ViewBag.TieneSubsidios = tieneSubsidios;
+                ViewBag.UserId = userId.Value.ToString(); 
                 ViewBag.UserId = userId.Value.ToString();
             }
             else
             {
                 ViewBag.TieneSubsidios = true;
+                ViewBag.UserId = "0"; 
                 ViewBag.UserId = "0";
             }
 
@@ -73,13 +77,16 @@ namespace SistemaSubsidios_CASATIC.Controllers
         {
             _logger.LogInformation("🎯 === INICIANDO CREACIÓN DE SUBSIDIO ===");
 
+            //Rremover validación de propiedades
             ModelState.Remove("BeneficiarioId");
             ModelState.Remove("Beneficiario");
+            ModelState.Remove("UsuarioCreacionId"); 
             ModelState.Remove("UsuarioCreacionId");
 
             if (!ModelState.IsValid)
             {
                 _logger.LogError("❌ MODELSTATE NO VÁLIDO");
+
                 foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
                 {
                     _logger.LogError($"Error: {error.ErrorMessage}");
@@ -89,6 +96,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             try
             {
+                //aasigancion UsuarioCreacionId
                 var userId = GetUserId();
                 if (userId.HasValue)
                 {
@@ -113,17 +121,19 @@ namespace SistemaSubsidios_CASATIC.Controllers
             }
         }
 
-        // GET: Subsidios/Edit/5
+        //
         public async Task<IActionResult> Edit(int id)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario();
+            var rolUsuario = GetRolUsuario(); 
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (subsidio == null) return NotFound();
 
+            // Verificar permisos
+            //verificacion de permisos para usuarios/Entidad
             if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
             {
                 TempData["ErrorMessage"] = "No tiene permisos para editar este subsidio";
@@ -149,7 +159,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             try
             {
                 var userId = GetUserId();
-                var rolUsuario = GetRolUsuario();
+                var rolUsuario = GetRolUsuario(); 
                 var subsidioExistente = await _context.Subsidios
                     .Include(s => s.Beneficiarios)
                     .FirstOrDefaultAsync(s => s.Id == model.Id);
@@ -160,6 +170,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     return View(model);
                 }
 
+                // Verificar permisos
+              
                 if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidioExistente.UsuarioCreacionId != userId.Value.ToString())
                 {
                     TempData["ErrorMessage"] = "No tiene permisos para editar este subsidio";
@@ -190,13 +202,15 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario();
+            var rolUsuario = GetRolUsuario(); 
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (subsidio == null) return NotFound();
 
+            // Verificar permisos
+            
             if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
             {
                 TempData["ErrorMessage"] = "No tiene permisos para ver este subsidio";
@@ -210,13 +224,15 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario();
+            var rolUsuario = GetRolUsuario(); 
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (subsidio == null) return NotFound();
 
+            // Verificar permisos
+          
             if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
             {
                 TempData["ErrorMessage"] = "No tiene permisos para eliminar este subsidio";
@@ -232,13 +248,15 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario();
+            var rolUsuario = GetRolUsuario(); 
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (subsidio != null)
             {
+                // Verificar permisos
+                
                 if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
                 {
                     TempData["ErrorMessage"] = "No tiene permisos para eliminar este subsidio";
@@ -272,7 +290,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Activos()
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario();
+            var rolUsuario = GetRolUsuario(); 
 
             if (userId == null)
             {
@@ -284,6 +302,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 .Include(s => s.Beneficiarios)
                 .Where(s => s.Estado == "Activo");
 
+            // Filtro para Entidades
+           
             if (rolUsuario?.ToLower() == "entidad" && userId.HasValue)
             {
                 subsidiosQuery = subsidiosQuery.Where(s => s.UsuarioCreacionId == userId.Value.ToString());
@@ -294,7 +314,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 .ToListAsync();
 
             ViewData["Title"] = "Subsidios Activos de Mi Entidad";
-            ViewBag.EsEntidad = rolUsuario?.ToLower() == "entidad";
+            ViewBag.EsEntidad = rolUsuario?.ToLower() == "entidad"; 
+            ViewBag.EsEntidad = rolUsuario?.ToLower() == "entidad"; 
             return View(subsidiosActivos);
         }
 
@@ -316,16 +337,13 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             return View(subsidio);
         }
-
-        // ==============================================
-        // 🆕 MÉTODOS PARA ASIGNACIÓN MÚLTIPLE DE BENEFICIARIOS
-        // ==============================================
-
+        //MÉTODOS PARA ASIGNACIÓN MÚLTIPLE DE BENEFICIARIOS
+    
         // GET: Subsidios/GestionarBeneficiarios/5
         public async Task<IActionResult> GestionarBeneficiarios(int id)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario();
+            var rolUsuario = GetRolUsuario();  
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -336,12 +354,15 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // Verificar permisos
+           
             if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
             {
                 TempData["ErrorMessage"] = "No tiene permisos para gestionar beneficiarios de este subsidio";
                 return RedirectToAction(nameof(Index));
             }
 
+            // Obtener todos los beneficiarios disponibles
             var todosBeneficiarios = await _context.Beneficiarios
                 .Where(b => !string.IsNullOrEmpty(b.Dui) && !string.IsNullOrEmpty(b.Nombre))
                 .OrderBy(b => b.Nombre)
@@ -361,7 +382,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             try
             {
                 var userId = GetUserId();
-                var rolUsuario = GetRolUsuario();
+                var rolUsuario = GetRolUsuario();  
                 var subsidio = await _context.Subsidios
                     .Include(s => s.Beneficiarios)
                     .FirstOrDefaultAsync(s => s.Id == id);
@@ -372,6 +393,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
+                // Verificar permisos
+                
                 if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
                 {
                     TempData["ErrorMessage"] = "No tiene permisos para gestionar beneficiarios de este subsidio";
@@ -409,7 +432,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> QuitarBeneficiario(int id, int beneficiarioId)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario();
+            var rolUsuario = GetRolUsuario(); 
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -420,6 +443,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // Verificar permisos
             if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
             {
                 TempData["ErrorMessage"] = "No tiene permisos para gestionar beneficiarios de este subsidio";
@@ -445,7 +469,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             try
             {
                 var userId = GetUserId();
-                var rolUsuario = GetRolUsuario();
+                var rolUsuario = GetRolUsuario(); 
                 var subsidio = await _context.Subsidios
                     .Include(s => s.Beneficiarios)
                     .FirstOrDefaultAsync(s => s.Id == id);
@@ -456,6 +480,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
+                // Verificar permisos
                 if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
                 {
                     TempData["ErrorMessage"] = "No tiene permisos para gestionar beneficiarios de este subsidio";
@@ -481,123 +506,9 @@ namespace SistemaSubsidios_CASATIC.Controllers
             }
         }
 
-        // ==============================================
-        //  MÉTODOS PARA RENOVACIÓN DE SUBSIDIOS
-        // ==============================================
-
-        // GET: Subsidios/Renovar/5
-        [HttpGet]
-        public async Task<IActionResult> Renovar(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var userId = GetUserId();
-            var rolUsuario = GetRolUsuario();
-
-            var subsidio = await _context.Subsidios
-                .Include(s => s.Beneficiarios)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (subsidio == null)
-            {
-                return NotFound();
-            }
-
-            if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
-            {
-                TempData["ErrorMessage"] = "No tiene permisos para renovar este subsidio";
-                return RedirectToAction(nameof(Index));
-            }
-
-            if (subsidio.Estado.ToLower() != "activo" && subsidio.Estado.ToLower() != "pendiente")
-            {
-                TempData["WarningMessage"] = $"No se puede renovar un subsidio con estado '{subsidio.Estado}'. Solo subsidios activos o pendientes pueden ser renovados.";
-                return RedirectToAction(nameof(Details), new { id = subsidio.Id });
-            }
-
-            ViewBag.FechaMinima = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
-            ViewBag.FechaSugerida = DateTime.Now.AddYears(1).ToString("yyyy-MM-dd");
-
-            return View(subsidio);
-        }
-
-        // POST: Subsidios/Renovar/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Renovar(int id, DateTime nuevaFechaExpiracion)
-        {
-            try
-            {
-                var userId = GetUserId();
-                var rolUsuario = GetRolUsuario();
-
-                var subsidio = await _context.Subsidios
-                    .Include(s => s.Beneficiarios)
-                    .FirstOrDefaultAsync(s => s.Id == id);
-
-                if (subsidio == null)
-                {
-                    return NotFound();
-                }
-
-                if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
-                {
-                    TempData["ErrorMessage"] = "No tiene permisos para renovar este subsidio";
-                    return RedirectToAction(nameof(Index));
-                }
-
-                // Validar fecha
-                if (nuevaFechaExpiracion <= DateTime.Now)
-                {
-                    TempData["ErrorMessage"] = "La fecha de expiración debe ser posterior a la fecha actual";
-                    return RedirectToAction(nameof(Renovar), new { id });
-                }
-
-                if (nuevaFechaExpiracion <= subsidio.FechaExpiracion)
-                {
-                    TempData["ErrorMessage"] = "La nueva fecha de expiración debe ser posterior a la fecha de expiración actual";
-                    return RedirectToAction(nameof(Renovar), new { id });
-                }
-
-                // Guardar la fecha anterior para historial
-                var fechaExpiracionAnterior = subsidio.FechaExpiracion;
-
-                // Actualizar fechas
-                subsidio.FechaExpiracion = nuevaFechaExpiracion;
-                subsidio.FechaRenovacion = DateTime.Now;
-                subsidio.ProximaRenovacion = CalcularProximaRenovacionSugerida(nuevaFechaExpiracion);
-                subsidio.Estado = "Activo"; // Cambiar estado a Activo si estaba Pendiente
-
-                // Registrar en el log
-                _logger.LogInformation($"Subsidio ID {subsidio.Id} renovado. Fecha anterior: {fechaExpiracionAnterior:dd/MM/yyyy}, Nueva fecha: {nuevaFechaExpiracion:dd/MM/yyyy}");
-
-                _context.Update(subsidio);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = $"✅ Subsidio '{subsidio.NombrePrograma}' renovado correctamente. Nueva fecha de expiración: {nuevaFechaExpiracion:dd/MM/yyyy}";
-                return RedirectToAction(nameof(Details), new { id = subsidio.Id });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al renovar subsidio");
-                TempData["ErrorMessage"] = "Error al renovar el subsidio: " + ex.Message;
-                return RedirectToAction(nameof(Renovar), new { id });
-            }
-        }
-
-        // Método auxiliar para calcular próxima renovación sugerida
-        private DateTime? CalcularProximaRenovacionSugerida(DateTime nuevaFechaExpiracion)
-        {
-            // Sugerir renovación 30 días antes de la expiración
-            return nuevaFechaExpiracion.AddDays(-30);
-        }
-
-        // ==============================================
-        // 🔧 MÉTODO PARA ASIGNAR SUBSIDIOS EXISTENTES
-        // ==============================================
+       
+        //MÉTODO PARA ASIGNAR SUBSIDIOS EXISTENTES
+    
 
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> AsignarSubsidiosExistente()
@@ -622,10 +533,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ==============================================
-        // 📊 MÉTODOS AUXILIARES
-        // ==============================================
-
+        //MÉTODOS AUXILIARES
+    
         public JsonResult GetEstadisticasBeneficiarios()
         {
             var estadisticas = new
@@ -652,4 +561,4 @@ namespace SistemaSubsidios_CASATIC.Controllers
             return DateTime.Now.AddYears(1);
         }
     }
-}
+} 

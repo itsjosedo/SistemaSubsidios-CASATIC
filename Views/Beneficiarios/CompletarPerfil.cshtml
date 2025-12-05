@@ -15,7 +15,7 @@
     <input type="hidden" asp-for="Id_Beneficiario" />
     <div class="form-group mb-3">
         <label asp-for="Dui"></label>
-        <input asp-for="Dui" class="form-control" placeholder="Ingresa el DUI con guion Ejem: 12345678-9"/>
+        <input asp-for="Dui" class="form-control" placeholder="Ingresa el DUI con guion Ejem: 12345678-9" id="DuiInput" maxlength="10" autocomplete="off"/>
         <span asp-validation-for="Dui" class="text-danger"></span>
     </div>
 
@@ -64,4 +64,22 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+     <script>
+        const duiInput = document.getElementById("DuiInput");
+
+        duiInput.addEventListener("input", function () {
+            // Quitamos guiones para evitar fallos
+            let value = this.value.replace(/-/g, "");
+
+            // Solo números
+            value = value.replace(/\D/g, "");
+
+            // Insertamos el guion automáticamente al llegar a 9 dígitos
+            if (value.length > 8) {
+                value = value.slice(0, 8) + "-" + value.slice(8, 9);
+            }
+
+            this.value = value;
+        });
+    </script>
 }
