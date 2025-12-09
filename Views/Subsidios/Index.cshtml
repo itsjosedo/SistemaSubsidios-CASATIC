@@ -117,7 +117,7 @@
                                 Monto total
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                $@Model.Sum(s => s.Monto).ToString("N2")
+                                $@Model.Sum(s => s.Monto * s.Beneficiarios.Count).ToString("N2")
                             </div>
                         </div>
                         <div class="col-auto d-none d-sm-block">
@@ -326,7 +326,7 @@
                                 <th>Programa</th>
                                 <th>Tipo</th>
                                 <th class="text-center">Beneficiarios</th>
-                                <th class="text-end">Monto</th>
+                                <th class="text-end">Monto Total</th>
                                 <th class="text-center">Fecha asignación</th>
                                 <th class="text-center">Expiración</th>
                                 <th class="text-center">Estado</th>
@@ -339,6 +339,7 @@
                                 var diasRestantes = (s.FechaExpiracion - DateTime.Now).Days;
                                 var estaExpirado = s.FechaExpiracion < DateTime.Now && s.Estado == "Activo";
                                 var porExpirar = diasRestantes <= 30 && diasRestantes > 0 && s.Estado == "Activo";
+                                var montoTotal = s.Monto * s.Beneficiarios.Count;
                                 
                                 <tr class="@(estaExpirado ? "table-danger" : porExpirar ? "table-warning" : "")">
                                     <td>
@@ -376,7 +377,9 @@
                                         }
                                     </td>
                                     <td class="text-end">
-                                        <span class="fw-bold text-success text-nowrap">$@s.Monto.ToString("N2")</span>
+                                        <span class="fw-bold text-success text-nowrap">
+                                            $@montoTotal.ToString("N2")
+                                        </span>
                                     </td>
                                     <td class="text-center">
                                         <i class="fas fa-calendar me-2 text-muted"></i>
@@ -460,6 +463,7 @@
                         var diasRestantes = (s.FechaExpiracion - DateTime.Now).Days;
                         var estaExpirado = s.FechaExpiracion < DateTime.Now && s.Estado == "Activo";
                         var porExpirar = diasRestantes <= 30 && diasRestantes > 0 && s.Estado == "Activo";
+                        var montoTotal = s.Monto * s.Beneficiarios.Count;
 
                         <div class="border-bottom subsidio-item">
                             <!-- Fila principal (siempre visible) -->
@@ -484,7 +488,9 @@
                                             <span class="badge bg-info text-nowrap">
                                                 <i class="fas fa-tag me-1"></i>@s.Tipo
                                             </span>
-                                            <span class="fw-bold text-success text-nowrap">$@s.Monto.ToString("N2")</span>
+                                            <span class="fw-bold text-success text-nowrap">
+                                                $@montoTotal.ToString("N2")
+                                            </span>
                                         </div>
                                         <!-- Estado del beneficiario en vista móvil -->
                                         <div class="mt-2">

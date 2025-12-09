@@ -16,7 +16,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             height: 100%;
             width: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -95,7 +96,8 @@
             white-space: nowrap;
             transition: opacity 0.3s;
             flex: 1;
-            padding-right: 50px; /* Espacio para el botón de cerrar */
+            padding-right: 50px;
+            /* Espacio para el botón de cerrar */
         }
 
         .sidebar.collapsed .sidebar-logo span {
@@ -265,7 +267,7 @@
                 transform: translateX(0) !important;
             }
 
-            .sidebar.collapsed ~ .main-content {
+            .sidebar.collapsed~.main-content {
                 margin-left: 80px;
                 width: calc(100% - 80px);
             }
@@ -422,11 +424,11 @@
                     padding-left: max(0px, env(safe-area-inset-left));
                     padding-right: max(0px, env(safe-area-inset-right));
                 }
-                
+
                 .sidebar-profile {
                     padding-bottom: max(12px, env(safe-area-inset-bottom));
                 }
-                
+
                 .top-bar {
                     padding-top: max(15px, env(safe-area-inset-top));
                     padding-left: max(20px, env(safe-area-inset-left));
@@ -450,15 +452,15 @@
             .content-area {
                 padding: 15px;
             }
-            
+
             .top-bar {
                 padding: 12px 15px;
             }
-            
+
             .top-bar .page-title {
                 font-size: 16px;
             }
-            
+
             .sidebar.mobile-open {
                 width: 100% !important;
             }
@@ -470,7 +472,7 @@
                 height: 100%;
                 overflow-y: auto;
             }
-            
+
             .sidebar-profile {
                 min-height: 60px;
             }
@@ -522,8 +524,14 @@
                     <span>Subsidios</span>
                 </a>
             </li>
-
             
+                <li>
+                    <a asp-controller="Subsidios" asp-action="Eliminados">
+                        <i class="fas fa-trash-restore"></i>
+                        <span>Historial Eliminados</span>
+                    </a>
+                </li>
+
         </ul>
 
         <!-- Profile - CORREGIDO -->
@@ -542,8 +550,7 @@
     </div>
 
     <!-- Main Content -->
-    <div
-        class="main-content @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "dashboard-bg" : "")"
+    <div class="main-content @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "dashboard-bg" : "")"
         id="mainContent">
         <!-- Top Bar -->
         <div class="top-bar">
@@ -569,10 +576,10 @@
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             const overlay = document.getElementById('sidebarOverlay');
-            
+
             if (window.innerWidth <= 768) {
                 const isOpening = !sidebar.classList.contains('mobile-open');
-                
+
                 if (isOpening) {
                     sidebar.classList.add('mobile-open');
                     mainContent.classList.add('menu-pushed');
@@ -591,7 +598,7 @@
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             const overlay = document.getElementById('sidebarOverlay');
-            
+
             sidebar.classList.remove('mobile-open');
             mainContent.classList.remove('menu-pushed');
             overlay.classList.remove('active');
@@ -600,7 +607,7 @@
 
         // Cerrar sidebar al hacer clic en un enlace (solo móviles)
         document.querySelectorAll('.sidebar-menu a').forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 if (window.innerWidth <= 768) {
                     closeSidebar();
                 }
@@ -608,18 +615,18 @@
         });
 
         // Cerrar sidebar con ESC key
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeSidebar();
             }
         });
 
         // Manejo responsive
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             const overlay = document.getElementById('sidebarOverlay');
-            
+
             if (window.innerWidth > 768) {
                 closeSidebar();
                 const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
@@ -635,9 +642,9 @@
         });
 
         // Inicializar estado del sidebar
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const sidebar = document.getElementById('sidebar');
-            
+
             if (window.innerWidth > 768) {
                 const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
                 if (isCollapsed) {
@@ -647,4 +654,5 @@
         });
     </script>
 </body>
+
 </html>

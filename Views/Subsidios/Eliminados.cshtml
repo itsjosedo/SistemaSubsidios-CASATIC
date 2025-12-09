@@ -1,0 +1,460 @@
+@model List<Subsidio>
+@{
+    ViewData["Title"] = "Subsidios Eliminados";
+    Layout = ViewBag.Layout ?? "_Layout";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-3">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-trash-restore me-2 text-secondary"></i>@ViewData["Title"]
+            </h1>
+            <p class="text-muted mb-0">Historial de subsidios eliminados (borrado lógico)</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-1"></i>Volver a activos
+            </a>
+            @if (ViewBag.TotalEliminados > 0 && (User.IsInRole("Administrador") || User.IsInRole("Admin")))
+            {
+                <button type="button" class="btn btn-danger" onclick="limpiarHistorial()">
+                    <i class="fas fa-broom me-1"></i>Limpiar antiguos
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Tarjetas de resumen -->
+    <div class="row mb-4">
+        <div class="col-6 col-xl-3 mb-3 mb-xl-0">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body p-2 p-sm-3">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
+                                Total eliminados
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count</div>
+                        </div>
+                        <div class="col-auto d-none d-sm-block">
+                            <i class="fas fa-trash fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3 mb-3 mb-xl-0">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body p-2 p-sm-3">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Últimos 30 días
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @{
+                                    var ultimos30Dias = Model.Count(s => s.FechaEliminacion.HasValue && 
+                                        s.FechaEliminacion.Value >= DateTime.Now.AddDays(-30));
+                                }
+                                @ultimos30Dias
+                            </div>
+                        </div>
+                        <div class="col-auto d-none d-sm-block">
+                            <i class="fas fa-calendar-minus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body p-2 p-sm-3">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Con beneficiarios
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.Count(s => s.Beneficiarios.Any())
+                            </div>
+                        </div>
+                        <div class="col-auto d-none d-sm-block">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body p-2 p-sm-3">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Monto total
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                $@Model.Sum(s => s.Monto * s.Beneficiarios.Count).ToString("N2")
+                            </div>
+                        </div>
+                        <div class="col-auto d-none d-sm-block">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle fa-lg me-3"></i>
+                <div class="flex-grow-1">
+                    <p class="mb-0">@TempData["SuccessMessage"]</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle fa-lg me-3"></i>
+                <div class="flex-grow-1">
+                    <p class="mb-0">@TempData["ErrorMessage"]</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+            <h6 class="m-0 font-weight-bold text-secondary">
+                <i class="fas fa-history me-2"></i>Historial de eliminaciones
+            </h6>
+            <div class="input-group input-group-sm" style="max-width: 250px;">
+                <input type="text" class="form-control" placeholder="Buscar..." id="searchInput">
+                <button class="btn btn-outline-secondary text-nowrap" type="button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-0 p-sm-3">
+            @if (Model.Any())
+            {
+                <div class="table-responsive d-none d-lg-block">
+                    <table class="table table-bordered table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
+                        <thead class="bg-gradient-secondary text-white">
+                            <tr>
+                                <th>Programa</th>
+                                <th class="text-center">Beneficiarios</th>
+                                <th class="text-end">Monto Total</th>
+                                <th class="text-center">Fecha Eliminación</th>
+                                <th class="text-center">Usuario</th>
+                                <th class="text-center">Motivo</th>
+                                <th class="text-center" style="width: 200px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model)
+                            {
+                                var montoTotal = s.Monto * s.Beneficiarios.Count;
+                                var tiempoTranscurrido = s.FechaEliminacion.HasValue ? 
+                                    (DateTime.Now - s.FechaEliminacion.Value).Days : 0;
+                                
+                                <tr class="@(tiempoTranscurrido > 90 ? "table-danger" : tiempoTranscurrido > 30 ? "table-warning" : "")">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm me-3">
+                                                <div class="avatar-initials bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                                    style="width: 40px; height: 40px; font-weight: 600;">
+                                                    @GetProgramaInitials(s.NombrePrograma)
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">@s.NombrePrograma</h6>
+                                                <small class="text-muted">ID: #@s.Id • Tipo: @s.Tipo</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        @if (s.Beneficiarios.Any())
+                                        {
+                                            <span class="badge bg-success text-white text-nowrap">
+                                                <i class="fas fa-users me-1"></i>@s.Beneficiarios.Count
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary text-white text-nowrap">
+                                                <i class="fas fa-user-times me-1"></i>0
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="fw-bold text-success text-nowrap">$@montoTotal.ToString("N2")</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="fas fa-calendar-times me-1 text-muted"></i>
+                                            <span class="text-nowrap">@s.FechaEliminacion?.ToString("dd/MM/yyyy HH:mm")</span>
+                                            @if (tiempoTranscurrido > 0)
+                                            {
+                                                <small class="text-muted">Hace @tiempoTranscurrido días</small>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info text-white">
+                                            @s.UsuarioEliminacionId
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small>@(string.IsNullOrEmpty(s.MotivoEliminacion) ? "Sin motivo" : s.MotivoEliminacion)</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <form asp-action="Restaurar" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@s.Id" />
+                                                <button type="submit" class="btn btn-sm btn-success text-nowrap" 
+                                                        onclick="return confirm('¿Restaurar el subsidio \'@s.NombrePrograma\'?')"
+                                                        title="Restaurar subsidio">
+                                                    <i class="fas fa-trash-restore"></i>
+                                                </button>
+                                            </form>
+                                            
+                                            @if (User.IsInRole("Administrador"))
+                                            {
+                                                <form asp-action="EliminarPermanente" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@s.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-danger text-nowrap" 
+                                                            onclick="return confirm('⚠️ ¿ELIMINAR PERMANENTEMENTE?\\n\\nEsta acción borrará físicamente el subsidio \'@s.NombrePrograma\' y NO se podrá recuperar.\\n\\n¿Continuar?')"
+                                                            title="Eliminar permanentemente">
+                                                        <i class="fas fa-fire"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            
+                                            <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info text-nowrap"
+                                                title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Vista móvil -->
+                <div class="d-lg-none">
+                    @foreach (var s in Model)
+                    {
+                        var tiempoTranscurrido = s.FechaEliminacion.HasValue ? 
+                            (DateTime.Now - s.FechaEliminacion.Value).Days : 0;
+                        var montoTotal = s.Monto * s.Beneficiarios.Count;
+                        var itemId = $"eliminado-{s.Id}";
+
+                        <div class="border-bottom subsidio-item">
+                            <div class="p-3 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#@itemId"
+                                aria-expanded="false">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="avatar-initials bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                style="width: 32px; height: 32px; font-size: 0.75rem; font-weight: 600;">
+                                                @GetProgramaInitials(s.NombrePrograma)
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">@s.NombrePrograma</h6>
+                                                <small class="text-muted">ID: #@s.Id</small>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                                            <span class="badge @(tiempoTranscurrido > 90 ? "bg-danger" : tiempoTranscurrido > 30 ? "bg-warning" : "bg-info") text-nowrap">
+                                                <i class="fas fa-clock me-1"></i>Hace @tiempoTranscurrido días
+                                            </span>
+                                            <span class="badge bg-success text-nowrap">
+                                                <i class="fas fa-users me-1"></i>@s.Beneficiarios.Count
+                                            </span>
+                                            <span class="fw-bold text-success text-nowrap">
+                                                $@montoTotal.ToString("N2")
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-user me-1"></i>@s.UsuarioEliminacionId
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-down text-muted ms-2"></i>
+                                </div>
+                            </div>
+
+                            <div class="collapse" id="@itemId">
+                                <div class="px-3 pb-3 bg-light">
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block">Motivo eliminación</small>
+                                        <p class="mb-2">@(string.IsNullOrEmpty(s.MotivoEliminacion) ? "Sin motivo especificado" : s.MotivoEliminacion)</p>
+                                        
+                                        <small class="text-muted d-block">Fecha eliminación</small>
+                                        <p class="mb-0">
+                                            <i class="fas fa-calendar-times me-1"></i>
+                                            @s.FechaEliminacion?.ToString("dd/MM/yyyy HH:mm")
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <form asp-action="Restaurar" method="post">
+                                            <input type="hidden" name="id" value="@s.Id" />
+                                            <button type="submit" class="btn btn-success w-100" 
+                                                    onclick="return confirm('¿Restaurar el subsidio \'@s.NombrePrograma\'?')">
+                                                <i class="fas fa-trash-restore me-2"></i>Restaurar
+                                            </button>
+                                        </form>
+                                        
+                                        @if (User.IsInRole("Administrador"))
+                                        {
+                                            <form asp-action="EliminarPermanente" method="post">
+                                                <input type="hidden" name="id" value="@s.Id" />
+                                                <button type="submit" class="btn btn-danger w-100" 
+                                                        onclick="return confirm('⚠️ ¿ELIMINAR PERMANENTEMENTE?\\n\\nEsta acción NO se puede deshacer.\\n¿Continuar?')">
+                                                    <i class="fas fa-fire me-2"></i>Eliminar permanentemente
+                                                </button>
+                                            </form>
+                                        }
+                                        
+                                        <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-info">
+                                            <i class="fas fa-eye me-2"></i>Ver detalles
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-trash fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay subsidios eliminados</h4>
+                        <p class="text-muted mb-4">El historial de eliminados aparecerá aquí.</p>
+                        <a asp-action="Index" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Volver a subsidios activos
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Búsqueda en tiempo real
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const searchText = this.value.toLowerCase();
+
+            // Desktop: buscar en tabla
+            const desktopRows = document.querySelectorAll('#dataTable tbody tr');
+            desktopRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+
+            // Mobile: buscar en items expandibles
+            const mobileItems = document.querySelectorAll('.subsidio-item');
+            mobileItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        });
+
+        // Función para limpiar historial antiguo (más de 1 año)
+        function limpiarHistorial() {
+            if (confirm('¿Eliminar permanentemente subsidios eliminados hace más de 1 año?\n\nEsta acción NO se puede deshacer.')) {
+                fetch('/Subsidios/LimpiarHistorialAntiguo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error al limpiar historial: ' + error.message);
+                });
+            }
+        }
+
+        // Animar chevron
+        document.addEventListener('DOMContentLoaded', function () {
+            const collapseElements = document.querySelectorAll('.collapse');
+            collapseElements.forEach(function (element) {
+                element.addEventListener('show.bs.collapse', function () {
+                    const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.classList.add('rotate-180');
+                });
+                element.addEventListener('hide.bs.collapse', function () {
+                    const chevron = this.previousElementSibling.querySelector('.fa-chevron-down');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .fa-chevron-down {
+            transition: transform 0.3s ease;
+        }
+
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+
+        .subsidio-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .avatar-initials {
+            font-weight: 600;
+        }
+    </style>
+}
+
+@functions {
+    public string GetProgramaInitials(string nombrePrograma)
+    {
+        if (string.IsNullOrEmpty(nombrePrograma)) return "SP";
+        var palabras = nombrePrograma.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (palabras.Length >= 2)
+        {
+            return $"{palabras[0][0]}{palabras[1][0]}".ToUpper();
+        }
+        return nombrePrograma.Length >= 2 ? nombrePrograma.Substring(0, 2).ToUpper() : nombrePrograma.ToUpper();
+    }
+}

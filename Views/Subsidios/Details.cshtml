@@ -2,49 +2,176 @@
 @{
     ViewData["Title"] = "Detalle del subsidio";
     Layout = ViewBag.Layout ?? "_Layout";
+    
+    // 🔹 OBTENER información de eliminación si existe
+    var estaEliminado = ViewBag.EstaEliminado as bool? ?? false;
+    var motivoEliminacion = ViewBag.MotivoEliminacion as string;
+    var fechaEliminacion = ViewBag.FechaEliminacion as DateTime?;
+    var usuarioEliminacionId = ViewBag.UsuarioEliminacionId as string;
 }
 
 <div class="container-fluid px-4">
+    <!-- 🔹 ALERTA DE SUBSIDIO ELIMINADO (solo si está eliminado) -->
+    @if (estaEliminado)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="border-left: 5px solid #dc3545;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-trash-alt fa-2x me-3 text-danger"></i>
+                <div class="flex-grow-1">
+                    <h4 class="alert-heading mb-2">
+                        <i class="fas fa-exclamation-triangle me-2"></i>SUBSIDIO ELIMINADO
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1">
+                                <strong><i class="fas fa-calendar-times me-1"></i>Fecha eliminación:</strong> 
+                                @(fechaEliminacion?.ToString("dd/MM/yyyy HH:mm") ?? "No disponible")
+                            </p>
+                            <p class="mb-1">
+                                <strong><i class="fas fa-user me-1"></i>Usuario que eliminó:</strong> 
+                                @(usuarioEliminacionId ?? "No disponible")
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1">
+                                <strong><i class="fas fa-comment-dots me-1"></i>Motivo:</strong>
+                            </p>
+                            <p class="mb-0 bg-light p-2 rounded border">
+                                @(string.IsNullOrEmpty(motivoEliminacion) ? "Sin motivo especificado" : motivoEliminacion)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>Este subsidio está marcado como "eliminado" (borrado lógico) pero conserva todos los datos para auditoría.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4 no-print">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
                 <i class="fas fa-file-invoice-dollar me-2 text-info"></i>@ViewData["Title"]
+                @if (estaEliminado)
+                {
+                    <span class="badge bg-danger ms-2">
+                        <i class="fas fa-trash-alt me-1"></i>Eliminado
+                    </span>
+                }
             </h1>
-            <p class="mb-0 text-muted">Información detallada del subsidio registrado</p>
+            <p class="mb-0 text-muted">
+                Información detallada del subsidio registrado
+                @if (estaEliminado)
+                {
+                    <span class="text-danger fw-bold"> • ESTADO: ELIMINADO</span>
+                }
+            </p>
         </div>
         <div class="btn-group">
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-icon-split shadow-sm">
-                <span class="icon text-white-50">
-                    <i class="fas fa-edit"></i>
-                </span>
-                <span class="text">Editar</span>
-            </a>
-            <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm ms-2">
-                <span class="icon text-white-50">
-                    <i class="fas fa-arrow-left"></i>
-                </span>
-                <span class="text">Volver a la lista</span>
-            </a>
+            @if (!estaEliminado)
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-icon-split shadow-sm">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-edit"></i>
+                    </span>
+                    <span class="text">Editar</span>
+                </a>
+            }
+            
+            @if (estaEliminado && (User.IsInRole("Administrador") || User.IsInRole("Admin")))
+            {
+                <a asp-action="Eliminados" class="btn btn-secondary btn-icon-split shadow-sm">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-left"></i>
+                    </span>
+                    <span class="text">Volver a Eliminados</span>
+                </a>
+            }
+            else
+            {
+                <a asp-action="Index" class="btn btn-secondary btn-icon-split shadow-sm @(estaEliminado ? "" : "ms-2")">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-left"></i>
+                    </span>
+                    <span class="text">Volver a la lista</span>
+                </a>
+            }
+            
+            <!-- 🔹 BOTÓN DE RESTAURACIÓN (solo para administradores si está eliminado) -->
+            @if (estaEliminado && (User.IsInRole("Administrador") || User.IsInRole("Admin")))
+            {
+                <form asp-action="Restaurar" method="post" class="d-inline ms-2">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-success btn-icon-split shadow-sm" 
+                            onclick="return confirm('¿Restaurar el subsidio \'@Model.NombrePrograma\'?\\n\\nSe reactivará y volverá a la lista de subsidios activos.')">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-trash-restore"></i>
+                        </span>
+                        <span class="text">Restaurar</span>
+                    </button>
+                </form>
+            }
         </div>
     </div>
 
     <!-- Header para impresión -->
     <div class="print-header text-center mb-3 only-print">
         <h2 class="mb-1">DETALLE DE SUBSIDIO</h2>
+        @if (estaEliminado)
+        {
+            <p class="mb-1 text-danger">
+                <i class="fas fa-exclamation-triangle me-1"></i><strong>ESTADO: ELIMINADO</strong>
+            </p>
+        }
         <p class="mb-1 text-muted">Sistema de gestión de subsidios</p>
         <div class="border-top pt-2">
             <small class="text-muted">Generado el: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</small>
         </div>
     </div>
 
+    <!-- 🔹 INFORMACIÓN DE ELIMINACIÓN PARA IMPRESIÓN -->
+    @if (estaEliminado)
+    {
+        <div class="card shadow mb-4 only-print border-danger">
+            <div class="card-header py-2 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="fas fa-trash-alt me-2"></i>INFORMACIÓN DE ELIMINACIÓN
+                </h6>
+            </div>
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-1">
+                            <strong>Fecha eliminación:</strong> @(fechaEliminacion?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                        </p>
+                        <p class="mb-1">
+                            <strong>Usuario:</strong> @(usuarioEliminacionId ?? "N/A")
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Motivo:</strong></p>
+                        <p class="mb-0">@(motivoEliminacion ?? "Sin motivo especificado")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <div class="row">
         <div class="col-lg-8">
             <!-- Card de información principal -->
-            <div class="card shadow mb-4 print-section">
-                <div class="card-header py-3 bg-info print-section-header">
+            <div class="card shadow mb-4 print-section @(estaEliminado ? "border-danger" : "")">
+                <div class="card-header py-3 @(estaEliminado ? "bg-danger" : "bg-info") print-section-header">
                     <h6 class="m-0 font-weight-bold text-white">
                         <i class="fas fa-info-circle me-2"></i>Información del subsidio
+                        @if (estaEliminado)
+                        {
+                            <span class="badge bg-dark ms-2">ELIMINADO</span>
+                        }
                     </h6>
                 </div>
                 <div class="card-body">
@@ -107,6 +234,7 @@
                                             "pendiente" => "bg-warning",
                                             "rechazado" => "bg-danger",
                                             "finalizado" => "bg-info",
+                                            "inactivo" => "bg-secondary",
                                             _ => "bg-secondary"
                                         };
 
@@ -116,11 +244,16 @@
                                             "pendiente" => "fa-clock",
                                             "rechazado" => "fa-times-circle",
                                             "finalizado" => "fa-flag-checkered",
+                                            "inactivo" => "fa-ban",
                                             _ => "fa-question"
                                         };
                                     }
                                     <span class="badge @estadoClass text-white fs-6 p-2">
                                         <i class="fas @estadoIcon me-1"></i>@Model.Estado
+                                        @if (estaEliminado)
+                                        {
+                                            <span class="ms-1">(Eliminado)</span>
+                                        }
                                     </span>
                                 </div>
                             </div>
@@ -135,6 +268,46 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- 🔹 SECCIÓN ADICIONAL PARA SUBSIDIOS ELIMINADOS -->
+                    @if (estaEliminado)
+                    {
+                        <div class="mt-4 pt-3 border-top">
+                            <h6 class="text-danger mb-3">
+                                <i class="fas fa-history me-2"></i>Información de auditoría
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded border">
+                                        <small class="text-muted d-block">Fecha eliminación</small>
+                                        <strong>@(fechaEliminacion?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded border">
+                                        <small class="text-muted d-block">Usuario que eliminó</small>
+                                        <strong>@(usuarioEliminacionId ?? "N/A")</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded border">
+                                        <small class="text-muted d-block">Tiempo transcurrido</small>
+                                        <strong>
+                                            @if (fechaEliminacion.HasValue)
+                                            {
+                                                var dias = (DateTime.Now - fechaEliminacion.Value).Days;
+                                                @($"{dias} días")
+                                            }
+                                            else
+                                            {
+                                                @("N/A")
+                                            }
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -221,9 +394,12 @@
                         <div class="text-center py-4">
                             <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
                             <p class="text-muted mb-3">No hay beneficiarios asignados</p>
-                            <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" class="btn btn-success btn-sm">
-                                <i class="fas fa-user-plus me-2"></i>Asignar beneficiarios
-                            </a>
+                            @if (!estaEliminado)
+                            {
+                                <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" class="btn btn-success btn-sm">
+                                    <i class="fas fa-user-plus me-2"></i>Asignar beneficiarios
+                                </a>
+                            }
                         </div>
                     }
                 </div>
@@ -231,22 +407,48 @@
 
             <!-- Card de acciones rápidas -->
             <div class="card shadow no-print">
-                <div class="card-header py-3 bg-light">
-                    <h6 class="m-0 font-weight-bold text-dark">
+                <div class="card-header py-3 @(estaEliminado ? "bg-danger text-white" : "bg-light")">
+                    <h6 class="m-0 font-weight-bold">
                         <i class="fas fa-bolt me-2"></i>Acciones rápidas
+                        @if (estaEliminado)
+                        {
+                            <span class="badge bg-warning text-dark ms-2">ELIMINADO</span>
+                        }
                     </h6>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" class="btn btn-success btn-lg">
-                            <i class="fas fa-users me-2"></i>Gestionar beneficiarios
-                        </a>
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
-                            <i class="fas fa-edit me-2"></i>Editar subsidio
-                        </a>
-                        <a asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="fas fa-list me-2"></i>Ver Todos los subsidios
-                        </a>
+                        @if (!estaEliminado)
+                        {
+                            <a asp-action="GestionarBeneficiarios" asp-route-id="@Model.Id" class="btn btn-success btn-lg">
+                                <i class="fas fa-users me-2"></i>Gestionar beneficiarios
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                                <i class="fas fa-edit me-2"></i>Editar subsidio
+                            </a>
+                        }
+                        
+                        @if (estaEliminado && (User.IsInRole("Administrador") || User.IsInRole("Admin")))
+                        {
+                            <form asp-action="Restaurar" method="post" class="d-grid">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button type="submit" class="btn btn-success btn-lg" 
+                                        onclick="return confirm('¿Restaurar el subsidio \'@Model.NombrePrograma\'?\\n\\nSe reactivará y volverá a la lista de subsidios activos.')">
+                                    <i class="fas fa-trash-restore me-2"></i>Restaurar Subsidio
+                                </button>
+                            </form>
+                            
+                            <a asp-action="Eliminados" class="btn btn-secondary">
+                                <i class="fas fa-history me-2"></i>Volver al Historial
+                            </a>
+                        }
+                        else if (!estaEliminado)
+                        {
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-list me-2"></i>Ver Todos los subsidios
+                            </a>
+                        }
+                        
                         <a href="#" class="btn btn-outline-info" onclick="window.print()">
                             <i class="fas fa-print me-2"></i>Imprimir detalles
                         </a>
@@ -259,10 +461,14 @@
     <!-- Sección de información adicional -->
     <div class="row mt-4">
         <div class="col-12">
-            <div class="card shadow print-section activity-summary">
-                <div class="card-header py-3 bg-light print-section-header">
-                    <h6 class="m-0 font-weight-bold text-dark">
+            <div class="card shadow print-section activity-summary @(estaEliminado ? "border-danger" : "")">
+                <div class="card-header py-3 @(estaEliminado ? "bg-danger text-white" : "bg-light") print-section-header">
+                    <h6 class="m-0 font-weight-bold">
                         <i class="fas fa-history me-2"></i>Resumen de actividad
+                        @if (estaEliminado)
+                        {
+                            <span class="badge bg-dark ms-2">ELIMINADO</span>
+                        }
                     </h6>
                 </div>
                 <div class="card-body">
@@ -271,31 +477,51 @@
                             <div class="border rounded p-3 print-field">
                                 <i class="fas fa-calendar-plus fa-2x text-primary mb-2"></i>
                                 <h5 class="text-primary">Fecha de creación</h5>
-                                <p class="mb-0 text-muted">@DateTime.Now.ToString("dd/MM/yyyy")</p>
+                                <p class="mb-0 text-muted">@Model.FechaAsignacion.ToString("dd/MM/yyyy")</p>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="border rounded p-3 print-field">
                                 <i class="fas fa-sync-alt fa-2x text-info mb-2"></i>
-                                <h5 class="text-info">Última actualización</h5>
-                                <p class="mb-0 text-muted">@DateTime.Now.ToString("dd/MM/yyyy")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="border rounded p-3 print-field">
-                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                                <h5 class="text-success">Estado actual</h5>
-                                <p class="mb-0">@Model.Estado</p>
+                                <h5 class="text-info">Estado actual</h5>
+                                <p class="mb-0">
+                                    <span class="badge @estadoClass">
+                                        @Model.Estado
+                                        @if (estaEliminado)
+                                        {
+                                            @: (Eliminado)
+                                        }
+                                    </span>
+                                </p>
                             </div>
                         </div>
                         <div class="col-md-3 mb-3">
                             <div class="border rounded p-3 print-field">
                                 <i class="fas fa-dollar-sign fa-2x text-warning mb-2"></i>
-                                <h5 class="text-warning">Monto total</h5>
+                                <h5 class="text-warning">Monto asignado</h5>
                                 <p class="mb-0 text-success fw-bold">$@Model.Monto.ToString("N2")</p>
                             </div>
                         </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="border rounded p-3 print-field">
+                                <i class="fas fa-users fa-2x @(estaEliminado ? "text-danger" : "text-success") mb-2"></i>
+                                <h5 class="@(estaEliminado ? "text-danger" : "text-success")">Beneficiarios</h5>
+                                <p class="mb-0 fw-bold">@Model.Beneficiarios.Count</p>
+                            </div>
+                        </div>
                     </div>
+                    
+                    <!-- 🔹 INFORMACIÓN ESPECIAL PARA ELIMINADOS -->
+                    @if (estaEliminado && fechaEliminacion.HasValue)
+                    {
+                        <div class="row mt-4 pt-3 border-top">
+                            <div class="col-12">
+                                <h6 class="text-danger text-center mb-3">
+                                    <i class="fas fa-calendar-times me-2"></i>Este subsidio fue eliminado hace @((DateTime.Now - fechaEliminacion.Value).Days) días
+                                </h6>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -325,6 +551,10 @@
 
         .card-header.bg-primary {
             background: linear-gradient(45deg, #4e73df, #224abe) !important;
+        }
+        
+        .card-header.bg-danger {
+            background: linear-gradient(45deg, #e74a3b, #be2617) !important;
         }
 
         .border {
@@ -417,6 +647,10 @@
             .bg-primary {
                 background-color: #4e73df !important;
             }
+            
+            .bg-danger {
+                background-color: #e74a3b !important;
+            }
 
             .bg-success {
                 background-color: #1cc88a !important;
@@ -424,10 +658,6 @@
 
             .bg-warning {
                 background-color: #f6c23e !important;
-            }
-
-            .bg-danger {
-                background-color: #e74a3b !important;
             }
 
             .bg-secondary {
@@ -582,6 +812,10 @@
 
             .fa-dollar-sign {
                 color: #f6c23e !important;
+            }
+            
+            .fa-trash-alt {
+                color: #e74a3b !important;
             }
 
             .fa-id-card, .fa-phone, .fa-map-marker-alt {

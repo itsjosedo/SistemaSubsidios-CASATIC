@@ -25,67 +25,91 @@ public class Subsidio
     public DateTime FechaAsignacion { get; set; } = DateTime.Now;
 
     [Required]
-        [Display(Name = "Fecha de Expiración")]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
-        public DateTime FechaExpiracion { get; set; } = DateTime.Now.AddYears(1); // Por defecto 1 año
+    [Display(Name = "Fecha de Expiración")]
+    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+    public DateTime FechaExpiracion { get; set; } = DateTime.Now.AddYears(1);
 
-        [Display(Name = "Fecha de Última Renovación")]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
-        public DateTime? FechaRenovacion { get; set; }
+    [Display(Name = "Fecha de Última Renovación")]
+    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+    public DateTime? FechaRenovacion { get; set; }
 
-        [Display(Name = "Próxima Renovación")]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
-        public DateTime? ProximaRenovacion { get; set; }
-
+    [Display(Name = "Próxima Renovación")]
+    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+    public DateTime? ProximaRenovacion { get; set; }
 
     [Required]
     [Display(Name = "Estado")]
     public string Estado { get; set; } = "Pendiente";
 
-     // 🔹 Propiedades calculadas (NoMapped para no guardar en BD)
-        [NotMapped]
-        [Display(Name = "Días Restantes")]
-        public int DiasRestantes 
-        { 
-            get 
-            {
-                var dias = (FechaExpiracion - DateTime.Now).Days;
-                return dias > 0 ? dias : 0;
-            }
-        }
+    [Display(Name = "Eliminado")]
+    public bool Eliminado { get; set; } = false;
 
-        [NotMapped]
-        [Display(Name = "Próximo a Expirar")]
-        public bool ProximoAExpirar 
-        { 
-            get 
-            {
-                return DiasRestantes <= 30 && DiasRestantes > 0 && Estado == "Activo";
-            }
-        }
+    [Display(Name = "Fecha Eliminación")]
+    public DateTime? FechaEliminacion { get; set; }
 
-        [NotMapped]
-        [Display(Name = "Expirado")]
-        public bool Expirado 
-        { 
-            get 
-            {
-                return FechaExpiracion < DateTime.Now && Estado == "Activo";
-            }
-        }
+    [Display(Name = "Usuario que Eliminó")]
+    [StringLength(100)]
+    public string? UsuarioEliminacionId { get; set; }
 
-    // 🔹 NUEVA PROPIEDAD para filtrar por usuario creador
+    [Display(Name = "Motivo Eliminación")]
+    [StringLength(500)]
+    public string? MotivoEliminacion { get; set; }
+
+    [NotMapped]
+    [Display(Name = "Días Restantes")]
+    public int DiasRestantes 
+    { 
+        get 
+        {
+            var dias = (FechaExpiracion - DateTime.Now).Days;
+            return dias > 0 ? dias : 0;
+        }
+    }
+
+    [NotMapped]
+    [Display(Name = "Próximo a Expirar")]
+    public bool ProximoAExpirar 
+    { 
+        get 
+        {
+            return DiasRestantes <= 30 && DiasRestantes > 0 && Estado == "Activo";
+        }
+    }
+
+    [NotMapped]
+    [Display(Name = "Expirado")]
+    public bool Expirado 
+    { 
+        get 
+        {
+            return FechaExpiracion < DateTime.Now && Estado == "Activo";
+        }
+    }
+
     [Required]
     [Display(Name = "Usuario Creación")]
     public string UsuarioCreacionId { get; set; } = string.Empty;
 
-    // 🔹 MARCAR como No Mapeada (solo para compatibilidad temporal)
     [NotMapped]
     public int? BeneficiarioId { get; set; }
     
     [NotMapped]
     public Beneficiario? Beneficiario { get; set; }
 
-    // 🔹 RELACIÓN NUEVA muchos-a-muchos
+    // RELACIÓN NUEVA muchos-a-muchos
     public virtual ICollection<Beneficiario> Beneficiarios { get; set; } = new List<Beneficiario>();
+
+
+    [NotMapped]
+    [Display(Name = "Estado General")]
+    public string EstadoGeneral
+    {
+        get
+        {
+            if (Eliminado) return "Eliminado";
+            if (Expirado) return "Expirado";
+            if (ProximoAExpirar) return "Por Expirar";
+            return Estado;
+        }
+    }
 }

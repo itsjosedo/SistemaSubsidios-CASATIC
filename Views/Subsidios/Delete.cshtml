@@ -139,6 +139,42 @@
                         </div>
                     </div>
 
+                    <!-- 🔹 NUEVA SECCIÓN: Motivo de eliminación -->
+                    <div class="card mb-4 border-warning">
+                        <div class="card-header bg-warning text-white">
+                            <h6 class="m-0 font-weight-bold">
+                                <i class="fas fa-comment-dots me-2"></i>Motivo de eliminación (requerido para auditoría)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label for="motivoEliminacion" class="form-label fw-bold">
+                                    <i class="fas fa-notes-medical me-1"></i>Explique el motivo de la eliminación
+                                </label>
+                                <textarea class="form-control" id="motivoEliminacion" name="motivoEliminacion" 
+                                          rows="4" placeholder="Describa detalladamente por qué está eliminando este subsidio. Ejemplo: 'Subsidio duplicado', 'Datos incorrectos', 'Beneficiario ya no aplica', 'Error en asignación', etc." 
+                                          required></textarea>
+                                <small class="text-muted">Este motivo quedará registrado permanentemente en el historial de auditoría del sistema.</small>
+                                <div class="invalid-feedback">Debe ingresar el motivo de la eliminación.</div>
+                            </div>
+                            
+                            <div class="alert alert-info border-0">
+                                <h6 class="alert-heading mb-2">
+                                    <i class="fas fa-shield-alt me-2"></i>Importancia del registro de auditoría
+                                </h6>
+                                <p class="mb-0 small">
+                                    Este registro es requerido para cumplir con normativas gubernamentales y permite:
+                                    <ul class="mb-0 small">
+                                        <li>Trazabilidad de todas las operaciones</li>
+                                        <li>Recuperación de datos en caso de auditoría</li>
+                                        <li>Análisis histórico de subsidios</li>
+                                        <li>Cumplimiento de normativas de transparencia</li>
+                                    </ul>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Información del beneficiario -->
                     @if (Model.Beneficiario != null)
                     {
@@ -168,21 +204,22 @@
                     }
 
                     <!-- Advertencias importantes -->
-                    <div class="alert alert-warning border-0">
+                    <div class="alert alert-danger border-0">
                         <h6 class="alert-heading">
-                            <i class="fas fa-ban me-2"></i>Esta acción no se puede deshacer
+                            <i class="fas fa-ban me-2"></i>Esta acción es irreversible
                         </h6>
                         <ul class="mb-0">
-                            <li>El subsidio será eliminado permanentemente</li>
-                            <li>No podrá recuperar esta información</li>
-                            <li>Se perderán todos los datos asociados</li>
-                            <li>Esta acción es irreversible</li>
+                            <li>El subsidio será marcado como "eliminado" (borrado lógico)</li>
+                            <li>El motivo ingresado quedará registrado permanentemente</li>
+                            <li>Solo administradores podrán ver el historial de eliminados</li>
+                            <li>La información NO se borra físicamente (para auditoría)</li>
                         </ul>
                     </div>
 
                     <!-- Formulario de eliminación -->
                     <form asp-action="Delete" method="post" id="deleteForm">
                         <input type="hidden" asp-for="Id" />
+                        <input type="hidden" name="motivoEliminacion" id="motivoHidden" />
                         
                         <div class="d-flex justify-content-between mt-4 pt-3 border-top">
                             <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary btn-icon-split">
@@ -191,11 +228,11 @@
                                 </span>
                                 <span class="text">Cancelar</span>
                             </a>
-                            <button type="submit" class="btn btn-danger btn-icon-split" id="deleteBtn">
+                            <button type="button" class="btn btn-danger btn-icon-split" id="deleteBtn" onclick="validateAndSubmit()">
                                 <span class="icon text-white-50">
                                     <i class="fas fa-trash-alt"></i>
                                 </span>
-                                <span class="text">Eliminar permanentemente</span>
+                                <span class="text">Confirmar eliminación</span>
                             </button>
                         </div>
                     </form>
@@ -234,7 +271,7 @@
                             <h6 class="text-info">
                                 <i class="fas fa-archive me-2"></i>Cambiar estado
                             </h6>
-                            <p class="small text-muted mb-2">Puede marcar el subsidio como "Finalizado" en lugar de eliminarlo.</p>
+                            <p class="small text-muted mb-2">Puede marcar el subsidio como "Finalizado" o "Inactivo" en lugar de eliminarlo.</p>
                             <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-info btn-sm">
                                 <i class="fas fa-toggle-on me-1"></i>Cambiar estado
                             </a>
@@ -247,6 +284,47 @@
                             <p class="small text-muted mb-2">Verifique toda la información antes de proceder con la eliminación.</p>
                             <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-success btn-sm">
                                 <i class="fas fa-eye me-1"></i>Ver detalles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información sobre borrado lógico -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-info">
+                    <h6 class="m-0 font-weight-bold text-white">
+                        <i class="fas fa-database me-2"></i>¿Qué es el "borrado lógico"?
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <p class="text-muted mb-3">Este sistema utiliza <strong>borrado lógico</strong> (soft delete) para preservar la información:</p>
+                        
+                        <div class="features">
+                            <div class="feature-item mb-2">
+                                <i class="fas fa-history text-info me-2"></i>
+                                <span class="text-muted">La información NO se borra físicamente</span>
+                            </div>
+                            <div class="feature-item mb-2">
+                                <i class="fas fa-user-shield text-info me-2"></i>
+                                <span class="text-muted">Queda registro de quién, cuándo y por qué eliminó</span>
+                            </div>
+                            <div class="feature-item mb-2">
+                                <i class="fas fa-undo text-info me-2"></i>
+                                <span class="text-muted">Los administradores pueden restaurar si es necesario</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-chart-bar text-info me-2"></i>
+                                <span class="text-muted">Los datos siguen disponibles para reportes históricos</span>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="text-center">
+                            <a asp-action="Eliminados" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-trash-restore me-1"></i>Ver historial de eliminados
                             </a>
                         </div>
                     </div>
@@ -287,27 +365,64 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteForm = document.getElementById('deleteForm');
+        function validateAndSubmit() {
+            const motivo = document.getElementById('motivoEliminacion');
+            const motivoHidden = document.getElementById('motivoHidden');
             const deleteBtn = document.getElementById('deleteBtn');
-
-            deleteForm.addEventListener('submit', function(e) {
-                // Confirmación adicional
-                const isConfirmed = confirm('¿ESTÁ ABSOLUTAMENTE SEGURO?\n\nEsta acción ELIMINARÁ PERMANENTEMENTE el subsidio "' + '@Model.NombrePrograma' + '".\n\nEsta operación NO se puede deshacer.');
-                
-                if (!isConfirmed) {
+            
+            // Validar que el motivo no esté vacío
+            if (!motivo.value.trim()) {
+                motivo.classList.add('is-invalid');
+                motivo.focus();
+                alert('Debe ingresar el motivo de la eliminación para proceder.');
+                return false;
+            }
+            
+            // Confirmación adicional
+            const isConfirmed = confirm('¿ESTÁ ABSOLUTAMENTE SEGURO?\n\n' +
+                'Esta acción ELIMINARÁ el subsidio: "' + '@Model.NombrePrograma' + '"\n\n' +
+                'Motivo registrado: "' + motivo.value.substring(0, 100) + '..."\n\n' +
+                'Esta operación quedará registrada en el historial de auditoría.');
+            
+            if (!isConfirmed) {
+                return false;
+            }
+            
+            // Copiar el motivo al campo hidden (por si acaso)
+            motivoHidden.value = motivo.value;
+            
+            // Cambiar texto del botón durante el envío
+            deleteBtn.innerHTML = `
+                <span class="icon text-white-50">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+                <span class="text">Procesando...</span>
+            `;
+            deleteBtn.disabled = true;
+            
+            // Enviar el formulario
+            document.getElementById('deleteForm').submit();
+            return true;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const motivo = document.getElementById('motivoEliminacion');
+            
+            // Remover validación cuando el usuario empiece a escribir
+            motivo.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+            
+            // Validar al hacer submit por Enter (prevención)
+            document.getElementById('deleteForm').addEventListener('submit', function(e) {
+                if (!motivo.value.trim()) {
                     e.preventDefault();
+                    motivo.classList.add('is-invalid');
+                    alert('Debe ingresar el motivo de la eliminación.');
                     return false;
                 }
-
-                // Cambiar texto del botón durante el envío
-                deleteBtn.innerHTML = `
-                    <span class="icon text-white-50">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </span>
-                    <span class="text">Eliminando...</span>
-                `;
-                deleteBtn.disabled = true;
             });
         });
     </script>
@@ -330,6 +445,10 @@
     .card-header.bg-warning {
         background: linear-gradient(45deg, #f6c23e, #dda20a) !important;
     }
+    
+    .card-header.bg-info {
+        background: linear-gradient(45deg, #36b9cc, #258391) !important;
+    }
 
     .alternative-item {
         transition: all 0.3s ease;
@@ -344,12 +463,25 @@
         padding: 0.375rem 1rem;
     }
 
-    .contact-item {
+    .contact-item,
+    .feature-item {
         display: flex;
         align-items: center;
     }
+    
+    /* Estilo para el textarea del motivo */
+    #motivoEliminacion {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    /* Estilo para elementos con íconos */
+    .feature-item i,
+    .contact-item i {
+        width: 20px;
+        text-align: center;
+    }
 </style>
-}
 
 @functions {
     // Función para obtener las iniciales del nombre
