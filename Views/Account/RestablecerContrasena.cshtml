@@ -2,54 +2,62 @@
     ViewData["Title"] = "Restablecer";
     Layout = ViewBag.Layout ?? "_Layout";
 }
+
 @section Styles {
     <link rel="stylesheet" href="~/css/Login.css" asp-append-version="true" />
 }
+
 <div class="login-body">
     <div class="login-container">
         <div class="login-card">
             <div class="login-card-header">
                 <h2>Restablecer contraseña</h2>
             </div>
+
             <div class="login-card-body">
-                <form asp-controller="Account" asp-action="RestablecerContrasena" method="post" autocomplete="off">   
+
+                <form asp-controller="Account" asp-action="RestablecerContrasena" method="post" autocomplete="off">
+
+                    <input type="hidden" name="correo" value="@ViewBag.Correo" />
+
+                    <!-- NUEVA CONTRASEÑA -->
                     <div class="mb-4">
                         <label for="contrasena" class="form-label login-form-label">Nueva contraseña</label>
                         <div class="input-group">
                             <span class="input-group-text login-input-group-text">
                                 <i class="fas fa-lock"></i>
                             </span>
-                            
-                            <input type="password" id="contrasena" name="contrasena" class="form-control login-form-control" 
-                                   placeholder="Ingrese su nueva contraseña" required 
-                                   autocomplete="new-password" />
-                            <span class="login-password-toggle" onclick="togglePassword('contrasena')">
-                                <i class="fas fa-eye" id="toggleIconContrasena"></i>
+
+                            <input type="password" id="contrasena" name="contrasena"
+                                class="form-control login-form-control" placeholder="Ingrese su nueva contraseña"
+                                required />
+
+                            <span class="login-password-toggle" onclick="togglePassword('contrasena', 'icon1')">
+                                <i class="fas fa-eye" id="icon1"></i>
                             </span>
                         </div>
                     </div>
-                    
+
+                    <!-- Aca se confirma la contrasena -->
                     <div class="mb-4">
-                        <label for="confirmarContrasena" class="form-label login-form-label">Confirmar contraseña</label>
+                        <label for="confirmarContrasena" class="form-label login-form-label">Confirmar
+                            contraseña</label>
                         <div class="input-group">
                             <span class="input-group-text login-input-group-text">
                                 <i class="fas fa-lock"></i>
                             </span>
-                           
-                            <input type="password" id="confirmarContrasena" name="confirmarContrasena" class="form-control login-form-control" 
-                                   placeholder="Confirme su contraseña" required 
-                                   autocomplete="new-password" />
-                            <span class="login-password-toggle" onclick="togglePassword('confirmarContrasena')">
-                                <i class="fas fa-eye" id="toggleIconConfirmar"></i>
+
+                            <input type="password" id="confirmarContrasena" name="confirmarContrasena"
+                                class="form-control login-form-control" placeholder="Confirme su contraseña" required />
+
+                            <span class="login-password-toggle"
+                                onclick="togglePassword('confirmarContrasena', 'icon2')">
+                                <i class="fas fa-eye" id="icon2"></i>
                             </span>
                         </div>
                     </div>
-                    
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-login text-white">
-                            <i class=""></i>Restablecer contraseña
-                        </button>
-                    </div>
+
+                    <button type="submit" class="btn btn-login text-white w-100">Restablecer contraseña</button>
                 </form>
 
                 @if (ViewBag.ErrorMessage != null)
@@ -58,13 +66,30 @@
                         <i class="fas fa-exclamation-circle me-2"></i>@ViewBag.ErrorMessage
                     </div>
                 }
-      
-                <div class="text-center">
-                    <p class="mb-0">
-                        <a asp-controller="Account" asp-action="Login" class="login-register-link">Volver atras</a>
-                    </p>
+
+                <div class="text-center mt-3">
+                    <a asp-controller="Account" asp-action="Login" class="login-register-link">Volver atrás</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    </script>
+}

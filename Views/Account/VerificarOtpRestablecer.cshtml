@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "Verificar Código";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%; border-radius: 15px;">
+
+        <div class="text-center mb-3">
+            <i class="fas fa-shield-alt text-primary" style="font-size: 45px;"></i>
+            <h3 class="mt-2">Verificar Código</h3>
+            <p class="text-muted">
+                Ingresa el código enviado a:<br />
+                <strong>@ViewBag.Correo</strong>
+            </p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger text-center p-2">
+                <i class="fas fa-times-circle"></i> @ViewBag.Error
+            </div>
+        }
+
+        <form method="post" class="mt-3">
+            <input type="hidden" name="correo" value="@ViewBag.Correo" />
+
+            <div class="mb-3">
+                <label class="form-label">Código OTP</label>
+                <input type="text" name="codigo" class="form-control text-center" maxlength="6" placeholder="••••••"
+                    required style="letter-spacing: 5px; font-size: 22px; font-weight: bold;" />
+            </div>
+
+            <button class="btn btn-primary w-100 py-2">
+                <i class="fas fa-check-circle me-1"></i> Confirmar
+            </button>
+        </form>
+
+        <form method="post" asp-action="ReenviarOtp" class="text-center mt-3">
+            <input type="hidden" name="correo" value="@ViewBag.Correo" />
+            <button class="btn btn-link text-decoration-none">
+                <i class="fas fa-sync-alt me-1"></i> Reenviar código
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">

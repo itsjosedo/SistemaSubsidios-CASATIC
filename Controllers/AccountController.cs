@@ -175,9 +175,26 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return View();
             }
 
-            var existe = await _db.Usuarios.AnyAsync(u => u.Correo == correo);
-            if (existe)
+            var usuarioExistente = await _db.Usuarios.FirstOrDefaultAsync(u => u.Correo == correo);
+
+            if (usuarioExistente != null)
             {
+                //Si ya existe Ppero está en estado pendiente reenviar OTP
+                if (usuarioExistente.Estado == "pendiente")
+                {
+                    var codigo = _otp.Generar(correo);
+
+                    await _email.EnviarCorreo(
+                        correo,
+                        "Código de verificación",
+                        EmailTemplates.OtpTemplate(codigo.Codigo)
+                    );
+
+                    TempData["MensajeInfo"] = "Tu registro estaba pendiente. Hemos reenviado un nuevo código de verificación.";
+                    return RedirectToAction("VerificarOtp", "Account", new { correo });
+                }
+
+                //Si está activo si bloquear el registro
                 ViewBag.ErrorMessage = "Este correo ya está registrado.";
                 return View();
             }
@@ -278,18 +295,94 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return View();
             }
 
-            return View();
+            //Genarar OTP
+            var resultado = _otp.Generar(correo);
+
+            //Enviar OTP al correo
+            await _email.EnviarCorreo(
+                correo,
+                "Código de verificación",
+                EmailTemplates.OtpTemplate(resultado.Codigo)
+            );
+
+            return RedirectToAction("VerificarOtpRestablecer", "Account", new { correo });
         }
+        //Metodos de envio de otp para restablecer la contrasena
         [HttpGet]
-        public IActionResult RestablecerContrasena()
+        public IActionResult VerificarOtpRestablecer(string correo)
         {
+            ViewBag.Correo = correo;
             return View();
         }
+
         [HttpPost]
-        public async Task<IActionResult> RestablecerContrasena(string correo, string nuevaContrasena)
+        public async Task<IActionResult> VerificarOtpRestablecer(string correo, string codigo)
         {
+            if (_otp.Validar(correo, codigo))
+            {
+                TempData["MensajeExito"] = "Correo verificado correctamente.";
+                return RedirectToAction("RestablecerContrasena", new { correo });
+            }
+
+            ViewBag.Error = "Código incorrecto o expirado";
+            ViewBag.Correo = correo;
             return View();
         }
+
+        [HttpGet]
+        public IActionResult RestablecerContrasena(string correo)
+        {
+            ViewBag.Correo = correo;
+            return View();
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> RestablecerContrasena(string correo, string contrasena, string confirmarContrasena)
+        {
+            // Validar que los campos no estén vacíos
+            if (string.IsNullOrWhiteSpace(contrasena) || string.IsNullOrWhiteSpace(confirmarContrasena))
+            {
+                ViewBag.ErrorMessage = "Todos los campos son obligatorios.";
+                ViewBag.Correo = correo;
+                return View();
+            }
+
+            // Validación de seguridad de la contraseña
+            var regexPassword = new Regex(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$");
+
+            if (!regexPassword.IsMatch(contrasena))
+            {
+                ViewBag.ErrorMessage = "La contraseña debe tener mínimo 8 caracteres, una mayúscula, un número y un carácter especial.";
+                ViewBag.Correo = correo;
+                return View();
+            }
+
+            // Confirmar contraseñas
+            if (contrasena != confirmarContrasena)
+            {
+                ViewBag.ErrorMessage = "Las contraseñas no coinciden.";
+                ViewBag.Correo = correo;
+                return View();
+            }
+
+            // Buscar usuario
+            var usuario = await _db.Usuarios.FirstOrDefaultAsync(u => u.Correo == correo);
+
+            if (usuario == null)
+            {
+                ViewBag.ErrorMessage = "El correo no existe.";
+                return View();
+            }
+
+            // Guardar la nueva contraseña encriptada
+            usuario.Contrasena = AuthHelper.Hash(contrasena);
+            await _db.SaveChangesAsync();
+
+            TempData["MensajeExito"] = "Tu contraseña se cambió exitosamente.";
+            return RedirectToAction("Login");
+        }
+
 
     }
 }
