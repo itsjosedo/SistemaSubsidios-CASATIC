@@ -82,3 +82,10 @@ html, body {
         font-size: 1rem;
     }
 }
+
+.features-grid {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 20px;
+    flex-wrap: wrap;
+}
