@@ -87,3 +87,18 @@
         </table>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Este script intercepta el envío del formulario para mostrar "Procesando..."
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var btn = this.querySelector('button[type="submit"]');
+            
+            // Cambia el texto y agrega un spinner de Bootstrap
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+            
+            // Deshabilita el botón para evitar múltiples envíos
+            btn.disabled = true; 
+        });
+    </script>
+}
