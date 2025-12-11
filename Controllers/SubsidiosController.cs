@@ -516,43 +516,43 @@ public async Task<IActionResult> Details(int id)
         }
 
         // POST: Subsidios/LimpiarHistorialAntiguo
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrador,admin")]
-        public async Task<IActionResult> LimpiarHistorialAntiguo()
+[HttpPost]
+[ValidateAntiForgeryToken]
+[Authorize(Roles = "Administrador,admin")]
+public async Task<IActionResult> LimpiarHistorialAntiguo()
+{
+    try
+    {
+        var fechaLimite = DateTime.Now.AddYears(-1); // Más de 1 año
+        
+        var subsidiosAntiguos = await _context.Subsidios
+            .Include(s => s.Beneficiarios)
+            .Where(s => s.Eliminado && 
+                   s.FechaEliminacion.HasValue && 
+                   s.FechaEliminacion.Value < fechaLimite)
+            .ToListAsync();
+
+        int eliminadosCount = 0;
+        
+        foreach (var subsidio in subsidiosAntiguos)
         {
-            try
-            {
-                var fechaLimite = DateTime.Now.AddYears(-1); // Más de 1 año
-                
-                var subsidiosAntiguos = await _context.Subsidios
-                    .Include(s => s.Beneficiarios)
-                    .Where(s => s.Eliminado && 
-                           s.FechaEliminacion.HasValue && 
-                           s.FechaEliminacion.Value < fechaLimite)
-                    .ToListAsync();
-
-                int eliminadosCount = 0;
-                
-                foreach (var subsidio in subsidiosAntiguos)
-                {
-                    subsidio.Beneficiarios.Clear();
-                    _context.Subsidios.Remove(subsidio);
-                    eliminadosCount++;
-                }
-
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = $"Se eliminaron permanentemente {eliminadosCount} subsidios del historial (más de 1 año)";
-                return RedirectToAction(nameof(Eliminados));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al limpiar historial antiguo");
-                TempData["ErrorMessage"] = "Error al limpiar historial: " + ex.Message;
-                return RedirectToAction(nameof(Eliminados));
-            }
+            subsidio.Beneficiarios.Clear();
+            _context.Subsidios.Remove(subsidio);
+            eliminadosCount++;
         }
+
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = $"Se eliminaron permanentemente {eliminadosCount} subsidios del historial (más de 1 año)";
+        return RedirectToAction(nameof(Eliminados));
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error al limpiar historial antiguo");
+        TempData["ErrorMessage"] = "Error al limpiar historial: " + ex.Message;
+        return RedirectToAction(nameof(Eliminados));
+    }
+}
 
         // GET: Subsidios/Reporte
         public async Task<IActionResult> Reporte()
