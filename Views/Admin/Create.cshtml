@@ -72,34 +72,18 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-building me-1 text-muted"></i>Entidad
+                            <label asp-for="EntidadId" class="form-label fw-semibold">
+                                <i class="fas fa-building me-1 text-muted"></i>Entidad asignada *
                             </label>
-                            @if (ViewBag.HayEntidades == true)
-                            {
-                                <select asp-for="EntidadId" asp-items="ViewBag.Entidades" class="form-select">
-                                    <option value="">-- Seleccione una entidad (opcional) --</option>
-                                </select>
-                            }
-                            else
-                            {
-                                <div class="alert alert-info py-2 mb-2">
-                                    <small class="d-flex align-items-center">
-                                        <i class="fas fa-info-circle me-2"></i>
-                                        No hay entidades configuradas - Campo opcional
-                                    </small>
-                                </div>
-                                <select class="form-select" disabled>
-                                    <option>-- No hay entidades disponibles --</option>
-                                </select>
-                            }
-                            <div class="validation-message">
-                                <span asp-validation-for="EntidadId" class="text-danger"></span>
-                            </div>
-                            <small class="form-text text-muted">Seleccione la entidad a la que pertenece (opcional)</small>
+                            <select asp-for="EntidadId" asp-items="ViewBag.Entidades" class="form-select">
+                                <option value="">-- Seleccione una entidad --</option>
+                             </select>
+                        <div class="validation-message">
+                            <span asp-validation-for="EntidadId" class="text-danger"></span>
                         </div>
-                    </div>
-
+                            <small class="form-text text-muted">Seleccione la entidad a la que pertenece el usuario</small>
+                            </div>
+                            
                     <div class="mb-3">
                         <label asp-for="Direccion" class="form-label fw-semibold">
                             <i class="fas fa-map-marker-alt me-1 text-muted"></i>Dirección completa *
