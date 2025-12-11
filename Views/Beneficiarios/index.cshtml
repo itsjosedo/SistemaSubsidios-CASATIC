@@ -131,7 +131,7 @@
                                             <p class="mb-1"><strong>Fecha:</strong> @s.FechaAsignacion.ToString("dd/MM/yyyy")</p>
                                             <span class="badge badge-custom bg-@(s.Estado == "Aprobado" ? "success" : s.Estado == "Pendiente" ? "warning text-dark" : "danger")">@s.Estado</span>
                                             <div class="text-end mt-2">
-                                                <a asp-controller="Subsidios" asp-action="Detalles" asp-route-id="@s.Id"
+                                                <a asp-controller="Subsidios" asp-action="DetallesSubsidios" asp-route-id="@s.Id"
                                                    class="btn btn-outline-primary btn-sm">
                                                     <i class="fas fa-info-circle"></i> Detalles
                                                 </a>

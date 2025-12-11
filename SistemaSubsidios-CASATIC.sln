@@ -22,3 +22,28 @@ Global
 		SolutionGuid = {CA1BB769-E5B3-409A-BBFF-97F9283B08F6}
 	EndGlobalSection
 EndGlobal
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SistemaSubsidios", "SistemaSubsidios.csproj", "{73C6A480-1E3E-D6AE-FF9A-FC92620AD28F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{73C6A480-1E3E-D6AE-FF9A-FC92620AD28F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73C6A480-1E3E-D6AE-FF9A-FC92620AD28F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73C6A480-1E3E-D6AE-FF9A-FC92620AD28F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73C6A480-1E3E-D6AE-FF9A-FC92620AD28F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2E34B768-C0FE-4BFA-B404-FB9488AE369A}
+	EndGlobalSection
+EndGlobal
