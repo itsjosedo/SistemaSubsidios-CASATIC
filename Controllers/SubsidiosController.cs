@@ -150,6 +150,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Subsidio model)
         {
+            ModelState.Remove("UsuarioCreacionId");
             ModelState.Remove("BeneficiarioId");
             ModelState.Remove("Beneficiario");
 
