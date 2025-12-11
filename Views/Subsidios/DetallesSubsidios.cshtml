@@ -1,0 +1,63 @@
+@model Subsidio
+
+@{
+    ViewData["Title"] = "Detalles del Subsidio";
+}
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>
+                        Detalles del Subsidio
+                    </h4>
+                </div>
+
+                <div class="card-body">
+
+                    <p><strong>Entidad:</strong> @ViewBag.EntidadCreadora</p>
+
+                    <p><strong>Programa:</strong> @Model.NombrePrograma</p>
+
+                    <p><strong>Tipo de Subsidio:</strong> @Model.Tipo</p>
+
+                    <p><strong>Monto:</strong> $@Model.Monto.ToString("N2")</p>
+
+                    <p><strong>Fecha de Asignación:</strong> 
+                        @Model.FechaAsignacion.ToString("dd/MM/yyyy")
+                    </p>
+
+                    <p><strong>Fecha de Expiración:</strong> 
+                        @Model.FechaExpiracion.ToString("dd/MM/yyyy")
+                    </p>
+
+                    <p><strong>Estado:</strong>
+                        <span class="badge bg-@(Model.EstadoGeneral == "Activo" ? "success" :
+                                                   Model.EstadoGeneral == "Por Expirar" ? "warning" :
+                                                   Model.EstadoGeneral == "Expirado" ? "danger" : "secondary")">
+
+                            @Model.EstadoGeneral
+                        </span>
+                    </p>
+
+                </div>
+
+                <div class="card-footer text-end bg-light">
+                    <a href="/Beneficiarios/Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Volver
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<link rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+

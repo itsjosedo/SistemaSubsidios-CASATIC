@@ -25,7 +25,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Index()
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario(); 
+            var rolUsuario = GetRolUsuario();
 
             IQueryable<Subsidio> subsidiosQuery = _context.Subsidios
                 .Include(s => s.Beneficiarios)
@@ -57,12 +57,12 @@ namespace SistemaSubsidios_CASATIC.Controllers
             {
                 var tieneSubsidios = _context.Subsidios.Any(s => s.UsuarioCreacionId == userId.Value.ToString() && !s.Eliminado);
                 ViewBag.TieneSubsidios = tieneSubsidios;
-                ViewBag.UserId = userId.Value.ToString(); 
+                ViewBag.UserId = userId.Value.ToString();
             }
             else
             {
                 ViewBag.TieneSubsidios = true;
-                ViewBag.UserId = "0"; 
+                ViewBag.UserId = "0";
             }
 
             return View();
@@ -78,7 +78,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             // Remover validación de propiedades
             ModelState.Remove("BeneficiarioId");
             ModelState.Remove("Beneficiario");
-            ModelState.Remove("UsuarioCreacionId"); 
+            ModelState.Remove("UsuarioCreacionId");
 
             if (!ModelState.IsValid)
             {
@@ -128,7 +128,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario(); 
+            var rolUsuario = GetRolUsuario();
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id && !s.Eliminado); // 🔹 Solo si no está eliminado
@@ -161,7 +161,7 @@ namespace SistemaSubsidios_CASATIC.Controllers
             try
             {
                 var userId = GetUserId();
-                var rolUsuario = GetRolUsuario(); 
+                var rolUsuario = GetRolUsuario();
                 var subsidioExistente = await _context.Subsidios
                     .Include(s => s.Beneficiarios)
                     .FirstOrDefaultAsync(s => s.Id == model.Id && !s.Eliminado);
@@ -198,47 +198,65 @@ namespace SistemaSubsidios_CASATIC.Controllers
                 return View(model);
             }
         }
+        //Metodo para mostar los detalles de cada subsdio asigano al beneficiario
+        public async Task<IActionResult> DetallesSubsidios(int id)
+        {
+            var subsidio = await _context.Subsidios
+            .Include(s => s.Beneficiarios) // ✔ Sí está mapeado
+            .FirstOrDefaultAsync(s => s.Id == id);
 
-      // GET: Subsidios/Details/5
-public async Task<IActionResult> Details(int id)
-{
-    var userId = GetUserId();
-    var rolUsuario = GetRolUsuario(); 
-    
-    // 🔹 QUITAR EL FILTRO de Eliminado
-    var subsidio = await _context.Subsidios
-        .Include(s => s.Beneficiarios)
-        .FirstOrDefaultAsync(s => s.Id == id);  // Sin .Where(s => !s.Eliminado)
+            if (subsidio == null)
+                return NotFound();
 
-    if (subsidio == null) return NotFound();
+            // Obtener el usuario creador
+            var usuarioCreador = await _context.Usuarios
+                .Include(u => u.Entidad)
+                .FirstOrDefaultAsync(u => u.Id_Usuario.ToString() == subsidio.UsuarioCreacionId);
 
-    // Verificar permisos
-    if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
-    {
-        TempData["ErrorMessage"] = "No tiene permisos para ver este subsidio";
-        return RedirectToAction(nameof(Index));
-    }
+            ViewBag.EntidadCreadora = usuarioCreador?.Entidad?.Nombre ?? "No asignada";
 
-    // 🔹 Pasar TODA la información sobre eliminación
-    ViewBag.EstaEliminado = subsidio.Eliminado;
-    
-    // 🔹 CRÍTICO: Pasar las propiedades específicas de eliminación
-    if (subsidio.Eliminado)
-    {
-        ViewBag.MotivoEliminacion = subsidio.MotivoEliminacion;
-        ViewBag.FechaEliminacion = subsidio.FechaEliminacion;
-        ViewBag.UsuarioEliminacionId = subsidio.UsuarioEliminacionId;
-    }
-    
-    return View(subsidio);
-}
+            return View(subsidio);
+        }
+        // GET: Subsidios/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var userId = GetUserId();
+            var rolUsuario = GetRolUsuario();
+
+            // 🔹 QUITAR EL FILTRO de Eliminado
+            var subsidio = await _context.Subsidios
+                .Include(s => s.Beneficiarios)
+                .FirstOrDefaultAsync(s => s.Id == id);  // Sin .Where(s => !s.Eliminado)
+
+            if (subsidio == null) return NotFound();
+
+            // Verificar permisos
+            if (rolUsuario?.ToLower() == "entidad" && userId.HasValue && subsidio.UsuarioCreacionId != userId.Value.ToString())
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para ver este subsidio";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // 🔹 Pasar TODA la información sobre eliminación
+            ViewBag.EstaEliminado = subsidio.Eliminado;
+
+            // 🔹 CRÍTICO: Pasar las propiedades específicas de eliminación
+            if (subsidio.Eliminado)
+            {
+                ViewBag.MotivoEliminacion = subsidio.MotivoEliminacion;
+                ViewBag.FechaEliminacion = subsidio.FechaEliminacion;
+                ViewBag.UsuarioEliminacionId = subsidio.UsuarioEliminacionId;
+            }
+
+            return View(subsidio);
+        }
 
         // GET: Subsidios/Renovar/5
         public async Task<IActionResult> Renovar(int id)
         {
             var userId = GetUserId();
             var rolUsuario = GetRolUsuario();
-            
+
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id && !s.Eliminado); // 🔹 Solo si no está eliminado
@@ -265,7 +283,7 @@ public async Task<IActionResult> Details(int id)
 
             // Calcular fecha sugerida de expiración
             ViewBag.FechaSugeridaExpiracion = CalcularFechaSugeridaRenovacion(subsidio);
-            
+
             return View(subsidio);
         }
 
@@ -278,7 +296,7 @@ public async Task<IActionResult> Details(int id)
             {
                 var userId = GetUserId();
                 var rolUsuario = GetRolUsuario();
-                
+
                 var subsidio = await _context.Subsidios
                     .FirstOrDefaultAsync(s => s.Id == id && !s.Eliminado); // 🔹 Solo si no está eliminado
 
@@ -331,7 +349,7 @@ public async Task<IActionResult> Details(int id)
         public async Task<IActionResult> Delete(int id)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario(); 
+            var rolUsuario = GetRolUsuario();
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id && !s.Eliminado); // 🔹 Solo si no está eliminado
@@ -356,7 +374,7 @@ public async Task<IActionResult> Details(int id)
             try
             {
                 var userId = GetUserId();
-                var rolUsuario = GetRolUsuario(); 
+                var rolUsuario = GetRolUsuario();
                 var subsidio = await _context.Subsidios
                     .Include(s => s.Beneficiarios)
                     .FirstOrDefaultAsync(s => s.Id == id);
@@ -417,7 +435,7 @@ public async Task<IActionResult> Details(int id)
             ViewData["Title"] = "Subsidios Eliminados";
             ViewBag.TotalEliminados = subsidiosEliminados.Count;
             ViewBag.EsEntidad = rolUsuario?.ToLower() == "entidad";
-            
+
             return View(subsidiosEliminados);
         }
 
@@ -431,7 +449,7 @@ public async Task<IActionResult> Details(int id)
             {
                 var userId = GetUserId();
                 var rolUsuario = GetRolUsuario();
-                
+
                 var subsidio = await _context.Subsidios.FindAsync(id);
                 if (subsidio == null)
                 {
@@ -498,7 +516,7 @@ public async Task<IActionResult> Details(int id)
                 }
 
                 var nombreSubsidio = subsidio.NombrePrograma;
-                
+
                 // 🔹 ELIMINACIÓN FÍSICA (solo para administradores)
                 subsidio.Beneficiarios.Clear();
                 _context.Subsidios.Remove(subsidio);
@@ -516,43 +534,43 @@ public async Task<IActionResult> Details(int id)
         }
 
         // POST: Subsidios/LimpiarHistorialAntiguo
-[HttpPost]
-[ValidateAntiForgeryToken]
-[Authorize(Roles = "Administrador,admin")]
-public async Task<IActionResult> LimpiarHistorialAntiguo()
-{
-    try
-    {
-        var fechaLimite = DateTime.Now.AddYears(-1); // Más de 1 año
-        
-        var subsidiosAntiguos = await _context.Subsidios
-            .Include(s => s.Beneficiarios)
-            .Where(s => s.Eliminado && 
-                   s.FechaEliminacion.HasValue && 
-                   s.FechaEliminacion.Value < fechaLimite)
-            .ToListAsync();
-
-        int eliminadosCount = 0;
-        
-        foreach (var subsidio in subsidiosAntiguos)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador,admin")]
+        public async Task<IActionResult> LimpiarHistorialAntiguo()
         {
-            subsidio.Beneficiarios.Clear();
-            _context.Subsidios.Remove(subsidio);
-            eliminadosCount++;
+            try
+            {
+                var fechaLimite = DateTime.Now.AddYears(-1); // Más de 1 año
+
+                var subsidiosAntiguos = await _context.Subsidios
+                    .Include(s => s.Beneficiarios)
+                    .Where(s => s.Eliminado &&
+                           s.FechaEliminacion.HasValue &&
+                           s.FechaEliminacion.Value < fechaLimite)
+                    .ToListAsync();
+
+                int eliminadosCount = 0;
+
+                foreach (var subsidio in subsidiosAntiguos)
+                {
+                    subsidio.Beneficiarios.Clear();
+                    _context.Subsidios.Remove(subsidio);
+                    eliminadosCount++;
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Se eliminaron permanentemente {eliminadosCount} subsidios del historial (más de 1 año)";
+                return RedirectToAction(nameof(Eliminados));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al limpiar historial antiguo");
+                TempData["ErrorMessage"] = "Error al limpiar historial: " + ex.Message;
+                return RedirectToAction(nameof(Eliminados));
+            }
         }
-
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = $"Se eliminaron permanentemente {eliminadosCount} subsidios del historial (más de 1 año)";
-        return RedirectToAction(nameof(Eliminados));
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error al limpiar historial antiguo");
-        TempData["ErrorMessage"] = "Error al limpiar historial: " + ex.Message;
-        return RedirectToAction(nameof(Eliminados));
-    }
-}
 
         // GET: Subsidios/Reporte
         public async Task<IActionResult> Reporte()
@@ -575,7 +593,7 @@ public async Task<IActionResult> LimpiarHistorialAntiguo()
         public async Task<IActionResult> Activos()
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario(); 
+            var rolUsuario = GetRolUsuario();
 
             if (userId == null)
             {
@@ -598,7 +616,7 @@ public async Task<IActionResult> LimpiarHistorialAntiguo()
                 .ToListAsync();
 
             ViewData["Title"] = "Subsidios Activos de Mi Entidad";
-            ViewBag.EsEntidad = rolUsuario?.ToLower() == "entidad"; 
+            ViewBag.EsEntidad = rolUsuario?.ToLower() == "entidad";
             return View(subsidiosActivos);
         }
 
@@ -622,12 +640,12 @@ public async Task<IActionResult> LimpiarHistorialAntiguo()
         }
 
         // MÉTODOS PARA ASIGNACIÓN MÚLTIPLE DE BENEFICIARIOS
-    
+
         // GET: Subsidios/GestionarBeneficiarios/5
         public async Task<IActionResult> GestionarBeneficiarios(int id)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario();  
+            var rolUsuario = GetRolUsuario();
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id && !s.Eliminado); // 🔹 Solo si no está eliminado
@@ -665,7 +683,7 @@ public async Task<IActionResult> LimpiarHistorialAntiguo()
             try
             {
                 var userId = GetUserId();
-                var rolUsuario = GetRolUsuario();  
+                var rolUsuario = GetRolUsuario();
                 var subsidio = await _context.Subsidios
                     .Include(s => s.Beneficiarios)
                     .FirstOrDefaultAsync(s => s.Id == id && !s.Eliminado);
@@ -714,7 +732,7 @@ public async Task<IActionResult> LimpiarHistorialAntiguo()
         public async Task<IActionResult> QuitarBeneficiario(int id, int beneficiarioId)
         {
             var userId = GetUserId();
-            var rolUsuario = GetRolUsuario(); 
+            var rolUsuario = GetRolUsuario();
             var subsidio = await _context.Subsidios
                 .Include(s => s.Beneficiarios)
                 .FirstOrDefaultAsync(s => s.Id == id && !s.Eliminado);
@@ -751,7 +769,7 @@ public async Task<IActionResult> LimpiarHistorialAntiguo()
             try
             {
                 var userId = GetUserId();
-                var rolUsuario = GetRolUsuario(); 
+                var rolUsuario = GetRolUsuario();
                 var subsidio = await _context.Subsidios
                     .Include(s => s.Beneficiarios)
                     .FirstOrDefaultAsync(s => s.Id == id && !s.Eliminado);
