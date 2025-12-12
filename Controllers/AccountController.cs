@@ -17,11 +17,14 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
         private readonly AppDbContext _db;
 
-        public AccountController(AppDbContext db, EmailService email, OtpService otp)
+        private readonly LogService _log;
+
+        public AccountController(AppDbContext db, EmailService email, OtpService otp, LogService log)
         {
             _db = db;
             _email = email;
             _otp = otp;
+            _log = log;
         }
 
         [HttpGet]
@@ -96,6 +99,8 @@ namespace SistemaSubsidios_CASATIC.Controllers
             var principal = new ClaimsPrincipal(identity);
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            await _log.Registrar(usuarioId: usuario.Id_Usuario,accion: "Inicio de sesión");
+
 
 
             var rolNormalizado = usuario.Rol?.Trim() ?? "";
@@ -212,6 +217,9 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             _db.Usuarios.Add(nuevoUsuario);
             await _db.SaveChangesAsync();
+
+            await _log.Registrar(usuarioId: nuevoUsuario.Id_Usuario,accion: "Registro de usuario",datos: $"Correo: {correo}");
+
 
             //Genarar OTP
             var resultado = _otp.Generar(correo);

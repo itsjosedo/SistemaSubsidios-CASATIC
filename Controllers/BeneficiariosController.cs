@@ -14,11 +14,13 @@ namespace SistemaSubsidios_CASATIC.Controllers
     {
         private readonly AppDbContext _context;
         private readonly ILogger<BeneficiariosController> _logger;
+        private readonly LogService _log;
 
-        public BeneficiariosController(AppDbContext context, ILogger<BeneficiariosController> logger)
+        public BeneficiariosController(AppDbContext context, ILogger<BeneficiariosController> logger, LogService log)
         {
             _context = context;
             _logger = logger;
+            _log = log;
         }
 
         public async Task<IActionResult> Index()
@@ -211,6 +213,10 @@ namespace SistemaSubsidios_CASATIC.Controllers
 
             beneficiario.Telefono = model.Telefono?.Trim();
             beneficiario.Direccion = model.Direccion?.Trim();
+            
+            await _log.Registrar(usuarioId: beneficiario.UsuarioId, accion: "Actualización de perfil",
+            datos: $"Teléfono: {beneficiario.Telefono}, Dirección: {beneficiario.Direccion}"
+);
 
             await _context.SaveChangesAsync();
             TempData["MensajeExito"] = "Perfil actualizado correctamente.";

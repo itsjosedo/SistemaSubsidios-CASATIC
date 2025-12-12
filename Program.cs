@@ -57,6 +57,10 @@ builder.Services.AddTransient<EmailService>();
 // 🔥 OtpService DEBE ser Singleton para que no olvide los códigos generados
 builder.Services.AddSingleton<OtpService>(); 
 
+//Servicio de logs
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<LogService>();
+
 // ==========================================
 // 4. CONFIGURACIÓN MVC Y JSON
 // ==========================================
@@ -86,6 +90,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+
 
 app.UseRouting();
 

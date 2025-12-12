@@ -9,6 +9,8 @@ public class AppDbContext : DbContext
     public DbSet<Beneficiario> Beneficiarios { get; set; }
     public DbSet<Subsidio> Subsidios { get; set; }
     public DbSet<Notificacion> Notificaciones { get; set; }
+    public DbSet<Log> Logs { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
 {
