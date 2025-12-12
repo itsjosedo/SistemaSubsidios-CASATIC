@@ -223,11 +223,13 @@
                                                data-bs-toggle="tooltip" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                    data-bs-toggle="tooltip" title="Eliminar"
-                                                    onclick="confirmDelete(@item.Id_Beneficiario, '@item.Nombre')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <a asp-controller="Admin" asp-action="Delete" 
+   asp-route-id="@item.Id_Beneficiario"
+   class="btn btn-sm btn-outline-danger" 
+   data-bs-toggle="tooltip" title="Eliminar"
+   onclick="return confirm('¿Eliminar a @item.Nombre?')">
+    <i class="fas fa-trash"></i>
+</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -326,10 +328,12 @@
                                                 </a>
                                             </div>
                                             <div class="col-6">
-                                                <button type="button" class="btn btn-danger btn-sm w-100" 
-                                                        onclick="confirmDelete(@item.Id_Beneficiario, '@item.Nombre')">
-                                                    <i class="fas fa-trash me-1"></i>Eliminar
-                                                </button>
+                                                <a asp-controller="Admin" asp-action="Delete" 
+   asp-route-id="@item.Id_Beneficiario"
+   class="btn btn-danger btn-sm w-100" 
+   onclick="return confirm('¿Eliminar a @item.Nombre?')">
+    <i class="fas fa-trash me-1"></i>Eliminar
+</a>
                                             </div>
                                         </div>
                                     </div>
@@ -382,31 +386,6 @@
     </div>
 </div>
 
-<!-- Modal de confirmación para eliminar -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar eliminación
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>¿Está seguro que desea eliminar al beneficiario <strong id="beneficiarioName"></strong>?</p>
-                <p class="text-danger small mb-0">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Esta acción no se puede deshacer.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
     <script>
         // Inicializar tooltips
@@ -447,21 +426,6 @@
                     if (chevron) chevron.classList.remove('rotate-180');
                 });
             });
-        });
-
-        // Confirmación de eliminación
-        let deleteId = null;
-        
-        function confirmDelete(id, name) {
-            deleteId = id;
-            document.getElementById('beneficiarioName').textContent = name;
-            new bootstrap.Modal(document.getElementById('deleteModal')).show();
-        }
-
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (deleteId) {
-                window.location.href = '@Url.Action("Delete", "Admin", new { id = "__id__" })'.replace('__id__', deleteId);
-            }
         });
     </script>
     
